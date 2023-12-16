@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest2 extends FormRequest
+class ComputerUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,13 @@ class LoginRequest2 extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "dataComputer.name" => ["required"],
+            "dataComputer.ram" => ["required"],
+            "dataComputer.ports" => ["nullable", "array"],
+            "dataComputer.ports.*.name" => ["required"],
+            "dataComputer.ports.*.amount" => ["required", "numeric"],
+            "dataComputer.programs" => ["nullable", "array"],
+            "dataComputer.programs.*" => ["required", "numeric", "exists:programs,id"],
         ];
     }
 }

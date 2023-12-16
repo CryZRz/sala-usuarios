@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
             $table->foreignId("student_id")->constrained()->onDelete("cascade");
-            $table->unsignedBigInteger("equipment_id");
-            $table->foreign("equipment_id")->references("id")->on("equipments");
+            $table->foreignId("computer_id")->constrained()->onDelete("cascade");
             $table->foreignId("application_id")->constrained()->onDelete("cascade");
             $table->boolean("status");
             $table->time("timeAssigment");

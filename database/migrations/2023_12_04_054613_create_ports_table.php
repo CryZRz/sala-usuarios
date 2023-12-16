@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('ports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('equipment_id');
-            $table->foreign("equipment_id")->references("id")->on("equipments");
+            $table->foreignId("computer_id")->constrained()->onDelete("cascade");
             $table->string("type", 100);
             $table->integer("amount");
             $table->timestamps();

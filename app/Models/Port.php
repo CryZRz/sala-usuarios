@@ -11,6 +11,7 @@ class Port extends Model
 
     protected $fillable = [
         "type",
-        "amount"
+        "amount",
+        "computer_id"
     ];
 }

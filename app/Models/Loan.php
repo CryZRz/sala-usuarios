@@ -11,8 +11,7 @@ class Loan extends Model
 
     protected $fillable = [
         "student_id",
-        "equipment_id",
-        "equipment_id",
+        "computer_id",
         "application_id",
         "status",
         "timeAssigment",

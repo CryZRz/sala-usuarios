@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programs_equipment', function (Blueprint $table) {
+        Schema::create('programs_computer', function (Blueprint $table) {
             $table->id();
             $table->foreignId("program_id")->constrained()->onDelete("cascade");
-            $table->unsignedBigInteger("equipment_id");
-            $table->foreign("equipment_id")->references("id")->on("equipments");
+            $table->foreignId("computer_id")->constrained()->onDelete("cascade");
             $table->timestamps();
         });
     }

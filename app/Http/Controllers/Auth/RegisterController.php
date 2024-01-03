@@ -15,7 +15,7 @@ class RegisterController extends Controller
         return view("auth.register");
     }
 
-    public function store(LoginRequest $request) {
+    public function store(RegisterRequest $request) {
         $data = $request->validated();
         
         $user = User::create([
@@ -24,8 +24,10 @@ class RegisterController extends Controller
             "password" => $data["password"]
         ]);
         if (auth()->attempt(["email" => $data["email"], "password" => $data["password"]])) {
-            return redirect("/home", 200);
+            return redirect()->route("home");
         }
-        return redirect("/login")->with("errors", "ocurrio un error al intentar registrarse");
+        return redirect()
+                ->route("register.show")
+                ->with("errors", "ocurrio un error al intentar registrarse");
     }
 }

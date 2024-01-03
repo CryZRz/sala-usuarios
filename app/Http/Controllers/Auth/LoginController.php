@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -18,12 +17,16 @@ class LoginController extends Controller
         $data = $request->validated();
 
         if (!auth()->attempt($data)) {
-            return redirect("/login")->with("erros", "Email o contraseña incorrectos");
+            return redirect()
+                    ->route("login.show")
+                    ->with("error", "Email o contraseña incorrectos");
         }
-        return redirect("/inicio");
+        return redirect()->route("home");
     }
 
     public function destroy(Request $request) {
         auth()->logout();
+
+        return redirect()->route("home");
     }
 }

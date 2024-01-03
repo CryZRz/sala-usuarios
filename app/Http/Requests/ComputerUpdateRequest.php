@@ -31,4 +31,13 @@ class ComputerUpdateRequest extends FormRequest
             "dataComputer.programs.*" => ["required", "numeric", "exists:programs,id"],
         ];
     }
+
+    public function messages(): array {
+        return [
+            "dataComputer.name" => "El cpu del equipo es obligatorio",
+            "dataComputer.ram" => "La ram del equipo es obligatoria",
+            "dataComputer.ports.*.name" => "El nombre del puerto es obligatorio",
+            "dataComputer.ports.*.amount" => "La cantidad del puerto es obligatoria",
+        ];
+    }
 }

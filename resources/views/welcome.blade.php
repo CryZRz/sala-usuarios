@@ -7,6 +7,10 @@
     <title>Welcome</title>
 </head>
 <body>
-    inComing
+    <form action="{{route("login.destroy")}}" method="POST">
+        @csrf
+        @method("delete")
+        <button>Cerrar sesion</button>
+    </form>
 </body>
 </html>

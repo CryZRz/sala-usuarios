@@ -54,17 +54,20 @@ class ComputerController extends Controller
         return response(null, 203);
     }
 
-    public function edit(Computer $computer) {
+    public function programsComputer(Computer $computer) {
         $programs = ProgramComputer::where("computer_id", $computer->id)
             ->get()
-            ->map(function($query) {
-                    return $query->program_id;
-        });
-        $listPrograms = Program::whereNotIn("id", $programs)->get();
-        
+            ->map(fn($query) => $query->program_id );
+
+        $listPrograms = Program::whereNotIn("id", $programs)
+            ->paginate(10);
+
+        return response()->json($listPrograms);
+    }
+
+    public function edit(Computer $computer) {
         $data = [
             "computer" => $computer,
-            "programsEditable" => $listPrograms
         ];
         
         return view("computer.edit", $data);
@@ -78,7 +81,7 @@ class ComputerController extends Controller
             return response(null, 203);
         }
 
-        return response("el prgrama no se encontro", 404);
+        return response("el programa no se encontro", 404);
     }
 
     public function updatePort(int $id, Request $request) {
@@ -133,6 +136,6 @@ class ComputerController extends Controller
     public function destroy(Computer $computer) {
         $computer->delete();
 
-        return redirect("/equipos");
+        return redirect()->route("computer.show");
     }
 }

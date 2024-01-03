@@ -33,4 +33,14 @@ class StudentRequest extends FormRequest
             "semester" => ["required", "numeric", "gt:0"]
         ];
     }
+
+    public function messages() : array {
+        return [
+            "name" => "El nombre es obligatorio",
+            "controlNumber" => "El numero de control no debe haberse registrado antes",
+            "lastName" => "Los apellidos son obligatorios",
+            "career" => "La carrera no es valida",
+            "semester" => "el semestre no debe ser negativo"
+        ];
+    }
 }

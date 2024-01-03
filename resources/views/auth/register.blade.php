@@ -16,6 +16,7 @@
         <label for="password">Contraseña</label>
         <input type="password" name="password" id="password" placeholder="Contraseña" required>
         <button>Enviar</button>
+        {{$errors}}
     </form>
 </body>
 </html>

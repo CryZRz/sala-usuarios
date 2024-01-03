@@ -23,12 +23,23 @@ class ComputerRequest extends FormRequest
     {
         return [
             "dataComputer.name" => ["required"],
-            "dataComputer.ram" => ["required"],
+            "dataComputer.ram" => ["required", "gt:0"],
             "dataComputer.ports" => ["required", "array"],
             "dataComputer.ports.*.name" => ["required"],
             "dataComputer.ports.*.amount" => ["required", "numeric"],
             "dataComputer.programs" => ["required", "array"],
             "dataComputer.programs.*" => ["required", "numeric", "exists:programs,id"],
+        ];
+    }
+
+    public function messages(): array {
+        return [
+            "dataComputer.name" => "El cpu del equipo es obligatorio",
+            "dataComputer.ram" => "La ram del equipo es obligatoria",
+            "dataComputer.ports" => "Debes agregar almenos un puerto",
+            "dataComputer.programs" => "Debes agregar almenos un programa",
+            "dataComputer.ports.*.name" => "El nombre del puerto es obligatorio",
+            "dataComputer.ports.*.amount" => "La cantidad del puerto es obligatoria",
         ];
     }
 }

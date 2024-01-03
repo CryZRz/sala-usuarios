@@ -38,7 +38,7 @@ class ProgramController extends Controller
             "version" => $request->get("version")
         ]);
 
-        return redirect("/programas");
+        return redirect()->route("program.show");
     }
 
     public function edit(Program $program) {
@@ -65,6 +65,6 @@ class ProgramController extends Controller
         $program->version = $version;
         $program->update();
 
-        return redirect("/programas");
+        return redirect()->route("program.show");
     }
 }

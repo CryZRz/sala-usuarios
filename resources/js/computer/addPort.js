@@ -37,14 +37,17 @@ export function addPortComputer(dataComputer){
         let inputType = document.createElement("input")
         inputType.setAttribute("type", "text")
         inputType.setAttribute("placeholder", "Tipo de puerto (USB, HDMI)")
+        inputType.className = "col-lg-5 col-12 p-1 mb-2"
 
         let inputAmount = document.createElement("input")
         inputAmount.setAttribute("type", "number")
         inputAmount.setAttribute("placeholder", "Cantidad")
+        inputAmount.className = "col-lg-5 col-12 p-1 mb-2"
 
         let btnRemove = document.createElement("button");
         btnRemove.textContent = "Eliminar"
         btnRemove.setAttribute("id", `${counterPorts}`)
+        btnRemove.setAttribute("class", "btn btn-danger p-1 col-lg-1 col-12 mb-2")
 
         btnRemove.addEventListener("click", e => {
             e.preventDefault()

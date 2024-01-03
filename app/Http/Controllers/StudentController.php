@@ -6,7 +6,6 @@ use App\Http\Requests\StudentRequest;
 use App\Http\Requests\StudentUpdateRequest;
 use App\Http\Utils\CareersE;
 use App\Models\Student;
-use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
@@ -20,7 +19,13 @@ class StudentController extends Controller
     }
 
     public function show() {
-        return view("student.show");
+        $careers = CareersE::getCareers();
+        
+        $data = [
+            "careers" => $careers
+        ];
+
+        return view("student.show", $data);
     }
 
     public function store(StudentRequest $request) {
@@ -34,7 +39,7 @@ class StudentController extends Controller
             "semester" => $data["semester"],
         ]);
 
-        return redirect("/estudiantes");
+        return redirect()->route("student.showAll");
     }
 
     public function update(Student $student, StudentUpdateRequest $request) {
@@ -48,7 +53,7 @@ class StudentController extends Controller
             "semester" => $data["semester"],
         ]);
     
-        return redirect("/estudiantes");
+        return redirect()->route("student.showAll");
     }
 
     public function edit(Student $student) {
@@ -62,6 +67,6 @@ class StudentController extends Controller
 
     public function destroy(Student $student) {
         $student->delete();
-        return redirect("/estudiantes");
+        return redirect()->route("student.showAll");
     }
 }

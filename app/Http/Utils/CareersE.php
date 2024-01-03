@@ -11,7 +11,6 @@ enum CareersE: string {
     case ITICS = "Ingeniería en TICS";
 
     public static function getCareers(): array {
-        $arr = array_map(fn($item) => $item->value, CareersE::cases());
-        return $arr;
+        return array_map(fn($item) => $item->value, CareersE::cases());
     }
 }

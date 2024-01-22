@@ -1,0 +1,10 @@
+@import "listSizes.scss";
+
+@each $name, $size in $listSizes{
+    .w-#{$name}{
+        width: $size;
+    }
+    .h-#{$name}{
+        height: $size;
+    }
+}

@@ -4,6 +4,7 @@ import { fetchMorePogramsAvailable } from "./fetchMorePrograms"
 import { addButtonLoadPorgrams, renderListPrograms } from "./program"
 import ShowLoading from "../utils/showLoading"
 import { showMessage } from "../utils/showMessages"
+import {showErrors} from "../utils/showError.js";
 
 let dataComputer = {
     ram: 0,
@@ -41,6 +42,8 @@ async function sendDataComputer(){
         window.location.reload()
     } catch (e) {
         loading.offLoading()
+        const listErrors = Object.values(e.response.data.errors)
+        showErrors(listErrors)
         console.log(e)
     }
 }
@@ -72,17 +75,17 @@ async function getListPorgramsAviable(){
         loading.onLoading()
         const listPrograms = await fetchMorePogramsAvailable(indexPageProgramsAvailable, idComputer)
         renderListPrograms(listPrograms, listProgramsAvailable, dataComputer)
-        
+
         if(listPrograms.data.next_page_url != null){
             addButtonLoadPorgrams(
-                btnShowMorePrograms, 
-                programAviableCallback, 
+                btnShowMorePrograms,
+                programAviableCallback,
             )
         }
         loading.offLoading()
     } catch (e) {
         loading.offLoading()
-        console.log(e)   
+        console.log(e)
     }
 }
 
@@ -158,7 +161,7 @@ async function removePort(id){
 function removeProgramsUI(programRemoveId){
     const listPorgramsComputer = document.querySelectorAll("#li-program-computer")
     const programs = Array.from(listPorgramsComputer).filter(p => p.getAttribute("program") != programRemoveId)
-    
+
     containerPorgramsComputer.replaceChildren(...programs)
 }
 

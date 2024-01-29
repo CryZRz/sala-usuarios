@@ -1,23 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+use Illuminate\Support\Facades\Route; 
 
 Route::get('/', function () {
-    return view('welcome');
-})->name("home");
+    return redirect()->route("login.show");
+})->middleware("guest");
 
-require __DIR__."/programs/index.php";
-require __DIR__."/computer/index.php";
-require __DIR__."/student/index.php";
-require __DIR__."/auth/index.php";
+Route::get('/', function () {
+    return redirect()->route("session.show");
+})->middleware("auth");
+
+require __DIR__ . "/programs/index.php";
+require __DIR__ . "/computer/index.php";
+require __DIR__ . "/student/index.php";
+require __DIR__ . "/session/index.php";
+require __DIR__ . "/auth/index.php";

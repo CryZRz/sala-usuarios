@@ -28,6 +28,6 @@ class RegisterController extends Controller
         }
         return redirect()
                 ->route("register.show")
-                ->with("errors", "ocurrio un error al intentar registrarse");
+                ->with("errors", "Ocurrió un error al intentar registrarse.");
     }
 }

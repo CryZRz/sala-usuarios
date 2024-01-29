@@ -21,12 +21,12 @@ class LoginController extends Controller
                     ->route("login.show")
                     ->with("error", "Email o contraseña incorrectos");
         }
-        return redirect()->route("home");
+        return redirect()->route("login.show");
     }
 
     public function destroy(Request $request) {
         auth()->logout();
 
-        return redirect()->route("home");
+        return redirect()->route("login.show");
     }
 }

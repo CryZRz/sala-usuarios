@@ -18,4 +18,6 @@ Route::middleware("auth")->group(function () {
     Route::get("/cargarEquiposUso", [PrestamosController::class, "cargarEquiposUso"])->name("session.loadComputersUse");
     Route::get("/cargarCarreras", [PrestamosController::class, "cargarCarreras"])->name("session.loadCareers");
     Route::post("/sesion", [PrestamosController::class, "registrarSesion"])->name("session.store");
+    Route::post("/sesion/tiempos", [PrestamosController::class, "actualizarTiempos"])->name("session.changeTimes");
+    Route::post("/sesion/tiempo", [PrestamosController::class, "actualizarTiempo"])->name("session.changeTime");
 });

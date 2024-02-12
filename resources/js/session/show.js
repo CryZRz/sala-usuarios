@@ -1,6 +1,6 @@
 
 $(document).ready(function () {
-    //Al reasignar equipo mediante un botón individual en la tabla de sesiones.  
+    //Al reasignar equipo mediante un botón individual en la tabla de sesiones.
     const formReasignarIndiv = $("#formReasignarIndividual");
     const selectEquipoReasignarIndiv = $("#equipoReasignadoIndividual");
     const btnConfirmarReasignarIndiv = document.getElementById("confirmarReasignarIndividual");
@@ -11,7 +11,7 @@ $(document).ready(function () {
         reasignarEquipo(selectEquipoReasignarIndiv, btnConfirmarReasignarIndiv, mensajeReasignarIndiv);
     });
 
-    //Al reasignar equipo mediante la barra de navegación o el botón general en el recuadro de opciones. 
+    //Al reasignar equipo mediante la barra de navegación o el botón general en el recuadro de opciones.
     const selectEquipoReasignarGen = $("#equipoReasignadoGeneral");
     const btnConfirmarReasignarGen = document.getElementById("confirmarReasignarGeneral");
     const mensajeReasignarGen = document.getElementById("msgReasignarGeneral");
@@ -23,7 +23,7 @@ $(document).ready(function () {
     /**
      * Configura el evento para reasignar el equipo de una sesión, en función de dónde se llame.
      * @param select El select en cuál listar los equipos disponibles.
-     * @param btnConfirmar El botón de envío del formulario. 
+     * @param btnConfirmar El botón de envío del formulario.
      * @param msj Mensaje para mostrar el estado de la operación.
      */
     function reasignarEquipo(select, btnConfirmar, msj) {
@@ -38,9 +38,10 @@ $(document).ready(function () {
                 url: '/cargarEquipos',
                 dataType: 'json',
                 success: function (data) {
+                    console.log(data)
                     if (data[0] != null) {
                         for (let i = 0; i < data.length; i++) {
-                            select.append('<option value="' + data[i] + '">' + data[i] + '</option>');
+                            select.append('<option value="' + data[i].id + '">' + data[i].id + '</option>');
                         }
                         btnConfirmar.disabled = false;
                         msj.innerText = "";
@@ -86,7 +87,7 @@ $(document).ready(function () {
                     success: function (data) {
                         if (data[0] != null) {
                             for (let i = 0; i < data.length; i++) {
-                                selectEquiposFin.append('<option value="' + data[i] + '">' + data[i] + '</option>');
+                                selectEquiposFin.append('<option value="' + data[i].id + '">' + data[i].id + '</option>');
                             }
                             btnFinGeneral.disabled = false;
                             msgFinGeneral.innerText = "";

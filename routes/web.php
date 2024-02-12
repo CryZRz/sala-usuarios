@@ -1,14 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route("login.show");
 })->middleware("guest");
-
-Route::get('/', function () {
-    return redirect()->route("session.show");
-})->middleware("auth");
 
 require __DIR__ . "/programs/index.php";
 require __DIR__ . "/computer/index.php";

@@ -2,48 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Utils\CareersE;
 use App\Models\Application;
 use App\Models\Computer;
 use App\Models\Loan;
 use App\Models\Student;
-use DateInterval;
 use DateTime;
 use Illuminate\Http\Request;
 
 class PrestamosController extends Controller
 {
-    public $sesionElegida;
-
     public function mostrarSesiones()
     {
         $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();
 
-        foreach ($sesiones as $sesion) {
-            //Detalles del alumno
-            $alumno = Student::where("controlNumber", $sesion->student_id)->first();
-            $sesion["nombreAlumno"] = $alumno["lastName"] . " " . $alumno["name"];
-            $sesion["numControl"] = $alumno["controlNumber"];
-            $sesion["carrera"] = $alumno["career"];
-            $sesion["semestre"] = $alumno["semester"];
-            //Nombre del uso
-            $uso = Application::where("id", $sesion["application_id"])->first();
-            $sesion["uso"] = $uso["name"];
-            //Quitar la fecha de los tiempos   
-            $horaInicio = new DateTime($sesion["startTime"]);
-            $sesion["horaInicio"] = $horaInicio->format("H:i");
-            $sesion["timeAssigment"] = substr($sesion["timeAssigment"], 0, -3);
-            $sesion["horaFin"] = $horaInicio->add(new DateInterval("PT" . str_replace(":", "H", $sesion["timeAssigment"]) . "M"))->format("H:i");
-        }
-        $info = [
+        $data = [
             "sesiones" => $sesiones
         ];
-        return view("session.show", $info);
+
+        return view("session.show", $data);
     }
 
     /**
-     * Reasignar mediante la navbar usa el núm. de control del alumno; 
+     * Reasignar mediante la navbar usa el núm. de control del alumno;
      * desde la tabla de sesiones usa el núm. de sesión.
      */
     public function reasignarEquipo(Request $request, $numSesion = null)
@@ -55,7 +36,8 @@ class PrestamosController extends Controller
             if (isset($numSesion)) {
                 $sesion = Loan::where("id", $numSesion)->first();
             } else {
-                $sesion = Loan::where("student_id", $request->numControl)->first();
+                $studiante = Student::where("controlNumber", $request->numControl)->first();
+                $sesion = Loan::where("student_id", $studiante->id)->first();
             }
             //Asignar el nuevo equipo a la sesión.
             $sesion->computer_id = $request->numEquipo;
@@ -65,7 +47,7 @@ class PrestamosController extends Controller
     }
 
     public function terminarSesion(Request $request, $numSesion = null)
-    { 
+    {
         //Si se llamó con el número de sesión (desde la tabla de sesiones)
         if (isset($numSesion)) {
             $sesion = Loan::where("id", $numSesion)->first();
@@ -79,7 +61,7 @@ class PrestamosController extends Controller
         //Si se encontró la sesión
         if(isset($sesion)){
             $sesion->delete();
-        } 
+        }
 
         return redirect(route("session.show"));
     }
@@ -95,30 +77,26 @@ class PrestamosController extends Controller
     }
     public function cargarEquipos()
     {
-        $equipos = Computer::all();
-        //Revisar cada equipo; que no estén en sesiones de préstamo activas
-        $disponibles = array();
-        foreach ($equipos as $equipo) {
-            $prestamo = Loan::where("computer_id", $equipo->id)->first();
-            if ($prestamo == null) {
-                array_push($disponibles, $equipo->id);
-            }
-        }
-        return $disponibles;
+        //Se necesita traer de las sesiones todas aquellas que aun no han terminado
+        $loansInUse = Loan::all()
+            ->map(fn($query) => $query->computer_id);
+
+        //Buscamos todas las computadoras que no esten en uso
+        $computers = Computer::whereNotIn("id", $loansInUse)->get();
+
+        return response()->json($computers);
     }
 
     public function cargarEquiposUso()
     {
-        $equipos = Computer::all();
-        //Revisar cada equipo; que no estén en sesiones de préstamo activas
-        $disponibles = array();
-        foreach ($equipos as $equipo) {
-            $prestamo = Loan::where("computer_id", $equipo->id)->first();
-            if ($prestamo != null) {
-                array_push($disponibles, $equipo->id);
-            }
-        }
-        return $disponibles;
+        //Se necesita traer de las sesiones todas aquellas que aun no han terminado
+        $loansInUse = Loan::all()
+            ->map(fn($query) => $query->computer_id);
+
+        //Buscamos todas las computadoras que esten en uso
+        $computers = Computer::whereIn("id", $loansInUse)->get();
+
+        return response()->json($computers);
     }
 
     public function cargarCarreras()
@@ -133,7 +111,7 @@ class PrestamosController extends Controller
         $resultado = $alumno;
         if ($alumno != null) {
             //Buscar si el estudiante tiene una sesión de préstamo activa
-            $prestamo = Loan::where(["student_id" => $numControl])->first();
+            $prestamo = Loan::where("student_id", $alumno->id)->first();
             if ($prestamo != null) {
                 $resultado['prestamo'] = $prestamo->computer_id;
             }
@@ -143,36 +121,67 @@ class PrestamosController extends Controller
 
     public function registrarSesion(Request $request)
     {
-        $sesion = new Loan();
         $registrado = $request->registrado;
+        $dataSesion = [
+            "student_id" => null,
+            "computer_id" => $request->equipo,
+            "application_id" => $request->uso,
+            "timeAssigment" => $request->tiempo
+        ];
         if (!$registrado) {
             $alumno = new Student();
-            $alumno->id = $request->numControl;
             $alumno->controlNumber = $request->numControl;
             $alumno->name = $request->nombre;
             $alumno->lastName = $request->apellidos;
             $alumno->career = $request->carrera;
             $alumno->semester = $request->semestre;
             $alumno->save();
+            $dataSesion["student_id"] = $alumno->id;
+            Loan::create($dataSesion);
+        }else{
+            $alumno = Student::where("controlNumber", $request->numControl)->first();
+            $dataSesion["student_id"] = $alumno->id;
+            Loan::create($dataSesion);
         }
-        $sesion->student_id = $request->numControl;
-        $sesion->computer_id = $request->equipo;
-        $sesion->application_id = $request->uso;
-        $sesion->timeAssigment = $request->tiempo;
-        $sesion->save();
+
         return redirect()->route("session.show");
     }
-    // public function cargarAlumno(Request $datosForm)
-    // {
-    //     $numControl = $datosForm -> numControl;
-    //     $prestamo = Loan::where(["student_id" => $numControl, "status" => 1])->get();
-    //     error_log($prestamo);
-    //     if ($prestamo->isNotEmpty()) { 
-    //         error_log("Hay una sesión activa para este alumno.");
-    //     } else {
-    //         error_log("wtf");
-    //     }
-    //     // $alumno = Student::find($numControl);
 
-    // }
+    public function actualizarTiempos(Request $request)
+    {
+        $this->validate($request, [
+            "listSessions" => ["array", "required"],
+            "listSessions.*.id" => ["required", "exists:loans,id"],
+            "dataComputer.*.time" => ["required"],
+        ]);
+
+        $listSessionToUpdate = $request->get("listSessions");
+
+        foreach ($listSessionToUpdate as $session){
+            $hours = $session["time"]["hours"];
+            $minutes = $session["time"]["minutes"];
+
+            $timeFormat = new DateTime("$hours:$minutes:00");
+            $loan = Loan::find($session["id"]);
+            $loan->timeAssigment = $timeFormat;
+            $loan->save();
+        }
+        return response(null, 204);
+    }
+
+    public function actualizarTiempo(Request $request)
+    {
+        $idSession = $request->get("idSession");
+        $session = Loan::find($idSession);
+        $time = $request->get("timeSession");
+
+        if ($session == null){
+            return response(404);
+        }
+
+        $session->timeAssigment = $time;
+        $session->save();
+
+        return redirect()->route("session.show");
+    }
 }

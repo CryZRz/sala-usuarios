@@ -4,8 +4,9 @@
     Sala de usuarios
 @endsection
 
-@section('vite') 
+@section('vite')
     @vite(['resources/js/session/show.js'])
+    @vite(['resources/js/session/counterManager.js'])
 @endsection
 
 @section('main')
@@ -46,12 +47,12 @@
                         @foreach ($sesiones as $sesion)
                             <tr>
                                 <td>{{ $indice = $loop->index + 1 }}</td>
-                                <td>{{ $sesion->computer_id }}</td>
-                                <td>{{ $sesion->student_id }}</td>
-                                <td>{{ $sesion->nombreAlumno }}</td>
-                                <td>{{ $sesion->horaInicio }}</td>
-                                <td>{{ $sesion->horaFin }}</td>
-                                <td>{{ $sesion->timeAssigment }}</td>
+                                <td>{{ $sesion->computer->id }}</td>
+                                <td>{{ $sesion->student->controlNumber }}</td>
+                                <td>{{ $sesion->student->name }}</td>
+                                <td>{{ $sesion->startTime }}</td>
+                                <td>{{ $sesion->endTime }}</td>
+                                <td id="timeAssigment" sessionId="{{$sesion->id}}">{{ $sesion->timeAssigment }}</td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
                                         <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100" data-bs-toggle="modal"
@@ -80,7 +81,7 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Número de equipo</td>
-                                                                    <td>{{ $sesion->computer_id }}</td>
+                                                                    <td>{{ $sesion->computer->id }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Tiempo asignado</td>
@@ -88,15 +89,15 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Hora de inicio</td>
-                                                                    <td>{{ $sesion->horaInicio }}</td>
+                                                                    <td>{{ $sesion->startTime }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Hora de fin</td>
-                                                                    <td>{{ $sesion->horaFin }}</td>
+                                                                    <td>{{ $sesion->endTime }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Uso</td>
-                                                                    <td>{{ $sesion->uso }}</td>
+                                                                    <td>{{ $sesion->application->name }}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -107,19 +108,19 @@
                                                             <tbody class="tablaEquitativa">
                                                                 <tr>
                                                                     <td>Número de control</td>
-                                                                    <td>{{ $sesion->student_id }}</td>
+                                                                    <td>{{ $sesion->student->controlNumber }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Nombre</td>
-                                                                    <td>{{ $sesion->nombreAlumno }}</td>
+                                                                    <td>{{ $sesion->student->name }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Carrera</td>
-                                                                    <td>{{ $sesion->carrera }}</td>
+                                                                    <td>{{ $sesion->student->career }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Semestre</td>
-                                                                    <td>{{ $sesion->semestre }}</td>
+                                                                    <td>{{ $sesion->student->semester }}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -208,6 +209,32 @@
                 </table>
             </div>
         </div>
+        <!--Modal extender session-->
+        <div class="modal fade" id="idOption" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Extender sesion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{route('session.changeTime')}}" method="POST">
+                            <section>
+                                @csrf
+                                <label class="fw-bold mb-1" for="Tiempo a asignar">Tiempo a asiganar</label>
+                                <input name="idSession" type="hidden" id="idExtenSession">
+                                <input name="timeSession" class="col-12" type="time">
+                                <input type="submit" class="btn btn-primary col-12 btn-sm mt-2" value="Enviar"></input>
+                            </section>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
             crossorigin="anonymous"></script>
     </main>

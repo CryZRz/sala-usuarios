@@ -72,8 +72,8 @@ $(document).ready(function () {
         success: function (data) {
             if (data[0] != null) {
                 for (let i = 0; i < data.length; i++) {
-                    $('#equipos').append('<option value="' + data[i] + '">' +
-                        data[i] + '</option>');
+                    $('#equipos').append('<option value="' + data[i].id + '">' +
+                        data[i].id + '</option>');
                 }
                 mensajeCarga.innerText = "";
             } else {
@@ -102,11 +102,12 @@ $(document).ready(function () {
             url: '/sesion/' + numControl.value,
             dataType: 'json',
             success: function (data) {
+                console.log(data)
                 if (data.name == null) {
                     /* Consulta vacía */
                     haySesionActiva = false;
                     registrado.value = 0;
-                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
+                    mensajeAlumno.innerText = 'El alumno no está registrado continúa manualmente.';
                     cambiarCampos(false); //Habilitar campos.
                     vaciarCampos();
                 } else {
@@ -148,7 +149,7 @@ $(document).ready(function () {
             nombre.disabled = deshabilitar;
             apellidos.disabled = deshabilitar;
             semestre.disabled = deshabilitar;
-            carrera.disabled = deshabilitar; 
+            carrera.disabled = deshabilitar;
         }
     });
 

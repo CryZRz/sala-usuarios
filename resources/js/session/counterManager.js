@@ -1,4 +1,4 @@
-import {getCSRF} from "../utils/SCRF.js";
+import { getCSRF } from "../utils/SCRF.js";
 
 const listCounters = document.querySelectorAll("#timeAssigment")
 const inputSessionExten = document.getElementById("idExtenSession")
@@ -18,12 +18,12 @@ listCounters.forEach(element => {
     })
 })
 
-function removeListSessions(id){
+function removeListSessions(id) {
     const listFilter = listCountersMaped.filter(session => session.id != id)
     listCountersMaped = listFilter
 }
 
-function addBtnExtenseSession(id){
+function addBtnExtenseSession(id) {
     let button = document.createElement("button")
     button.textContent = "Extender tiempo"
     button.className = "btn btn-sm btn-warning text-white fw-bold"
@@ -35,34 +35,39 @@ function addBtnExtenseSession(id){
     })
 
     listCounters.forEach(element => {
-        if (element.getAttribute("sessionId") === id){
+        if (element.getAttribute("sessionId") === id) {
             element.innerHTML = ""
             element.appendChild(button)
+            colorFinished(element)
         }
     })
 }
 
-function changeTimeSession(time, id){
-    if (time.hours <= 0 && time.minutes <= 0){
+function colorFinished(element) {
+    element.parentElement.classList.add("table-danger");
+}
+
+function changeTimeSession(time, id) {
+    if (time.hours <= 0 && time.minutes <= 0) {
         removeListSessions(id)
         return addBtnExtenseSession(id)
     }
-    let minutes = time.minutes-1
-    if (minutes < 0){
+    let minutes = time.minutes - 1
+    if (minutes < 0) {
         time.minutes = 59
-        time.hours = time.hours-1
-        if (time.hours < 0){
+        time.hours = time.hours - 1
+        if (time.hours < 0) {
             time.hours = 0
         }
-    }else{
-        time.minutes = time.minutes-1
+    } else {
+        time.minutes = time.minutes - 1
     }
 }
 
-function reloadUI(){
+function reloadUI() {
     listCountersMaped.map(session => {
         listCounters.forEach(element => {
-            if (session.id === element.getAttribute("sessionId")){
+            if (session.id === element.getAttribute("sessionId")) {
                 const time = session.time
                 element.textContent = `${time.hours}:${time.minutes}:${time.seconds}`
             }
@@ -70,24 +75,25 @@ function reloadUI(){
     })
 }
 
-async function sendChangeTime(){
+async function sendChangeTime() {
     try {
         const response = await axios.post("/sesion/tiempos",
             {
                 listSessions: listCountersMaped
             },
             {
-                headers: {"X-CSRF-Token": getCSRF()
+                headers: {
+                    "X-CSRF-Token": getCSRF()
                 }
-        })
+            })
         console.log(response)
-    }catch (e){
+    } catch (e) {
         console.log(e)
     }
 }
 
 async function main() {
-    if (listCountersMaped.length <= 0){
+    if (listCountersMaped.length <= 0) {
         return clearInterval(intervalManager)
     }
     listCountersMaped.forEach(session => {
@@ -98,7 +104,7 @@ async function main() {
     console.log(listCountersMaped)
 }
 
-if (listCounters.length >= 0){
-    intervalManager = setInterval(main, 6000);
+if (listCounters.length >= 0) {
+    intervalManager = setInterval(main, 60000);
 }
 

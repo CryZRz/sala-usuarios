@@ -12,50 +12,88 @@
 @section('main')
     <main>
         <!-- Menú desplegable de acciones-->
-        <div class=" container-fluid pt-2 pb-3">
-            <div class="d-flex justify-content-center">
-                <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
-                    <div class="d-inline-flex ">
-                        <a type="button" class="btn btn-sm btnNuevo me-3" href="{{ route('session.new') }}">Nueva sesión</a>
-                        <button type="button" class="btn btn-sm btnReasignar me-3" data-bs-toggle="modal"
-                            data-bs-target="#modalReasignarGeneral">Reasignar equipo</button>
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                            data-bs-target="#modalTerminar">Terminar sesión</button>
+        <div class="container-fluid my-3 d-flex justify-content-center">
+            <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
+                <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
+                    <a type="button" class="btn btn-sm btnNuevo lh-md fw-bold" href="{{ route('session.new') }}">Nueva
+                        sesión</a>
+                    <button type="button" class="btn btn-sm btnReasignar lh-md fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#modalReasignarGeneral">Reasignar equipo</button>
+                    <button type="button" class="btn btn-sm btn-secondary lh-md fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#modalTerminar">Terminar sesión</button>
+                    <button type="button" class="btn btn-sm btn-secondary lh-md fw-bold" id="btnTerminarMultiple"
+                        data-bs-toggle="modal" data-bs-target="#modalTerminarMultiple" disabled>
+                        Terminar seleccionadas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ventana emergente para el botón Terminar seleccionadas -->
+        <div class="modal fade" id="modalTerminarMultiple" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title titulo">Terminar sesiones</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        ¿Deseas finalizar las sesiones de préstamo seleccionadas?
+                    </div>
+                    <div class="modal-footer">
+                        <form id="formFinMultiple" method="POST" action=""
+                            data-ruta-fin-multiple="{{ route('session.destroyMany') }}">
+                            @csrf
+                            @method('delete')
+                            <button type="submit" class="btn btnNuevo">Finalizar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Regresar</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Recuadro de la tabla de sesiones de préstamo-->
-        <div class="container-fluid mx-auto">
-            <h4 class="titulo text-center">Sesiones de préstamo:</h4>
+        <div class="container-fluid mx-auto px-md-5">
+            <h4 class="titulo text-center">Sesiones de préstamo</h4>
             <div class="table-responsive">
                 <table class="table table-hover table-bordered sombraBasica">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
+                            <th><input class="form-check-input" id="checkGlobal" type="checkbox"></th>
                             <th>#</th>
                             <th>N° equipo</th>
-                            <th>N° control</th>
                             <th>Alumno</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Tiempo</th>
+                            <th>Horario</th>
+                            <th>Tiempo asignado</th>
+                            <th>Tiempo restante</th>
                             <th>Detalles</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($sesiones as $sesion)
                             <tr>
+                                <th><input class="form-check-input checkSesion" data-id-sesion="{{ $sesion->id }}"
+                                        type="checkbox"></th>
                                 <td>{{ $indice = $loop->index + 1 }}</td>
                                 <td>{{ $sesion->computer->id }}</td>
-                                <td>{{ $sesion->student->controlNumber }}</td>
-                                <td>{{ $sesion->student->name }}</td>
-                                <td>{{ $sesion->startTime }}</td>
-                                <td>{{ $sesion->endTime }}</td>
-                                <td id="timeAssigment" sessionId="{{$sesion->id}}">{{ $sesion->timeAssigment }}</td>
+                                <td>{{ $sesion->student->controlNumber .
+                                    ' - ' .
+                                    ($sesion->nombreCompleto = $sesion->student->lastName . ' ' . $sesion->student->name) }}
+                                </td>
+                                <td>{{ $sesion->horario =
+                                    $sesion->startTime->format('H:i') .
+                                    ' - ' .
+                                    $sesion->startTime->add(
+                                            new DateInterval(
+                                                'PT' . str_replace(':', 'H', $sesion->timeAssigment = substr($sesion->timeAssigment, 0, -3)) . 'M',
+                                            ),
+                                        )->format('H:i') }}
+                                </td>
+                                <td>{{ $sesion->timeAssigment }}</td>
+                                <td id="timeAssigment" sessionId="{{ $sesion->id }}">{{ $sesion->timeAssigment }}</td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
-                                        <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100" data-bs-toggle="modal"
+                                        <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
                                             data-bs-target="{{ '#infoAlumno' . $indice }}">
                                             Info.
                                         </a>
@@ -88,12 +126,8 @@
                                                                     <td>{{ $sesion->timeAssigment }}</td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td>Hora de inicio</td>
-                                                                    <td>{{ $sesion->startTime }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Hora de fin</td>
-                                                                    <td>{{ $sesion->endTime }}</td>
+                                                                    <td>Horario de sesión</td>
+                                                                    <td>{{ $sesion->horario }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Uso</td>
@@ -112,7 +146,7 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Nombre</td>
-                                                                    <td>{{ $sesion->student->name }}</td>
+                                                                    <td>{{ $sesion->nombreCompleto }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Carrera</td>
@@ -133,13 +167,13 @@
                                             </div>
                                         </div>
 
-                                        <a class="botonReasignar btn btnReasignar btn-sm me-1 p-0 p-md-1 w-100"
+                                        <a class="botonReasignar btn btnReasignar btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
                                             data-ruta-reasignar="{{ route('session.reassign', ['numSesion' => $sesion->id]) }}"
                                             data-bs-toggle="modal" data-bs-target="#infoReasignar">
                                             Reasignar
                                         </a>
 
-                                        <a class="botonFin btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100"
+                                        <a class="botonFin btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
                                             data-ruta-fin="{{ route('session.destroy', $sesion->id) }}"
                                             data-bs-toggle="modal" data-bs-target="#infoFin">
                                             Fin
@@ -214,14 +248,14 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Extender sesion</h5>
+                        <h5 class="modal-title">Extender sesión</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{route('session.changeTime')}}" method="POST">
+                        <form action="{{ route('session.changeTime') }}" method="POST">
                             <section>
                                 @csrf
-                                <label class="fw-bold mb-1" for="Tiempo a asignar">Tiempo a asiganar</label>
+                                <label class="fw-bold mb-1" for="Tiempo a asignar">Tiempo a asignar</label>
                                 <input name="idSession" type="hidden" id="idExtenSession">
                                 <input name="timeSession" class="col-12" type="time">
                                 <input type="submit" class="btn btn-primary col-12 btn-sm mt-2" value="Enviar"></input>

@@ -107,7 +107,7 @@ $(document).ready(function () {
                     /* Consulta vacía */
                     haySesionActiva = false;
                     registrado.value = 0;
-                    mensajeAlumno.innerText = 'El alumno no está registrado continúa manualmente.';
+                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
                     cambiarCampos(false); //Habilitar campos.
                     vaciarCampos();
                 } else {

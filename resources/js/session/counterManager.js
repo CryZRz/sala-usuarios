@@ -14,6 +14,11 @@ listCounters.forEach(element => {
             hours: date.getHours(),
             minutes: date.getMinutes(),
             seconds: date.getSeconds()
+        },
+        timeFormat: {
+            hours: date.getHours().toString(),
+            minutes: date.getMinutes().toString(),
+            seconds: date.getSeconds().toString()
         }
     })
 })
@@ -47,12 +52,31 @@ function colorFinished(element) {
     element.parentElement.classList.add("table-danger");
 }
 
-function changeTimeSession(time, id) {
+function checkFormat(timeFormat, time){
+    timeFormat.hours = time.hours.toString()
+    timeFormat.minutes = time.minutes.toString()
+    timeFormat.seconds = time.seconds.toString()
+
+    if (timeFormat.minutes.length == 1){
+        timeFormat.minutes = `0${time.minutes}`
+    }
+    if (timeFormat.hours.length == 1){
+        timeFormat.hours = `0${time.hours}`
+    }
+    if (timeFormat.seconds.length == 1){
+        timeFormat.seconds = `0${time.seconds}`
+    }
+}
+
+function changeTimeSession(time, id, timeFormat) {
     if (time.hours <= 0 && time.minutes <= 0) {
         removeListSessions(id)
         return addBtnExtenseSession(id)
     }
     let minutes = time.minutes - 1
+    if (minutes == 0 && time.seconds != 0){
+        time.seconds = 59
+    }
     if (minutes < 0) {
         time.minutes = 59
         time.hours = time.hours - 1
@@ -62,13 +86,15 @@ function changeTimeSession(time, id) {
     } else {
         time.minutes = time.minutes - 1
     }
+
+    checkFormat(timeFormat, time)
 }
 
 function reloadUI() {
     listCountersMaped.map(session => {
         listCounters.forEach(element => {
             if (session.id === element.getAttribute("sessionId")) {
-                const time = session.time
+                const time = session.timeFormat
                 element.textContent = `${time.hours}:${time.minutes}:${time.seconds}`
             }
         })
@@ -97,7 +123,7 @@ async function main() {
         return clearInterval(intervalManager)
     }
     listCountersMaped.forEach(session => {
-        changeTimeSession(session.time, session.id)
+        changeTimeSession(session.time, session.id, session.timeFormat)
     })
     await sendChangeTime()
     reloadUI()
@@ -105,6 +131,6 @@ async function main() {
 }
 
 if (listCounters.length >= 0) {
-    intervalManager = setInterval(main, 60000);
+    intervalManager = setInterval(main, 6000);
 }
 

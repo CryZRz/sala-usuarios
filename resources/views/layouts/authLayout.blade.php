@@ -58,12 +58,8 @@
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.show') ? 'active' : '' }}"
                                         href="{{ route('computer.show') }}">Todos los
                                         equipos</a></li>
-                                <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.show') ? 'active' : '' }}"
-                                        href="{{ route('computer.show') }}"">Equipos
-                                        disponibles</a></li>
-                                <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.show') ? 'active' : '' }}"
-                                        href="{{ route('computer.show') }}">Equipos
-                                        ocupados</a></li>
+                                <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.create') ? 'active' : '' }}"
+                                        href="{{ route('computer.create') }}">Nuevo equipo</a></li>
                             </ul>
                         </li>
                     </ul>

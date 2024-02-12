@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\Loan;
 use Illuminate\Http\Request;
 
 class LoginController extends Controller
@@ -25,6 +26,11 @@ class LoginController extends Controller
     }
 
     public function destroy(Request $request) {
+        //Cerrar todas las sesiones.
+        $prestamosActivos = Loan::all(); 
+        foreach ($prestamosActivos as $prestamo) {
+            $prestamo->delete();
+        }
         auth()->logout();
 
         return redirect()->route("login.show");

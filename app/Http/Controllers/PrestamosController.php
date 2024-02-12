@@ -59,10 +59,19 @@ class PrestamosController extends Controller
             }
         }
         //Si se encontró la sesión
-        if(isset($sesion)){
+        if (isset($sesion)) {
             $sesion->delete();
         }
 
+        return redirect(route("session.show"));
+    }
+
+    public function terminarMultiples($numsSesion)
+    {
+        $numsSesion = json_decode($numsSesion);
+        foreach ($numsSesion as $numSesion) {
+            Loan::find($numSesion)->delete();
+        }
         return redirect(route("session.show"));
     }
 
@@ -138,7 +147,7 @@ class PrestamosController extends Controller
             $alumno->save();
             $dataSesion["student_id"] = $alumno->id;
             Loan::create($dataSesion);
-        }else{
+        } else {
             $alumno = Student::where("controlNumber", $request->numControl)->first();
             $dataSesion["student_id"] = $alumno->id;
             Loan::create($dataSesion);
@@ -157,7 +166,7 @@ class PrestamosController extends Controller
 
         $listSessionToUpdate = $request->get("listSessions");
 
-        foreach ($listSessionToUpdate as $session){
+        foreach ($listSessionToUpdate as $session) {
             $hours = $session["time"]["hours"];
             $minutes = $session["time"]["minutes"];
 
@@ -175,7 +184,7 @@ class PrestamosController extends Controller
         $session = Loan::find($idSession);
         $time = $request->get("timeSession");
 
-        if ($session == null){
+        if ($session == null) {
             return response(404);
         }
 

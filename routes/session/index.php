@@ -10,6 +10,7 @@ Route::middleware("auth")->group(function () {
     //Reasignar equipo desde la barra de navegación incluye el núm. de sesión en el formulario.
     Route::post("/sesiones/{numSesion?}", [PrestamosController::class, "reasignarEquipo"])->name("session.reassign");
     Route::delete("/sesion/{numSesion?}", [PrestamosController::class, "terminarSesion"])->name("session.destroy");
+    Route::delete("/sesiones/{numsSesion?}", [PrestamosController::class, "terminarMultiples"])->name("session.destroyMany");
 
     //Creación de sesión
     Route::get("/sesion/{numControl}", [PrestamosController::class, "cargarAlumno"])->name("session.loadStudent");

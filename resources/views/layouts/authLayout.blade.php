@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/scss/app.scss', 'resources/scss/styles.scss', 'resources/js/app.js'])
+    @vite(['resources/scss/app.scss', 'resources/scss/styles.scss', 'resources/js/app.js', 'resources/js/session/navbarActions.js'])
     @yield('vite')
 </head>
 
@@ -75,14 +75,14 @@
                                 <i class="bi bi-person-circle fs-1"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="dropCuenta">
-                                <li><a class="btn btn-secondary rounded-0 w-100 p-2 mt-2 text-nowrap"
+                                <li><a class="btn btn-secondary btn-sm rounded-0 fw-bold w-100 p-1 mt-2 text-nowrap"
                                         data-bs-toggle="modal" data-bs-target="#avisoCambio">Cambiar contraseña</a>
                                 </li>
                                 <li>
                                     <form action="{{ route('login.destroy') }}" method="POST">
                                         @csrf
                                         @method('delete')
-                                        <input class="btn btn-danger rounded-0 w-100 p-2 mb-2" type="submit"
+                                        <input class="btn btn-danger btn-sm rounded-0 fw-bold w-100 p-1 mb-2" type="submit"
                                             value="Cerrar sesión">
                                     </form>
                                 </li>

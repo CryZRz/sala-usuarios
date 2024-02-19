@@ -15,7 +15,8 @@ class Loan extends Model
         "student_id",
         "computer_id",
         "application_id",
-        "timeAssigment"
+        "timeAssigment",
+        "created_by"
     ];
 
     public function student(){
@@ -28,6 +29,10 @@ class Loan extends Model
 
     public function application(){
         return $this->belongsTo(Application::class);
+    }
+
+    public function owner(){
+        return $this->belongsTo(User::class, "created_by", "id");
     }
 
     /**

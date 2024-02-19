@@ -27,7 +27,7 @@ class PrestamosController extends Controller
         $tiempoFin = date_create($horaFin);
         if ($horaActual >= $tiempoFin) {
             $tiempoRestante = "00:00:00";
-        } else { 
+        } else {
             $tiempoRestante = $tiempoFin->sub(new DateInterval('PT' . str_replace(':', 'H', $horaActual->format("H:i")) . 'M'))->format("H:i:s");
         }
         return $tiempoRestante;
@@ -156,7 +156,8 @@ class PrestamosController extends Controller
             "student_id" => null,
             "computer_id" => $request->equipo,
             "application_id" => $request->uso,
-            "timeAssigment" => $request->tiempo
+            "timeAssigment" => $request->tiempo,
+            "created_by" => auth()->user()->id
         ];
         if (!$registrado) {
             $alumno = new Student();

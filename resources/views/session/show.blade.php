@@ -88,7 +88,8 @@
                                 </td>
                                 <td>{{ $sesion->timeAssigment }}</td>
                                 <td id="timeAssigment" sessionId="{{ $sesion->id }}">
-                                    {{ $prestamos::calcularRestante($sesion->tiempos["horaFin"]) }}</td>
+                                    {{ $prestamos::calcularRestante($sesion->tiempos["horaFin"]) }}
+                                </td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
                                         <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
@@ -158,6 +159,21 @@
                                                                     <td>Semestre</td>
                                                                     <td>{{ $sesion->student->semester }}</td>
                                                                 </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <table class="table table-hover">
+                                                            <thead>
+                                                            <h5 class="titulo">Creado por:</h5>
+                                                            </thead>
+                                                            <tbody class="tablaEquitativa">
+                                                            <tr>
+                                                                <td>Nombre</td>
+                                                                <td>{{ $sesion->owner->name }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Email</td>
+                                                                <td>{{ $sesion->owner->email }}</td>
+                                                            </tr>
                                                             </tbody>
                                                         </table>
                                                     </div>

@@ -56,8 +56,7 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropEquipos">
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.show') ? 'active' : '' }}"
-                                        href="{{ route('computer.show') }}">Todos los
-                                        equipos</a></li>
+                                        href="{{ route('computer.show') }}">Ver equipos</a></li>
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.create') ? 'active' : '' }}"
                                         href="{{ route('computer.create') }}">Nuevo equipo</a></li>
                             </ul>

@@ -4,6 +4,8 @@
     Sala de usuarios
 @endsection
 
+@inject('prestamos', 'App\Http\Controllers\PrestamosController')
+
 @section('vite')
     @vite(['resources/js/session/show.js'])
     @vite(['resources/js/session/counterManager.js'])
@@ -80,17 +82,13 @@
                                     ' - ' .
                                     ($sesion->nombreCompleto = $sesion->student->lastName . ' ' . $sesion->student->name) }}
                                 </td>
-                                <td>{{ $sesion->horario =
-                                    $sesion->startTime->format('H:i') .
-                                    ' - ' .
-                                    $sesion->startTime->add(
-                                            new DateInterval(
-                                                'PT' . str_replace(':', 'H', $sesion->timeAssigment = substr($sesion->timeAssigment, 0, -3)) . 'M',
-                                            ),
-                                        )->format('H:i') }}
+                                <td>
+                                    @php($sesion->tiempos = $prestamos::calcularHorario($sesion->startTime, $sesion->timeAssigment))
+                                    {{ $sesion->tiempos["horario"] }}
                                 </td>
                                 <td>{{ $sesion->timeAssigment }}</td>
-                                <td id="timeAssigment" sessionId="{{ $sesion->id }}">{{ $sesion->timeAssigment }}</td>
+                                <td id="timeAssigment" sessionId="{{ $sesion->id }}">
+                                    {{ $prestamos::calcularRestante($sesion->tiempos["horaFin"]) }}</td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
                                         <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
@@ -127,7 +125,11 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Horario de sesión</td>
-                                                                    <td>{{ $sesion->horario }}</td>
+                                                                    <td>{{ $sesion->tiempos["horario"] }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Hora de fin</td>
+                                                                    <td>{{ $sesion->tiempos["horaFin"] }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Uso</td>

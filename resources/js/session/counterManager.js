@@ -6,7 +6,7 @@ let listCountersMaped = []
 let intervalManager = null
 
 listCounters.forEach(element => {
-    const date = new Date(`1970-01-01T${element.textContent}`)
+    const date = new Date(`1970-01-01T${element.textContent.trim()}`)
     const sessionId = element.getAttribute("sessionId")
     listCountersMaped.push({
         id: sessionId,
@@ -125,12 +125,12 @@ async function main() {
     listCountersMaped.forEach(session => {
         changeTimeSession(session.time, session.id, session.timeFormat)
     })
-    await sendChangeTime()
+    // await sendChangeTime()
     reloadUI()
     console.log(listCountersMaped)
 }
 
 if (listCounters.length >= 0) {
-    intervalManager = setInterval(main, 6000);
+    intervalManager = setInterval(main, 60000);
 }
 

@@ -7,11 +7,32 @@ use App\Models\Application;
 use App\Models\Computer;
 use App\Models\Loan;
 use App\Models\Student;
+use DateInterval;
 use DateTime;
 use Illuminate\Http\Request;
 
 class PrestamosController extends Controller
 {
+    public static function calcularHorario($horaInicio, $tiempoAsignado)
+    {
+        $tiempos["horario"] = $horaInicio->format("H:i");
+        $tiempos["horaFin"] = $horaInicio->add(new DateInterval('PT' . str_replace(':', 'H', substr($tiempoAsignado, 0, -3)) . 'M'))->format("H:i");
+        $tiempos["horario"] = $tiempos["horario"] . " - " . $tiempos["horaFin"];
+        return $tiempos;
+    }
+
+    public static function calcularRestante($horaFin)
+    {
+        $horaActual = date_create("now");
+        $tiempoFin = date_create($horaFin);
+        if ($horaActual >= $tiempoFin) {
+            $tiempoRestante = "00:00:00";
+        } else { 
+            $tiempoRestante = $tiempoFin->sub(new DateInterval('PT' . str_replace(':', 'H', $horaActual->format("H:i")) . 'M'))->format("H:i:s");
+        }
+        return $tiempoRestante;
+    }
+
     public function mostrarSesiones()
     {
         $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();

@@ -38,7 +38,7 @@
                         @foreach ($careers as $career)
                             <option 
                                 value="{{$career->value}}"
-                                @if ($career->value == $student->career) selected @endif
+                                @if ($career->value == $updatedDetails->career) selected @endif
                             >
                                 {{$career->value}}
                             </option>
@@ -53,7 +53,7 @@
                             type="number"
                             name="semester"
                             placeholder="Semestre del alumno"
-                            value="{{$student->semester}}"
+                            value="{{$updatedDetails->semester}}"
                         >
                     </div>
                     <div class="col-lg-6">
@@ -63,7 +63,7 @@
                             name="controlNumber"
                             type="text"
                             placeholder="Numero de control"
-                            value="{{$student->controlNumber}}"
+                            value="{{$updatedDetails->controlNumber}}"
                         >
                     </div>
                 </section>

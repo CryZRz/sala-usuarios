@@ -2,23 +2,106 @@ import ShowLoading from "../utils/showLoading";
 
 /* Obtener los tipos de uso registrados y equipos disponibles */
 $(document).ready(function () {
-    let haySesionActiva;
     const pantallaCarga = document.getElementById("section-loading");
 
+    const mensajeAlumno = document.getElementById("msgNumControl");
+    const numControl = document.getElementById("numControl");
+    const nombre = document.getElementById("nombre");
+    const apellidos = document.getElementById("apellidos");
+    const semestre = document.getElementById("semestre");
+    const carrera = document.getElementById("selectCarreras");
+
+    /* Autocompletar datos del alumno */
+    $("#botonBuscar").on("click", function () {
+        $.ajax({
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'GET',
+            url: '/sesion/' + numControl.value,
+            dataType: 'json',
+            success: function (data) {
+                if (data.name == null) {
+                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
+                    cambiarCampos(false); //Habilitar campos.
+                    vaciarCampos();
+                } else {
+                    esAlumnoValido(data);
+                }
+            }
+        });
+    });
+
     /* Validación para el formulario */
-    const form = document.querySelector('.formRegistro');
+    const form = $("#formSesion");
     const carga = new ShowLoading(pantallaCarga);
     carga.setPageLoading();
 
-    form.addEventListener('submit', function (event) {
-        form.classList.add('was-validated');
-        if (!form.checkValidity() || haySesionActiva) {
-            event.preventDefault();
-            event.stopPropagation();
+    form.on('submit', function (event) {
+        form.addClass('was-validated');
+        event.preventDefault();
+        event.stopPropagation();
+        $.ajax({
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'GET',
+            url: '/sesion/' + numControl.value,
+            dataType: 'json',
+            success: function (data) {
+                let valido;
+                if (data.name == null) {
+                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
+                    valido = true;
+                } else {
+                    valido = esAlumnoValido(data);
+                }
+                if (form.get(0).checkValidity() && valido) {
+                    carga.onLoading();
+                    form.unbind('submit').submit()
+                }
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log('error: ' + textStatus + ' ' + errorThrown);
+        });
+    });
+
+    function esAlumnoValido(data) {
+        if (data.prestamo != null) {
+            /* Sesión activa del alumno */
+            mensajeAlumno.innerText = 'El alumno tiene una sesión de préstamo activa.';
+            cambiarCampos(true); //Deshabilitar campos.
+            vaciarCampos();
+            return false;
         } else {
-            carga.onLoading();
+            /* No hay problemas */
+            mensajeAlumno.innerText = "";
+            nombre.value = data.name;
+            apellidos.value = data.lastName;
+            semestre.value = data.semester;
+            carrera.value = data.career;
+            cambiarCampos(true); //Deshabilitar campos.
+            return true;
         }
-    }, false);
+    }
+
+    function vaciarCampos() {
+        nombre.value = "";
+        apellidos.value = "";
+        semestre.value = "";
+        carrera.value = "";
+    }
+
+    /**
+     * Habilita o deshabilita los campos del estudiante.
+     * @param deshabilitar Booleano indicador de habilitado.
+     */
+    function cambiarCampos(deshabilitar) {
+        nombre.disabled = deshabilitar;
+        apellidos.disabled = deshabilitar;
+        semestre.disabled = deshabilitar;
+        carrera.disabled = deshabilitar;
+    }
 
     /* Cargar tipos de uso */
     $.ajax({
@@ -82,75 +165,6 @@ $(document).ready(function () {
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.log('error: ' + textStatus + ' ' + errorThrown);
-    });
-
-    const mensajeAlumno = document.getElementById("msgNumControl");
-    const registrado = document.getElementById("registrado");
-    const nombre = document.getElementById("nombre");
-    const apellidos = document.getElementById("apellidos");
-    const semestre = document.getElementById("semestre");
-    const carrera = document.getElementById("selectCarreras");
-
-    /* Autocompletar datos del alumno */
-    $("#botonBuscar").on("click", function () {
-        /* El campo perdió el enfoque */
-        $.ajax({
-            headers: {
-                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
-            },
-            type: 'GET',
-            url: '/sesion/' + numControl.value,
-            dataType: 'json',
-            success: function (data) {
-                console.log(data)
-                if (data.name == null) {
-                    /* Consulta vacía */
-                    haySesionActiva = false;
-                    registrado.value = 0;
-                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
-                    cambiarCampos(false); //Habilitar campos.
-                    vaciarCampos();
-                } else {
-                    registrado.value = 1;
-                    if (data.prestamo != null) {
-                        /* Sesión activa del alumno */
-                        haySesionActiva = true;
-                        mensajeAlumno.innerText = 'El alumno tiene una sesión de préstamo activa.';
-                        cambiarCampos(true); //Deshabilitar campos.
-                        vaciarCampos();
-                    } else {
-                        /* No hay problemas */
-                        haySesionActiva = false;
-                        mensajeAlumno.innerText = "";
-                        nombre.value = data.name;
-                        apellidos.value = data.lastName;
-                        semestre.value = data.semester;
-                        carrera.value = data.career;
-                        cambiarCampos(true); //Deshabilitar campos.
-                    }
-                }
-            }
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log('error: ' + textStatus + ' ' + errorThrown);
-        });
-
-        function vaciarCampos() {
-            nombre.value = "";
-            apellidos.value = "";
-            semestre.value = "";
-            carrera.value = "";
-        }
-
-        /**
-         * Habilita o deshabilita los campos del estudiante.
-         * @param deshabilitar Booleano indicador de habilitado.
-         */
-        function cambiarCampos(deshabilitar) {
-            nombre.disabled = deshabilitar;
-            apellidos.disabled = deshabilitar;
-            semestre.disabled = deshabilitar;
-            carrera.disabled = deshabilitar;
-        }
     });
 
     /* Resaltar equipos acordes al cambiar de opción de uso */

@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\Computer;
 use App\Models\Loan;
 use App\Models\Student;
+use App\Models\StudentUpdate;
 use DateInterval;
 use DateTime;
 use Illuminate\Http\Request;
@@ -57,8 +58,8 @@ class PrestamosController extends Controller
             if (isset($numSesion)) {
                 $sesion = Loan::where("id", $numSesion)->first();
             } else {
-                $studiante = Student::where("controlNumber", $request->numControl)->first();
-                $sesion = Loan::where("student_id", $studiante->id)->first();
+                $estudiante = StudentUpdate::where("controlNumber", "=", $request->numControl)->first();
+                $sesion = Loan::where("student_id", $estudiante->student_id)->first();
             }
             //Asignar el nuevo equipo a la sesión.
             $sesion->computer_id = $request->numEquipo;
@@ -74,7 +75,8 @@ class PrestamosController extends Controller
             $sesion = Loan::where("id", $numSesion)->first();
         } else { //Se llamó desde la navbar o del menú de acciones.
             if ($request->opcionBuscar == "numControl") { //Si se buscó con el número de control
-                $sesion = Loan::where("student_id", $request->finNumControl)->first();
+                $estudiante = StudentUpdate::where("controlNumber", "=", $request->finNumControl)->first();
+                $sesion = Loan::where("student_id", $estudiante->student_id)->first();
             } else {
                 $sesion = Loan::where("computer_id", $request->finNumEquipo)->first();
             }
@@ -136,45 +138,58 @@ class PrestamosController extends Controller
 
     public function cargarAlumno($numControl)
     {
-        //Buscar el registro del estudiante
-        $alumno = Student::where("controlNumber", $numControl)->first();
-        $resultado = $alumno;
+        //Buscar el registro más reciente de los datos actualizados del estudiante con su núm. control
+        $alumno = StudentUpdate::where("controlNumber", "=", $numControl)
+            ->orderBy("created_at", "desc")
+            ->first();
+
         if ($alumno != null) {
+            //Añadir los datos no cambiantes del alumno.
+            $datosAlumno = $alumno->student()
+                ->select("name", "lastName")
+                ->first();
+            $alumno = collect($alumno)->merge($datosAlumno);
+
             //Buscar si el estudiante tiene una sesión de préstamo activa
-            $prestamo = Loan::where("student_id", $alumno->id)->first();
+            $prestamo = Loan::where("student_id", "=", $alumno['student_id'])->first();
             if ($prestamo != null) {
-                $resultado['prestamo'] = $prestamo->computer_id;
-            }
+                $alumno['prestamo'] = $prestamo->computer_id;
+             }
         }
-        return response()->json($resultado);
+        return response()->json($alumno);
     }
 
     public function registrarSesion(Request $request)
     {
-        $registrado = $request->registrado;
         $dataSesion = [
             "student_id" => null,
+            "student_update_id" => null,
             "computer_id" => $request->equipo,
             "application_id" => $request->uso,
             "timeAssigment" => $request->tiempo,
             "created_by" => auth()->user()->id
         ];
-        if (!$registrado) {
+        
+        //Si el número de control ya está registrado
+        $actualizacionActual = StudentUpdate::where("controlNumber", $request->numControl)->first();
+        if(isset($actualizacionActual)){
+            $dataSesion["student_id"] = $actualizacionActual->student_id;
+            $dataSesion["student_update_id"] = $actualizacionActual->id;
+        } else{
             $alumno = new Student();
-            $alumno->controlNumber = $request->numControl;
             $alumno->name = $request->nombre;
             $alumno->lastName = $request->apellidos;
-            $alumno->career = $request->carrera;
-            $alumno->semester = $request->semestre;
             $alumno->save();
+            $actualizacionActual = new StudentUpdate();
+            $actualizacionActual->student_id = $alumno->id;
+            $actualizacionActual->controlNumber = $request->numControl;
+            $actualizacionActual->career = $request->carrera;
+            $actualizacionActual->semester = $request->semestre;
+            $actualizacionActual->save();
             $dataSesion["student_id"] = $alumno->id;
-            Loan::create($dataSesion);
-        } else {
-            $alumno = Student::where("controlNumber", $request->numControl)->first();
-            $dataSesion["student_id"] = $alumno->id;
-            Loan::create($dataSesion);
+            $dataSesion["student_update_id"] = $actualizacionActual->id;
         }
-
+        Loan::create($dataSesion);
         return redirect()->route("session.show");
     }
 

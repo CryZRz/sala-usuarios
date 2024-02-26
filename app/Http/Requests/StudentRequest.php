@@ -24,7 +24,7 @@ class StudentRequest extends FormRequest
     {
         return [
             "name" => ["required"],
-            "controlNumber" => ["required", "unique:students,controlNumber"],
+            "controlNumber" => ["required"],
             "lastName" => ["required"],
             "career" => [
                 "required",

@@ -1,7 +1,6 @@
 async function fetchMorePrograms(index){
     try {
-        const fetchListPrograms = await axios.get(`/api/programas?page=${index}`)
-        return fetchListPrograms
+        return await axios.get(`/api/programas?page=${index}`)
     } catch (e) {
         throw new Error(e)
     }
@@ -9,8 +8,7 @@ async function fetchMorePrograms(index){
 
 async function fetchMorePogramsAvailable(index, id){
     try {
-        const fetchListPrograms = await axios.get(`/equipo-programas/${id}?page=${index}`)
-        return fetchListPrograms
+        return await axios.get(`/equipo-programas/${id}?page=${index}`)
     } catch (e) {
         throw new Error(e)
     }

@@ -16,7 +16,7 @@
         <!-- Apartado del formulario -->
         <div class="container-fluid mx-auto">
             <h4 class="titulo text-center mb-3">Nuevo préstamo</h4>
-            <form class="bg-light rounded-5 p-4 sombraBasica formRegistro" novalidate method="POST"
+            <form id="formSesion" class="bg-light rounded-5 p-4 sombraBasica formRegistro" novalidate method="POST"
                 action="{{ route('session.store') }}">
                 @csrf
                 <div class="row mb-4">

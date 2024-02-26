@@ -78,7 +78,7 @@
                                         type="checkbox"></th>
                                 <td>{{ $indice = $loop->index + 1 }}</td>
                                 <td>{{ $sesion->computer->id }}</td>
-                                <td>{{ $sesion->student->controlNumber .
+                                <td>{{ $sesion->studentUpdate->controlNumber .
                                     ' - ' .
                                     ($sesion->nombreCompleto = $sesion->student->lastName . ' ' . $sesion->student->name) }}
                                 </td>
@@ -145,7 +145,7 @@
                                                             <tbody class="tablaEquitativa">
                                                                 <tr>
                                                                     <td>Número de control</td>
-                                                                    <td>{{ $sesion->student->controlNumber }}</td>
+                                                                    <td>{{ $sesion->studentUpdate->controlNumber }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Nombre</td>
@@ -153,11 +153,11 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Carrera</td>
-                                                                    <td>{{ $sesion->student->career }}</td>
+                                                                    <td>{{ $sesion->studentUpdate->career }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Semestre</td>
-                                                                    <td>{{ $sesion->student->semester }}</td>
+                                                                    <td>{{ $sesion->studentUpdate->semester }}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -168,11 +168,11 @@
                                                             <tbody class="tablaEquitativa">
                                                             <tr>
                                                                 <td>Nombre</td>
-                                                                <td>{{ $sesion->owner->name }}</td>
+                                                                {{-- <td>{{ $sesion->owner->name }}</td> --}}
                                                             </tr>
                                                             <tr>
                                                                 <td>Email</td>
-                                                                <td>{{ $sesion->owner->email }}</td>
+                                                                {{-- <td>{{ $sesion->owner->email }}</td> --}}
                                                             </tr>
                                                             </tbody>
                                                         </table>

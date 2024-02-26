@@ -116,5 +116,5 @@ async function main() {
 }
 
 if (listCounters.length >= 0) {
-    intervalManager = setInterval(main, 6000);
+    intervalManager = setInterval(main, 60000);
 }

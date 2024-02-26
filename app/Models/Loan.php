@@ -13,16 +13,20 @@ class Loan extends Model
 
     protected $fillable = [
         "student_id",
+        "student_update_id",
         "computer_id",
         "application_id",
-        "timeAssigment",
-        "created_by"
+        "timeAssigment"
+        // ,"created_by"
     ];
 
     public function student(){
         return $this->belongsTo(Student::class);
     }
 
+    public function studentUpdate(){
+        return $this->belongsTo(StudentUpdate::class);
+    }
     public function computer(){
         return $this->belongsTo(Computer::class);
     }

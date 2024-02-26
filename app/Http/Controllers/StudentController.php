@@ -6,11 +6,13 @@ use App\Http\Requests\StudentRequest;
 use App\Http\Requests\StudentUpdateRequest;
 use App\Http\Utils\CareersE;
 use App\Models\Student;
+use App\Models\StudentUpdate;
 
 class StudentController extends Controller
 {
 
-    public function showAll() {
+    public function showAll()
+    {
         $students = Student::paginate(10);
         $data = [
             "students" => $students
@@ -18,9 +20,10 @@ class StudentController extends Controller
         return view("student.showAll", $data);
     }
 
-    public function show() {
+    public function show()
+    {
         $careers = CareersE::getCareers();
-        
+
         $data = [
             "careers" => $careers
         ];
@@ -28,44 +31,60 @@ class StudentController extends Controller
         return view("student.show", $data);
     }
 
-    public function store(StudentRequest $request) {
+    public function store(StudentRequest $request)
+    {
         $data = $request->validated();
 
-        Student::create([
-            "controlNumber" => $data["controlNumber"],
+        $student = Student::create([
             "name" => $data["name"],
-            "lastName" => $data["lastName"],
+            "lastName" => $data["lastName"]
+        ]);
+
+        StudentUpdate::create([
+            "student_id" => $student["id"],
+            "controlNumber" => $data["controlNumber"],
             "career" => $data["career"],
-            "semester" => $data["semester"],
+            "semester" => $data["semester"]
         ]);
 
         return redirect()->route("student.showAll");
     }
 
-    public function update(Student $student, StudentUpdateRequest $request) {
+    public function update(Student $student, StudentUpdateRequest $request)
+    {
         $data = $request->validated();
 
         $student->update([
-            "controlNumber" => $data["controlNumber"],
             "name" => $data["name"],
-            "lastName" => $data["lastName"],
-            "career" => $data["career"],
-            "semester" => $data["semester"],
+            "lastName" => $data["lastName"]
         ]);
-    
+
+        StudentUpdate::create([
+            "controlNumber" => $data["controlNumber"],
+            "career" => $data["career"],
+            "semester" => $data["semester"]
+        ]);
+
         return redirect()->route("student.showAll");
     }
 
-    public function edit(Student $student) {
+    public function edit(Student $student)
+    {
+        $updatedDetails = StudentUpdate::where("student_id", "=", $student->id)
+            ->orderBy("created_at", "desc")
+            ->first();
+            
         $data = [
             "student" => $student,
+            "updatedDetails" => $updatedDetails,
             "careers" => CareersE::cases()
         ];
 
         return view("student.edit", $data);
     }
 
-    public function destroy(Student $student) {
+    public function destroy(Student $student)
+    {
         $student->delete();
         return redirect()->route("student.showAll");
     }

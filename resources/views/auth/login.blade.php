@@ -42,7 +42,7 @@
                             <p class="text-danger text-center mt-1">{{$message}}</p>
                         @enderror
                     </div>
-                    <a href="#" class="d-block mb-3 text-center">¿Olvidaste tu contraseña?</a>
+                    <a href="{{route('forgotPassword.show')}}" class="d-block mb-3 text-center">¿Olvidaste tu contraseña?</a>
                     <div class="mx-auto">
                         <button type="submit" class="w-50 btn btnInicio">Ingresar</button>
                     </div>

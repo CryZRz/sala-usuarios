@@ -8,7 +8,7 @@ enum CareersE: string
     case IGE = "Ingeniería en Gestión Empresarial";
     case IEM = "Ingeniería en Electromecánica";
     case ILG = "Ingeniería en Logística";
-    case IIN = "Ingeniería en Industrial";
+    case IIN = "Ingeniería Industrial";
     case ITICS = "Ingeniería en Tecnologías de la Información y Comunicaciones";
     case MCC = "Maestría en Ciencias de la Computación";
     case MCI = "Maestría en Ciencias de la Ingeniería";

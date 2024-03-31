@@ -17,7 +17,7 @@ class Loan extends Model
         "computer_id",
         "application_id",
         "timeAssigment"
-        // ,"created_by"
+        ,"created_by"
     ];
 
     public function student(){

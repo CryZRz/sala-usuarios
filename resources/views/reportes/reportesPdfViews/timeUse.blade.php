@@ -1,7 +1,7 @@
 @extends("layouts.reportesLayout")
 
 @section("title")
-    Tiempo use reportes
+    Reporte tiempo por carrera
 @endsection
 
 @section("content")

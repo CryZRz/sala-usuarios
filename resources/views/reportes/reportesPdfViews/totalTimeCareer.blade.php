@@ -1,7 +1,7 @@
 @extends("layouts.reportesLayout")
 
 @section("title")
-    Total de tiempo por carrera
+    Reporte tiempo total general
 @endsection
 
 @section("vite")

@@ -10,6 +10,7 @@
     <title>
         @yield("title")
     </title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
 <body>
 <header class="w-100 d-flex justify-content-between bg-azul-tecnm align-items-center p-2">

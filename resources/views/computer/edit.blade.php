@@ -1,7 +1,7 @@
 @extends('layouts.authLayout')
 
 @section('titulo')
-    Editar Computo
+    Editar Equipo
 @endsection
 
 @section('vite')
@@ -13,7 +13,7 @@
     <main>
         <section id="section-loading"></section>
         <section class="container">
-            <h1>Editar Equipo de computo</h1>
+            <h1>Editar equipo de cómputo</h1>
             <form action="" method="POST">
                 <section class="row mb-2">
                     <div class="col-md-6 mb-2">

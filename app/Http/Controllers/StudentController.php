@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StudentRequest;
+use App\Http\Requests\StudentSearchRequest;
 use App\Http\Requests\StudentUpdateRequest;
 use App\Http\Utils\CareersE;
+use App\Models\Period;
 use App\Models\Student;
 use App\Models\StudentUpdate;
 
@@ -31,23 +33,44 @@ class StudentController extends Controller
         return view("student.show", $data);
     }
 
+    public static function search(string $numControl)
+    {
+        //Buscar el registro más reciente de los datos actualizados del estudiante con su núm. control
+        $alumno = StudentUpdate::where("controlNumber", "=", $numControl)
+            ->orderBy("created_at", "desc")
+            ->first();
+        if ($alumno != null) {
+            //Añadir los datos no cambiantes del alumno.
+            $datosAlumno = $alumno->student()
+                ->select("name", "lastName")
+                ->first();
+            $alumno = collect($alumno)->merge($datosAlumno);
+        }
+        return $alumno;
+    }
+
     public function store(StudentRequest $request)
     {
         $data = $request->validated();
+        $this->createStudent($data);
 
+        return redirect()->route("student.showAll");
+    }
+
+    public static function createStudent(array $data)
+    {
+        $periodoActual = Period::orderByDesc('created_at')->first();
         $student = Student::create([
             "name" => $data["name"],
             "lastName" => $data["lastName"]
         ]);
-
-        StudentUpdate::create([
+        return StudentUpdate::create([
             "student_id" => $student["id"],
+            "period_id" => $periodoActual->id,
             "controlNumber" => $data["controlNumber"],
             "career" => $data["career"],
             "semester" => $data["semester"]
         ]);
-
-        return redirect()->route("student.showAll");
     }
 
     public function update(Student $student, StudentUpdateRequest $request)
@@ -73,7 +96,7 @@ class StudentController extends Controller
         $updatedDetails = StudentUpdate::where("student_id", "=", $student->id)
             ->orderBy("created_at", "desc")
             ->first();
-            
+
         $data = [
             "student" => $student,
             "updatedDetails" => $updatedDetails,

@@ -11,8 +11,11 @@ $(document).ready(function () {
     const semestre = document.getElementById("semestre");
     const carrera = document.getElementById("selectCarreras");
 
+    vaciarCampos();
+
     /* Autocompletar datos del alumno */
     $("#botonBuscar").on("click", function () {
+        mensajeAlumno.innerText = "Cargando...";
         $.ajax({
             headers: {
                 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
@@ -21,13 +24,13 @@ $(document).ready(function () {
             url: '/sesion/' + numControl.value,
             dataType: 'json',
             success: function (data) {
-                if (data.name == null) {
-                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
-                    cambiarCampos(false); //Habilitar campos.
-                    vaciarCampos();
-                } else {
-                    esAlumnoValido(data);
-                }
+                esAlumnoValido(data);
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status === 401) {
+                location.reload()
+            } else {
+                console.log('error: ' + textStatus + ' ' + errorThrown);
             }
         });
     });
@@ -48,39 +51,51 @@ $(document).ready(function () {
             type: 'GET',
             url: '/sesion/' + numControl.value,
             dataType: 'json',
-            success: function (data) {
-                let valido;
-                if (data.name == null) {
-                    mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
-                    valido = true;
-                } else {
-                    valido = esAlumnoValido(data);
-                }
-                if (form.get(0).checkValidity() && valido) {
+            success: function (alumno) {
+                let alumnoValido = esAlumnoValido(alumno);
+                //Si el alumno y campos del formulario son válidos
+                if (alumnoValido && form.get(0).checkValidity()) {
                     carga.onLoading();
                     form.unbind('submit').submit()
                 }
             }
         }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log('error: ' + textStatus + ' ' + errorThrown);
+            if (jqXHR.status === 401) {
+                location.reload()
+            } else {
+                console.log('error: ' + textStatus + ' ' + errorThrown);
+            }
         });
     });
 
-    function esAlumnoValido(data) {
-        if (data.prestamo != null) {
+    /** Evalúa si el alumno es apto para un nuevo préstamo, 
+     * en base a la información obtenida al consultar la existencia 
+     * del registro del estudiante o algún préstamo activo.
+     */
+    function esAlumnoValido(alumno) {
+        if (alumno.id == null) { //No halló registro del alumno.
+            mensajeAlumno.innerText = 'El alumno no está registrado; continúa manualmente.';
+            if (!nombre.disabled) { //Si los campos de alumno están habilitados para llenar.
+                return true;
+            } else { //Los campos estaban completados y deshabilitados por encontrar otro núm. de control.
+                deshabilitarCampos(false);
+                vaciarCampos();
+                return false;
+            }
+        } else if (alumno.prestamo != null) {
             /* Sesión activa del alumno */
             mensajeAlumno.innerText = 'El alumno tiene una sesión de préstamo activa.';
-            cambiarCampos(true); //Deshabilitar campos.
+            deshabilitarCampos(true); //Deshabilitar campos.
             vaciarCampos();
             return false;
         } else {
             /* No hay problemas */
             mensajeAlumno.innerText = "";
-            nombre.value = data.name;
-            apellidos.value = data.lastName;
-            semestre.value = data.semester;
-            carrera.value = data.career;
-            cambiarCampos(true); //Deshabilitar campos.
+            nombre.value = alumno.name;
+            apellidos.value = alumno.lastName;
+            semestre.value = alumno.semester;
+            carrera.value = alumno.career;
+            deshabilitarCampos(true); //Deshabilitar campos.
             return true;
         }
     }
@@ -96,7 +111,7 @@ $(document).ready(function () {
      * Habilita o deshabilita los campos del estudiante.
      * @param deshabilitar Booleano indicador de habilitado.
      */
-    function cambiarCampos(deshabilitar) {
+    function deshabilitarCampos(deshabilitar) {
         nombre.disabled = deshabilitar;
         apellidos.disabled = deshabilitar;
         semestre.disabled = deshabilitar;
@@ -114,7 +129,8 @@ $(document).ready(function () {
         success: function (data) {
             if (data[0].name != null) {
                 for (let i = 0; i < data.length; i++) {
-                    $('#uso').append('<option value="' + data[i].id + '">' +
+                    $('#uso').append('<option ' +
+                        'value="' + data[i].id + '">' +
                         data[i].name + '</option>');
                 }
             }
@@ -169,6 +185,7 @@ $(document).ready(function () {
 
     /* Resaltar equipos acordes al cambiar de opción de uso */
     $("#uso").on("change", function () {
+        //Aquellos equipos que tengan programas relacionados al uso
 
     });
 });

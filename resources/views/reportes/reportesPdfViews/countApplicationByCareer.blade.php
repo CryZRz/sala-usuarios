@@ -1,7 +1,7 @@
 @extends("layouts.reportesLayout")
 
 @section("title")
-    Cantidad de usos por carrera
+    Reporte usos por carrera
 @endsection
 
 @section("vite")

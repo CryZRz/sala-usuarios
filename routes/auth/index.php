@@ -22,7 +22,7 @@ Route::middleware("guest")->group(function(){
 
 
 Route::middleware("auth")->group(function(){
-    Route::get("/register", [RegisterController::class, "show"])->name("register.show");
-    Route::post("/register", [RegisterController::class, "store"])->name("register.store");
+    Route::get("/registro", [RegisterController::class, "show"])->name("register.show");
+    Route::post("/registro", [RegisterController::class, "store"])->name("register.store");
     Route::delete("/login", [LoginController::class, "destroy"])->name("login.destroy");
 });

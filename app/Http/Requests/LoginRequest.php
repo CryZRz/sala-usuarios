@@ -26,4 +26,13 @@ class LoginRequest extends FormRequest
             "password" => ["required"]
         ];
     }
+
+    public function messages(): array{
+        return [
+            "email.required" => "Ingresa el correo electrónico.",
+            "email.email" => "El correo electrónico no es válido.",
+            "email.exists" => "El correo electrónico no está registrado",
+            "password" => "Correo electrónico y/o contraseña incorrectos."
+        ];
+    }
 }

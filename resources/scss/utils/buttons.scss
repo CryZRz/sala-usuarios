@@ -1,0 +1,128 @@
+
+/* Botones */
+.btn-turquesa {
+    color: white;
+    background-color: $azul-3;
+    border-color: $azul-3;
+}
+
+.btn-turquesa:active,
+.btn-turquesa.active,
+.open .dropdown-toggle.btn-turquesa {
+    background-image: none;
+}
+
+.btn-turquesa:hover,
+.btn-turquesa:focus,
+.btn-turquesa:active,
+.btn-turquesa.active,
+.btn.btn-turquesa:active,
+.open .dropdown-toggle.btn-turquesa {
+    color: white;
+    background-color: #3AB1B5;
+    border-color: $azul-3;
+}
+
+.btn-turquesa.disabled,
+.btn-turquesa[disabled],
+fieldset[disabled] .btn-turquesa,
+.btn-turquesa.disabled:hover,
+.btn-turquesa[disabled]:hover,
+fieldset[disabled] .btn-turquesa:hover,
+.btn-turquesa.disabled:focus,
+.btn-turquesa[disabled]:focus,
+fieldset[disabled] .btn-turquesa:focus,
+.btn-turquesa.disabled:active,
+.btn-turquesa[disabled]:active,
+fieldset[disabled] .btn-turquesa:active,
+.btn-turquesa.disabled.active,
+.btn-turquesa[disabled].active,
+fieldset[disabled] .btn-turquesa.active {
+    background-color: $azul-3;
+    border-color: $azul-3;
+    color: white;
+}
+
+.btn-marino {
+    color: white;
+    background-color: $azul;
+    border-color: $azul;
+}
+
+.btn-marino:hover,
+.btn-marino:focus,
+.btn-marino:active,
+.btn-marino.active,
+.btn.btn-marino:active,
+.open .dropdown-toggle.btn-marino {
+    color: white;
+    background-color: #278CBA;
+    border-color: $azul;
+}
+
+.btn-marino:active,
+.btn-marino.active,
+.open .dropdown-toggle.btn-marino {
+    background-image: none;
+}
+
+.btn-marino.disabled,
+.btn-marino[disabled],
+fieldset[disabled] .btn-marino,
+.btn-marino.disabled:hover,
+.btn-marino[disabled]:hover,
+fieldset[disabled] .btn-marino:hover,
+.btn-marino.disabled:focus,
+.btn-marino[disabled]:focus,
+fieldset[disabled] .btn-marino:focus,
+.btn-marino.disabled:active,
+.btn-marino[disabled]:active,
+fieldset[disabled] .btn-marino:active,
+.btn-marino.disabled.active,
+.btn-marino[disabled].active,
+fieldset[disabled] .btn-marino.active {
+    background-color: $azul;
+    border-color: $azul;
+}
+
+.btn-verde {
+    color: white;
+    background-color: $aqua;
+    border-color: $aqua;
+}
+
+.btn-verde:hover,
+.btn-verde:focus,
+.btn-verde:active,
+.btn-verde.active,
+.btn.btn-verde:active,
+.open .dropdown-toggle.btn-verde {
+    color: white;
+    background-color: $aqua-2;
+    border-color: $aqua;
+}
+
+.btn-verde:active,
+.btn-verde.active,
+.open .dropdown-toggle.btn-verde {
+    background-image: none;
+}
+
+.btn-verde.disabled,
+.btn-verde[disabled],
+fieldset[disabled] .btn-verde,
+.btn-verde.disabled:hover,
+.btn-verde[disabled]:hover,
+fieldset[disabled] .btn-verde:hover,
+.btn-verde.disabled:focus,
+.btn-verde[disabled]:focus,
+fieldset[disabled] .btn-verde:focus,
+.btn-verde.disabled:active,
+.btn-verde[disabled]:active,
+fieldset[disabled] .btn-verde:active,
+.btn-verde.disabled.active,
+.btn-verde[disabled].active,
+fieldset[disabled] .btn-verde.active {
+    background-color: $aqua;
+    border-color: $aqua;
+}

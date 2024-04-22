@@ -1,0 +1,109 @@
+// Variables
+@import 'variables';
+@import 'utils/buttons.scss';
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+.texto-brillo {
+    text-shadow: rgba(255, 255, 255, 0.5) 0px 0px 5px;
+}
+
+.sombraCaja {
+    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;
+}
+
+.sombraBasica {
+    box-shadow: 2px 2px 6px -1px rgba(0, 0, 0, 0.43);
+    -webkit-box-shadow: 2px 2px 6px -1px rgba(0, 0, 0, 0.43);
+    -moz-box-shadow: 2px 2px 6px -1px rgba(0, 0, 0, 0.43);
+}
+
+.sombraDegradado {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px -50px 36px -28px inset;
+}
+
+.boxInicio {
+    color: $gris-oscuro;
+    max-width: 350px;
+}
+
+.titulo {
+    color: $gris-oscuro;
+    font-weight: bold;
+}
+
+.form {
+    border: 1px solid $azul-mar-2;
+}
+
+.navbar {
+    background-color: $azul-mar;
+}
+
+/* Links de la barra de navegación */
+.nav-link {
+    color: white;
+    font-weight: bold;
+}
+
+.nav-link:link,
+.nav-link:visited {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-link:hover,
+.nav-link:active {
+    @extend .texto-brillo;
+    color: white;
+}
+
+.nav-item,
+.dropdown-item {
+    text-align: center;
+    align-items: center;
+}
+
+/* Submenús de la barra de navegación */
+.dropdown-menu {
+    background-color: $azul;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px -50px 36px -28px inset;
+}
+
+.dropdown-item {
+    color: white;
+    font-weight: bold;
+}
+
+/* La opción activa dentro de la barra de navegación */
+.navbar .nav-link.active {
+    @extend .texto-brillo;
+    color: $activo;
+}
+
+/* La subopción actual de la lista de una opción */
+.dropdown-item.active {
+    @extend .texto-brillo;
+    color: $activo;
+    background-color: #FFFFFF00;
+    font-weight: bold;
+}
+
+.dropdown-item:active,
+.btn.dropdown-item:active {
+    background-color: white;
+    color: black;
+}
+
+.table {
+    text-align: center;
+    vertical-align: middle;
+}
+
+//Para tablas de dos columnas; cada una ocupará mitad de ancho.
+.tablaEquitativa>tr>td {
+    width: 50%;
+}

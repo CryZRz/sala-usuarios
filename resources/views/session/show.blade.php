@@ -17,9 +17,9 @@
         <div class="container-fluid my-3 d-flex justify-content-center">
             <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
                 <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
-                    <a type="button" class="btn btn-sm btnNuevo lh-md fw-bold" href="{{ route('session.new') }}">Nueva
+                    <a type="button" class="btn btn-sm btn-turquesa lh-md fw-bold" href="{{ route('session.new') }}">Nueva
                         sesión</a>
-                    <button type="button" class="btn btn-sm btnReasignar lh-md fw-bold" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-sm btn-verde lh-md fw-bold" data-bs-toggle="modal"
                         data-bs-target="#modalReasignarGeneral">Reasignar equipo</button>
                     <button type="button" class="btn btn-sm btn-secondary lh-md fw-bold" data-bs-toggle="modal"
                         data-bs-target="#modalTerminar">Terminar sesión</button>
@@ -46,7 +46,7 @@
                             data-ruta-fin-multiple="{{ route('session.destroyMany') }}">
                             @csrf
                             @method('delete')
-                            <button type="submit" class="btn btnNuevo">Finalizar</button>
+                            <button type="submit" class="btn btn-turquesa">Finalizar</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Regresar</button>
                         </form>
                     </div>
@@ -84,15 +84,15 @@
                                 </td>
                                 <td>
                                     @php($sesion->tiempos = $prestamos::calcularHorario($sesion->startTime, $sesion->timeAssigment))
-                                    {{ $sesion->tiempos["horario"] }}
+                                    {{ $sesion->tiempos['horario'] }}
                                 </td>
                                 <td>{{ $sesion->timeAssigment }}</td>
                                 <td id="timeAssigment" sessionId="{{ $sesion->id }}">
-                                    {{ $prestamos::calcularRestante($sesion->tiempos["horaFin"]) }}
+                                    {{ $prestamos::calcularTiempoRestante($sesion->tiempos['horaFin']) }}
                                 </td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
-                                        <a class="btn btnNuevo btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
+                                        <a class="btn btn-turquesa btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
                                             data-bs-target="{{ '#infoAlumno' . $indice }}">
                                             Info.
                                         </a>
@@ -126,11 +126,11 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Horario de sesión</td>
-                                                                    <td>{{ $sesion->tiempos["horario"] }}</td>
+                                                                    <td>{{ $sesion->tiempos['horario'] }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Hora de fin</td>
-                                                                    <td>{{ $sesion->tiempos["horaFin"] }}</td>
+                                                                    <td>{{ $sesion->tiempos['horaFin']->format("d/m/y H:i") }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Uso</td>
@@ -163,29 +163,29 @@
                                                         </table>
                                                         <table class="table table-hover">
                                                             <thead>
-                                                            <h5 class="titulo">Creado por:</h5>
+                                                                <h5 class="titulo">Creado por:</h5>
                                                             </thead>
                                                             <tbody class="tablaEquitativa">
-                                                            <tr>
-                                                                <td>Nombre</td>
-                                                                {{-- <td>{{ $sesion->owner->name }}</td> --}}
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Email</td>
-                                                                {{-- <td>{{ $sesion->owner->email }}</td> --}}
-                                                            </tr>
+                                                                <tr>
+                                                                    <td>Nombre</td>
+                                                                    <td>{{ $sesion->owner->name }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Email</td>
+                                                                    <td>{{ $sesion->owner->email }}</td>
+                                                                </tr>
                                                             </tbody>
                                                         </table>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btnNuevo"
+                                                        <button type="button" class="btn btn-turquesa"
                                                             data-bs-dismiss="modal">Cerrar</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <a class="botonReasignar btn btnReasignar btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
+                                        <a class="botonReasignar btn btn-verde btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
                                             data-ruta-reasignar="{{ route('session.reassign', ['numSesion' => $sesion->id]) }}"
                                             data-bs-toggle="modal" data-bs-target="#infoReasignar">
                                             Reasignar
@@ -222,7 +222,7 @@
                                             <p id="msgReasignarIndividual" class="text-danger text-center mt-2 mb-0"></p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button id="confirmarReasignarIndividual" type="submit" class="btn btnNuevo"
+                                            <button id="confirmarReasignarIndividual" type="submit" class="btn btn-turquesa"
                                                 disabled>Reasignar</button>
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Regresar</button>
@@ -243,12 +243,13 @@
                                     </div>
                                     <div class="modal-body text-center">
                                         ¿Deseas finalizar esta sesión de préstamo?
+                                        <p id="msgFinIndividual" class="text-danger text-center mt-2 mb-0"></p>
                                     </div>
                                     <div class="modal-footer">
-                                        <form id="modalFin" method="POST" action="">
+                                        <form id="formFinIndividual" method="POST" action="">
                                             @csrf
                                             @method('delete')
-                                            <button type="submit" class="btn btnNuevo">Finalizar</button>
+                                            <button type="submit" class="btn btn-turquesa">Finalizar</button>
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Regresar</button>
                                         </form>
@@ -271,12 +272,12 @@
                     </div>
                     <div class="modal-body">
                         <form action="{{ route('session.changeTime') }}" method="POST">
-                            <section>
+                            <section class="text-center w-75 mx-auto">
                                 @csrf
-                                <label class="fw-bold mb-1" for="Tiempo a asignar">Tiempo a asignar</label>
+                                <label class="fw-bold mb-1" for="Tiempo a asignar">Tiempo adicional</label>
                                 <input name="idSession" type="hidden" id="idExtenSession">
-                                <input name="timeSession" class="col-12" type="time">
-                                <input type="submit" class="btn btn-primary col-12 btn-sm mt-2" value="Enviar"></input>
+                                <input name="timeSession" class="col-12 text-center" type="time" min="00:05" max="06:00" value="01:00">
+                                <input type="submit" class="btn btn-primary col-12 btn-sm mt-2" value="Extender"></input>
                             </section>
                         </form>
                     </div>
@@ -287,7 +288,5 @@
             </div>
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-            crossorigin="anonymous"></script>
     </main>
 @endsection

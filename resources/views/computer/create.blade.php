@@ -13,7 +13,7 @@
     <main>
         <section id="section-loading"></section>
         <section class="container">
-            <h1>Agregar Equipo de computo</h1>
+            <h1>Agregar equipo de cómputo</h1>
         <form class="mt-2" action="" method="POST">
             <section class="row mb-2">
                 <div class="col-md-6">

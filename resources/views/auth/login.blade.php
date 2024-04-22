@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Sala de usuarios</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    @vite(['resources/scss/app.scss', 'resources/scss/styles.scss', 'resources/js/app.js'])
+    <title>Sala de usuarios</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
+    @vite(['resources/scss/app.scss', 'resources/scss/authLayout.scss', 'resources/js/app.js'])
 </head>
 <body>
     <div class="d-flex flex-column" style="height:100dvh">
@@ -29,7 +32,7 @@
                     <div class="mb-3">
                         <label for="email" class="form-label m-0 fw-bold fs-5">Correo electrónico</label>
                         <input type="email" class="form-control text-center col-12 p-1" id="email"
-                            placeholder="Escribe tu correo" name="email" required>
+                            placeholder="Ingresa tu correo" name="email" required>
                         @error("email")
                             <p class="text-danger text-center mt-1">{{$message}}</p>
                         @enderror
@@ -37,14 +40,15 @@
                     <div class="mb-3">
                         <label for="pass" class="form-label m-0 fw-bold fs-5">Contraseña</label>
                         <input type="password" class="form-control text-center col-12 p-1" id="pass"
-                            placeholder="Escribe tu contraseña" name="password" required>
+                            placeholder="Ingresa tu contraseña" name="password" required
+                            autocomplete="new-password">
                         @error("password")
                             <p class="text-danger text-center mt-1">{{$message}}</p>
                         @enderror
                     </div>
                     <a href="{{route('forgotPassword.show')}}" class="d-block mb-3 text-center">¿Olvidaste tu contraseña?</a>
                     <div class="mx-auto">
-                        <button type="submit" class="w-50 btn btnInicio">Ingresar</button>
+                        <button type="submit" class="w-50 btn btn-marino fw-bold">Iniciar sesión</button>
                     </div>
                 </form>
             </div>

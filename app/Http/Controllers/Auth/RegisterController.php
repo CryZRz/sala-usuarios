@@ -18,13 +18,17 @@ class RegisterController extends Controller
     public function store(RegisterRequest $request) {
         $data = $request->validated();
         
+        if(!isset($data)){
+            return redirect()->back()->withInput();
+        }
+
         $user = User::create([
             "name" => $data["name"],
             "email" => $data["email"],
-            "password" => $data["password"]
+            "password" => $data["pass"]
         ]);
-        if (auth()->attempt(["email" => $data["email"], "password" => $data["password"]])) {
-            return redirect()->route("home");
+        if (auth()->attempt(["email" => $data["email"], "password" => $data["pass"]])) {
+            return redirect()->route("session.show");
         }
         return redirect()
                 ->route("register.show")

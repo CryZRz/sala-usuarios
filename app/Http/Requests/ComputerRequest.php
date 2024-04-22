@@ -36,8 +36,8 @@ class ComputerRequest extends FormRequest
         return [
             "dataComputer.name" => "El cpu del equipo es obligatorio",
             "dataComputer.ram" => "La ram del equipo es obligatoria",
-            "dataComputer.ports" => "Debes agregar almenos un puerto",
-            "dataComputer.programs" => "Debes agregar almenos un programa",
+            "dataComputer.ports" => "Debes agregar al menos un puerto",
+            "dataComputer.programs" => "Debes agregar al menos un programa",
             "dataComputer.ports.*.name" => "El nombre del puerto es obligatorio",
             "dataComputer.ports.*.amount" => "La cantidad del puerto es obligatoria",
         ];

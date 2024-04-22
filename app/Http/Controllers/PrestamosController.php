@@ -6,30 +6,52 @@ use App\Http\Utils\CareersE;
 use App\Models\Application;
 use App\Models\Computer;
 use App\Models\Loan;
+use App\Models\Period;
 use App\Models\Student;
+use App\Http\Controllers\StudentController;
 use App\Models\StudentUpdate;
+use App\Http\Utils\TimeFormatU;
+use Carbon\Carbon;
 use DateInterval;
 use DateTime;
 use Illuminate\Http\Request;
 
 class PrestamosController extends Controller
 {
-    public static function calcularHorario($horaInicio, $tiempoAsignado)
+    public static function calcularHorario(Carbon $horaInicio, string $tiempoAsignado)
     {
         $tiempos["horario"] = $horaInicio->format("H:i");
-        $tiempos["horaFin"] = $horaInicio->add(new DateInterval('PT' . str_replace(':', 'H', substr($tiempoAsignado, 0, -3)) . 'M'))->format("H:i");
-        $tiempos["horario"] = $tiempos["horario"] . " - " . $tiempos["horaFin"];
+        $tiempoAsignado = new DateTime($tiempoAsignado);
+        $tiempos["horaFin"] = TimeFormatU::sumTimeToDate(
+            $horaInicio,
+            hours: $tiempoAsignado->format("H"),
+            minutes: $tiempoAsignado->format("i")
+        );
+        $tiempos["horario"] = $tiempos["horario"] . " - " . $tiempos["horaFin"]->format("H:i");
         return $tiempos;
     }
 
-    public static function calcularRestante($horaFin)
+    /** Convierte una hora a un timeInterval (Ej.: PT1H30M)
+     * para hacer sumas o diferencias de tiempo. */
+    private static function convertirAIntervalo(string $hora)
     {
-        $horaActual = date_create("now");
-        $tiempoFin = date_create($horaFin);
-        if ($horaActual >= $tiempoFin) {
+        //Reemplaza una hora 01:30 por 01H30; 
+        $horaFormato = str_replace(':', 'H', $hora);
+        return new DateInterval('PT' . $horaFormato . 'M');
+    }
+
+    public static function calcularTiempoRestante(Carbon $tiempoFin)
+    {
+        $horaActual = Carbon::now();
+
+        if ($tiempoFin <= $horaActual) {
             $tiempoRestante = "00:00:00";
         } else {
-            $tiempoRestante = $tiempoFin->sub(new DateInterval('PT' . str_replace(':', 'H', $horaActual->format("H:i")) . 'M'))->format("H:i:s");
+            $tiempoRestante = TimeFormatU::subtractTimeToDate(
+                $tiempoFin,
+                hours: $horaActual->format("H"),
+                minutes: $horaActual->format("i")
+            )->format("H:i:00");
         }
         return $tiempoRestante;
     }
@@ -37,6 +59,23 @@ class PrestamosController extends Controller
     public function mostrarSesiones()
     {
         $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();
+
+        //Si la redirección se encadenó tras autenticación 
+        if (session("autenticacion") == true) {
+            //Si hay sesiones activas del administrador anterior
+            if (isset($sesiones)) {
+                //Asignar al nuevo administrador como "propietario"
+                foreach ($sesiones as $sesion) {
+                    if ($sesion->created_by != auth()->user()->id) {
+                        Loan::where('id', $sesion->id)->update(['created_by' => auth()->user()->id]);
+                        $sesion->owner->name = auth()->user()->name;
+                        $sesion->owner->email = auth()->user()->email;
+                    }
+                }
+            }
+            //Indicar no necesitar volver a revisarlo en el resto de la sesión.
+            session()->put("autenticacion", false);
+        }
 
         $data = [
             "sesiones" => $sesiones
@@ -49,26 +88,47 @@ class PrestamosController extends Controller
      * Reasignar mediante la navbar usa el núm. de control del alumno;
      * desde la tabla de sesiones usa el núm. de sesión.
      */
-    public function reasignarEquipo(Request $request, $numSesion = null)
+    public function reasignarEquipo(Request $request, int $numSesion = null)
     {
         //Revisar si hay alguna sesión activa con el equipo deseado asignado,
-        $sesionEquipo = Loan::where("computer_id", $request->numEquipo)->first();
-        if (!isset($sesionEquipo)) {
+        $sesionNuevoEquipo = Loan::where("computer_id", $request->numEquipo)->first();
+
+        if (isset($sesionNuevoEquipo)) {
+            return response()->json([
+                'error' => 'Hay una sesión con el equipo ' . $request->numEquipo . ' asignado.'
+            ], 200);
+        } else {
             //Obtener la sesión dependiendo si se llamó desde el menú o desde la tabla.
-            if (isset($numSesion)) {
+            if (isset($numSesion)) { //Desde la tabla, con su núm. de sesión
                 $sesion = Loan::where("id", $numSesion)->first();
-            } else {
+            } else { //Desde el menú, con núm. de control
                 $estudiante = StudentUpdate::where("controlNumber", "=", $request->numControl)->first();
-                $sesion = Loan::where("student_id", $estudiante->student_id)->first();
+                if (!isset($estudiante)) {
+                    return response()->json([
+                        'error' => 'El número de control ' . $request->numControl . ' no está registrado.'
+                    ], 200);
+                } else {
+                    $sesion = Loan::where("student_id", $estudiante->student_id)->first();
+                }
             }
-            //Asignar el nuevo equipo a la sesión.
-            $sesion->computer_id = $request->numEquipo;
-            $sesion->save();
+
+            if (!isset($sesion)) {
+                return response()->json([
+                    'error' => 'El alumno ' . $request->numControl . ' no tiene una sesión activa.'
+                ], 200);
+            } else {
+                //Asignar el nuevo equipo a la sesión.
+                $sesion->computer_id = $request->numEquipo;
+                $sesion->save();
+
+                return response()->json([
+                    'redireccion' => route("session.show")
+                ], 200);
+            }
         }
-        return redirect()->route("session.show");
     }
 
-    public function terminarSesion(Request $request, $numSesion = null)
+    public function terminarSesion(Request $request, int $numSesion = null)
     {
         //Si se llamó con el número de sesión (desde la tabla de sesiones)
         if (isset($numSesion)) {
@@ -76,24 +136,52 @@ class PrestamosController extends Controller
         } else { //Se llamó desde la navbar o del menú de acciones.
             if ($request->opcionBuscar == "numControl") { //Si se buscó con el número de control
                 $estudiante = StudentUpdate::where("controlNumber", "=", $request->finNumControl)->first();
-                $sesion = Loan::where("student_id", $estudiante->student_id)->first();
-            } else {
+                if (!isset($estudiante)) { //Alumno no está en la BD.
+                    return response()->json([
+                        'error' => 'El número de control ' . $request->finNumControl . ' no está registrado.'
+                    ], 200);
+                } else { //Alumno indicado no tiene sesión activa
+                    $sesion = Loan::where("student_id", $estudiante->student_id)->first();
+                    if (!isset($sesion)) {
+                        return response()->json([
+                            'error' => 'El alumno ' . $request->finNumControl . ' no tiene una sesión activa.'
+                        ], 200);
+                    }
+                }
+            } else { //Se buscó con id de equipo
                 $sesion = Loan::where("computer_id", $request->finNumEquipo)->first();
             }
         }
-        //Si se encontró la sesión
-        if (isset($sesion)) {
+        if (isset($sesion)) { //No hay problemas; ajustar el tiempo transcurrido total
+            $sesion->timeAssigment = $this->calcularTiempoTranscurrido($sesion->startTime);
+            $sesion->save();
             $sesion->delete();
         }
-
-        return redirect(route("session.show"));
+        //Regresar a la vista de sesiones aunque la sesión ya hubiera estado eliminada. 
+        return response()->json(['redireccion' => route("session.show")]);
     }
 
-    public function terminarMultiples($numsSesion)
+    public function calcularTiempoTranscurrido(Carbon $horaInicio)
     {
-        $numsSesion = json_decode($numsSesion);
-        foreach ($numsSesion as $numSesion) {
-            Loan::find($numSesion)->delete();
+        $horaActual = Carbon::now();
+
+        return TimeFormatU::subtractTimeToDate(
+            $horaActual,
+            hours: $horaInicio->format("H"),
+            minutes: $horaInicio->format("i")
+        );
+    }
+
+    public function terminarMultiples(string $jsonNumsSesion)
+    {
+        $jsonNumsSesion = json_decode($jsonNumsSesion);
+        foreach ($jsonNumsSesion as $numSesion) {
+            $sesion = Loan::find($numSesion);
+            if (isset($sesion)) { //Ajustar el tiempo transcurrido total
+                $sesion->timeAssigment = $this->calcularTiempoTranscurrido($sesion->startTime);
+                $sesion->save();
+                $sesion->delete();
+            }
         }
         return redirect(route("session.show"));
     }
@@ -105,7 +193,7 @@ class PrestamosController extends Controller
 
     public function cargarUsos()
     {
-        return response()->json(Application::all());
+        return response()->json(Application::orderBy('name')->get());
     }
     public function cargarEquipos()
     {
@@ -136,25 +224,16 @@ class PrestamosController extends Controller
         return CareersE::getCareers();
     }
 
-    public function cargarAlumno($numControl)
+    public function cargarAlumno(string $numControl)
     {
-        //Buscar el registro más reciente de los datos actualizados del estudiante con su núm. control
-        $alumno = StudentUpdate::where("controlNumber", "=", $numControl)
-            ->orderBy("created_at", "desc")
-            ->first();
+        $alumno = StudentController::search($numControl);
 
         if ($alumno != null) {
-            //Añadir los datos no cambiantes del alumno.
-            $datosAlumno = $alumno->student()
-                ->select("name", "lastName")
-                ->first();
-            $alumno = collect($alumno)->merge($datosAlumno);
-
             //Buscar si el estudiante tiene una sesión de préstamo activa
             $prestamo = Loan::where("student_id", "=", $alumno['student_id'])->first();
             if ($prestamo != null) {
                 $alumno['prestamo'] = $prestamo->computer_id;
-             }
+            }
         }
         return response()->json($alumno);
     }
@@ -169,13 +248,15 @@ class PrestamosController extends Controller
             "timeAssigment" => $request->tiempo,
             "created_by" => auth()->user()->id
         ];
-        
+
         //Si el número de control ya está registrado
         $actualizacionActual = StudentUpdate::where("controlNumber", $request->numControl)->first();
-        if(isset($actualizacionActual)){
+        if (isset($actualizacionActual)) {
             $dataSesion["student_id"] = $actualizacionActual->student_id;
             $dataSesion["student_update_id"] = $actualizacionActual->id;
-        } else{
+        } else {
+            $periodoActual = Period::orderByDesc('created_at')->first();
+
             $alumno = new Student();
             $alumno->name = $request->nombre;
             $alumno->lastName = $request->apellidos;
@@ -185,6 +266,7 @@ class PrestamosController extends Controller
             $actualizacionActual->controlNumber = $request->numControl;
             $actualizacionActual->career = $request->carrera;
             $actualizacionActual->semester = $request->semestre;
+            $actualizacionActual->period_id = $periodoActual->id;
             $actualizacionActual->save();
             $dataSesion["student_id"] = $alumno->id;
             $dataSesion["student_update_id"] = $actualizacionActual->id;
@@ -193,41 +275,31 @@ class PrestamosController extends Controller
         return redirect()->route("session.show");
     }
 
-    public function actualizarTiempos(Request $request)
-    {
-        $this->validate($request, [
-            "listSessions" => ["array", "required"],
-            "listSessions.*.id" => ["required", "exists:loans,id"],
-            "dataComputer.*.time" => ["required"],
-        ]);
-
-        $listSessionToUpdate = $request->get("listSessions");
-
-        foreach ($listSessionToUpdate as $session) {
-            $hours = $session["time"]["hours"];
-            $minutes = $session["time"]["minutes"];
-
-            $timeFormat = new DateTime("$hours:$minutes:00");
-            $loan = Loan::find($session["id"]);
-            $loan->timeAssigment = $timeFormat;
-            $loan->save();
-        }
-        return response(null, 204);
-    }
-
     public function actualizarTiempo(Request $request)
     {
-        $idSession = $request->get("idSession");
-        $session = Loan::find($idSession);
-        $time = $request->get("timeSession");
+        $idSesion = $request->get("idSession");
+        $sesion = Loan::find($idSesion);
+        $extensionTiempo = new Carbon($request->get("timeSession"));
 
-        if ($session == null) {
+        if ($sesion == null) {
             return response(404);
         }
+        $tiempoTranscurrido = $this->calcularTiempoTranscurrido($sesion->startTime);
 
-        $session->timeAssigment = $time;
-        $session->save();
+        //Ajustar la asignación de tiempo 
+        $sesion->timeAssigment = TimeFormatU::sumTimeToDate(
+            $tiempoTranscurrido,
+            hours: $extensionTiempo->format("H"),
+            minutes: $extensionTiempo->format("i")
+        )->format("H:i");
+
+        $sesion->save();
 
         return redirect()->route("session.show");
+    }
+
+    public function contarSesiones()
+    {
+        return Loan::count();
     }
 }

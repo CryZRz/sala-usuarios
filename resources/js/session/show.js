@@ -1,4 +1,4 @@
-import { configurarReasignarEquipo } from "./reasignarEquipo";
+import { cargarEquiposDisponibles, interpretarResponse } from "./actualizarSesion";
 
 $(document).ready(function () {
     //Al reasignar equipo mediante un botón individual en la tabla de sesiones.
@@ -9,7 +9,26 @@ $(document).ready(function () {
 
     $(".botonReasignar").on("click", function () {
         formReasignarIndiv.attr("action", $(this).data("ruta-reasignar"));
-        configurarReasignarEquipo(selectEquipoReasignarIndiv, btnConfirmarReasignarIndiv, mensajeReasignarIndiv);
+        cargarEquiposDisponibles(selectEquipoReasignarIndiv, btnConfirmarReasignarIndiv, mensajeReasignarIndiv);
+    });
+
+    //Reasignar desde la tabla
+    //Interceptar la acción y hacerla con ajax para indicar errores con los datos proporcionados, si los hay.   
+    formReasignarIndiv.on("submit", (event) => {
+        event.preventDefault();
+        interpretarResponse(formReasignarIndiv, mensajeReasignarIndiv);
+    });
+
+    //Terminar desde la tabla
+    const formFinIndiv = $("#formFinIndividual");
+    const mensajeFinIndiv = $("#msgFinIndividual");
+    //Concatenar id de la sesión elegida a la ruta del form de finalizar sesión. 
+    $(".botonFin").on("click", function () {
+        formFinIndiv.attr("action", $(this).data("ruta-fin"));
+    });
+    formFinIndiv.on("submit", (event) => {
+        event.preventDefault();
+        interpretarResponse(formFinIndiv, mensajeFinIndiv);
     });
 
     const checkboxGlobal = $("#checkGlobal");
@@ -24,16 +43,18 @@ $(document).ready(function () {
 
     checkboxGlobal.change(function () {
         if ($(this).is(":checked")) {
-            checkboxesSesiones.each(function () {
-                $(this).prop("checked", true);
-            });
-            btnTerminarMultiple.prop("disabled", false);
+            if(checkboxesSesiones.length > 0){
+                checkboxesSesiones.each(function () {
+                    $(this).prop("checked", true);
+                });
+                btnTerminarMultiple.prop("disabled", false);
+            }
             checkboxesActivas = checkboxesSesiones.length;
         } else {
             checkboxesSesiones.each(function () {
                 $(this).prop("checked", false);
-                btnTerminarMultiple.prop("disabled", true);
             });
+            btnTerminarMultiple.prop("disabled", true);
             checkboxesActivas = 0;
         }
     });
@@ -50,11 +71,6 @@ $(document).ready(function () {
                 btnTerminarMultiple.prop("disabled", true);
             };
         }
-    });
-
-    const modalFin = $("#modalFin");
-    $(".botonFin").on("click", function () {
-        modalFin.attr("action", $(this).data("ruta-fin"));
     });
 
     const formFinMultiple = $("#formFinMultiple");

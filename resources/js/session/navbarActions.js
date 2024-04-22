@@ -1,13 +1,73 @@
-import { configurarReasignarEquipo } from "./reasignarEquipo";
+import { cargarEquiposDisponibles, interpretarResponse } from "./actualizarSesion";
+import { configurarCrearIncidencia } from "../incidence/create";
+import { Modal } from 'bootstrap';
+import ShowLoading from "../utils/showLoading";
 
 $(document).ready(function () {
+
+    configurarCrearIncidencia();
+
+    const pantallaCarga = document.getElementById("section-loading");
+    const carga = new ShowLoading(pantallaCarga);
+    carga.setPageLoading();
+
+    //Cierre de sesión:
+    const btnCierre = $("#btnCierre");
+    const modalCierre = new Modal(document.getElementById('avisoCierre'));
+    const mensajeCierre = $("#msgCierre");
+    const formCierre = document.getElementById("formCierre");
+
+    btnCierre.on("click", function () {
+        carga.onLoading();
+        //Revisar si hay préstamos activos:
+        $.ajax({
+            headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+            type: 'GET',
+            url: '/contarSesiones',
+            dataType: 'json',
+            success: function (data) {
+                //Mostrar el modal de confirmación.
+                if (data != 0) {
+                    mensajeCierre.text("Aún hay " + data +
+                        (data % 2 == 0 ? " préstamos activos." : " préstamo activo."));
+                    modalCierre.show();
+                } else {
+                    formCierre.requestSubmit();
+                }
+                carga.offLoading();
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status === 401) {
+                location.reload()
+            } else {
+                console.log('error: ' + textStatus + ' ' + errorThrown);
+            }
+        });
+    })
+
     //Al reasignar equipo mediante la barra de navegación o el botón general en el recuadro de opciones.
     const selectEquipoReasignarGen = $("#equipoReasignadoGeneral");
     const btnConfirmarReasignarGen = document.getElementById("confirmarReasignarGeneral");
     const mensajeReasignarGen = document.getElementById("msgReasignarGeneral");
 
     $("#modalReasignarGeneral").on("shown.bs.modal", function () { //Al mostrar el modal.
-        configurarReasignarEquipo(selectEquipoReasignarGen, btnConfirmarReasignarGen, mensajeReasignarGen);
+        cargarEquiposDisponibles(selectEquipoReasignarGen, btnConfirmarReasignarGen, mensajeReasignarGen);
+    });
+
+    //Reasignar desde el menú.
+    const formReasignar = $("#formReasignarGeneral");
+    //Interceptar la acción y hacerla con ajax para indicar errores con los datos proporcionados, si los hay.   
+    formReasignar.on("submit", (event) => {
+        event.preventDefault();
+        interpretarResponse(formReasignar, mensajeReasignarGen);
+    });
+
+    //Terminar desde el menú.
+    const formFin = $("#formFinGeneral");
+    const mensajeFinGen = document.getElementById("msgFinGeneral");
+    formFin.on("submit", (event) => {
+        event.preventDefault();
+        interpretarResponse(formFin, mensajeFinGen);
     });
 
     const opcionBuscar = $("#opcionBuscar");
@@ -59,13 +119,13 @@ $(document).ready(function () {
                         }
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log('error: ' + textStatus + ' ' + errorThrown);
+                    if (jqXHR.status === 401) {
+                        location.reload()
+                    } else {
+                        console.log('error: ' + textStatus + ' ' + errorThrown);
+                    }
                 });
             }
         }
-    });
-
-    opcionBuscar.on("submit", function () {
-        formReasignarIndiv.attr("action", $(this).data("ruta-reasignar"));
     });
 });

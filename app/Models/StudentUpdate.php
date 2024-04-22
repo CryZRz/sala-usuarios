@@ -15,7 +15,8 @@ class StudentUpdate extends Model
         "student_id",
         "career",
         "controlNumber",
-        "semester"
+        "semester",
+        "period_id"
     ];
 
     public function student(){

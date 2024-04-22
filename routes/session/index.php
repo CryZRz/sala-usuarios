@@ -4,12 +4,19 @@ use App\Http\Controllers\PrestamosController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware("auth")->group(function () {
-    //Listado de sesiones
+    // Muestra de las sesiones
     Route::get("/sesiones", [PrestamosController::class, "mostrarSesiones"])->name("session.show");
     Route::get("/sesion", [PrestamosController::class, "mostrarCreacion"])->name("session.new");
-    //Reasignar equipo desde la barra de navegación incluye el núm. de sesión en el formulario.
+    Route::get("/contarSesiones", [PrestamosController::class, "contarSesiones"])->name("session.count");
+
+    // Reasignar equipo y terminar sesión desde la tabla de préstamos envían de parámetro el núm. sesión;
+    // desde la barra de navegación, se incluye este, o el núm. de equipo, en los datos del formulario.
     Route::post("/sesiones/{numSesion?}", [PrestamosController::class, "reasignarEquipo"])->name("session.reassign");
     Route::delete("/sesion/{numSesion?}", [PrestamosController::class, "terminarSesion"])->name("session.destroy");
+    
+    // La acción del botón terminarMúltiples es esta ruta; sin embargo, los núms. de sesión se recopilan
+    // y concatenan a la ruta con js hasta el momento de dar clic al botón. 
+    // Para definirla como acción del botón usando el nombre de la ruta, considera que el parámetro sea opcional. 
     Route::delete("/sesiones/{numsSesion?}", [PrestamosController::class, "terminarMultiples"])->name("session.destroyMany");
 
     //Creación de sesión

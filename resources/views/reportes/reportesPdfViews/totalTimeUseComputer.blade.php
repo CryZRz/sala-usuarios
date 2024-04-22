@@ -1,7 +1,7 @@
 @extends("layouts.reportesLayout")
 
 @section("title")
-    Reporte tiempo de uso equipos
+    Reporte tiempo por equipo
 @endsection
 
 @section("vite")

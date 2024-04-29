@@ -184,8 +184,8 @@ $(document).ready(function () {
     });
 
     /* Resaltar equipos acordes al cambiar de opción de uso */
-    $("#uso").on("change", function () {
-        //Aquellos equipos que tengan programas relacionados al uso
+    // $("#uso").on("change", function () {
+       //Aquellos equipos que tengan programas relacionados al uso
 
-    });
+    // });
 });

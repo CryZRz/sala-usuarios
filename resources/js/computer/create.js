@@ -8,6 +8,7 @@ import ShowLoading from "../utils/showLoading";
 const programsSection = document.getElementById("programs-section")
 const inputName = document.getElementById("input-name")
 const inputRam = document.getElementById("input-ram")
+const inputComputerNumber = document.getElementById("input-computer-number")
 const btnSendDataComputer = document.getElementById("btn-send")
 const btnShowMore = document.getElementById("btn-show-more")
 const csrfToken = document.querySelector('[name="csrf-token"]')
@@ -16,6 +17,7 @@ const loadingPageContainer = document.getElementById("section-loading")
 let dataComputer = {
     ram: 0,
     name: "",
+    computerNumber: 0,
     ports: [],
     programs: []
 }
@@ -33,7 +35,7 @@ async function sendDataComputer(){
             Headers: {"X-CSRF-Token": csrfToken.content}
         })
         loading.offLoading()
-        console.log(data)
+        history.back()
     } catch (e) {
         loading.offLoading()
         const listErrors = Object.values(e.response.data.errors)
@@ -56,7 +58,6 @@ async function getMorePrograms(e){
         loading.offLoading()
     } catch (e) {
         loading.offLoading()
-        console.log(e)
     }
 }
 
@@ -67,7 +68,7 @@ async function showListPrograms(){
         loading.onLoading()
         const listPrograms = await fetchMorePrograms(indexListPrograms)
         renderListPrograms(listPrograms, programsSection, dataComputer)
-        
+
         if(listPrograms.data.next_page_url != null){
             addButtonLoadPorgrams(
                 btnShowMore,
@@ -77,19 +78,20 @@ async function showListPrograms(){
         loading.offLoading()
     } catch (e) {
         loading.offLoading()
-        console.log(e)   
     }
 }
 
 
 inputName.addEventListener("change", e => {
     dataComputer.name = e.target.value
-    console.log(dataComputer)
 })
 
 inputRam.addEventListener("change", e => {
     dataComputer.ram = e.target.value
-    console.log(dataComputer)
+})
+
+inputComputerNumber.addEventListener("change", e => {
+    dataComputer.computerNumber = e.target.value
 })
 
 btnSendDataComputer.addEventListener("click", e => {

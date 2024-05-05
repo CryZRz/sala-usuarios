@@ -13,7 +13,8 @@ class Computer extends Model
 
     protected $fillable = [
         "ram",
-        "cpu"
+        "cpu",
+        "computer_number"
     ];
 
     public function programs() {

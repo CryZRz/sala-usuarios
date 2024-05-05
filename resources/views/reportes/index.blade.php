@@ -7,6 +7,9 @@ Crear reporte
 @section("main")
     <main class="container">
         <p class="h3 fw-bold text-center my-4">Elige un tipo de reporte</p>
+        @error("periodId")
+            <h5 class="w-12 alert alert-danger p-2 py-1">{{$message}}</h5>
+        @enderror
         <div class="accordion" id="accordionExample">
             <div class="accordion-item">
                 <h2 class="accordion-header">

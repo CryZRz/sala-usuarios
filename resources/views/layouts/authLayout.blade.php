@@ -64,8 +64,14 @@
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.create') ? 'active' : '' }}"
                                         href="{{ route('computer.create') }}">Nuevo equipo</a></li>
                                 <div class="dropdown-divider"></div>
+                                <li>
+                                    <a class="dropdown-item btn" href="{{route('program.show')}}">
+                                        Programas
+                                    </a>
+                                </li>
+                                <div class="dropdown-divider"></div>
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('computer.showUses') ? 'active' : '' }}"
-                                    href="{{ route('computer.showUses') }}">Ver tipos de uso</a></li>    
+                                    href="{{ route('computer.showUses') }}">Ver tipos de uso</a></li>
                             </ul>
                         </li>
 
@@ -92,7 +98,7 @@
                     <ul
                         class="navbar-nav d-flex flex-row justify-content-center align-items-top align-items-md-center gap-3 gap-md-0">
                         <li class="nav-item dropdown me-sm-4">
-                            <a class="nav-link dropdown-toggle  
+                            <a class="nav-link dropdown-toggle
                             {{ Str::startsWith(Route::currentRouteName(), 'report') ||
                             Str::startsWith(Route::currentRouteName(), 'register') ||
                             Str::startsWith(Route::currentRouteName(), 'import')

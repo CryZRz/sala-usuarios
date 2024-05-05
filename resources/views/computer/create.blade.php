@@ -16,17 +16,18 @@
             <h1>Agregar equipo de cómputo</h1>
         <form class="mt-2" action="" method="POST">
             <section class="row mb-2">
-                <div class="col-md-6">
-                    <label for="ram">RAM</label>
+                <div class="col-md-4">
+                    <label for="cpu">Numero de computadora</label>
                     <input
-                        id="input-ram"
-                        name="ram"
-                        type="number"
+                        id="input-computer-number"
+                        name="computerNumber"
+                        type="text"
                         class="col-12"
-                        placeholder="Ingresa la ram en GB"
-                        required>
+                        placeholder="Nombre del procesador"
+                        required
+                    >
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="cpu">CPU</label>
                     <input
                         id="input-name"
@@ -36,6 +37,16 @@
                         placeholder="Nombre del procesador"
                         required
                     >
+                </div>
+                <div class="col-md-4">
+                    <label for="ram">RAM</label>
+                    <input
+                        id="input-ram"
+                        name="ram"
+                        type="number"
+                        class="col-12"
+                        placeholder="Ingresa la ram en GB"
+                        required>
                 </div>
             </section>
             <section id="ports-section">
@@ -49,8 +60,11 @@
 
                 </ol>
                 <div id="btn-show-more">
-                    
+
                 </div>
+            </section>
+            <section>
+                <x-create-program-component/>
             </section>
             <section>
                 <button class="btn btn-primary col-12 my-2" id="btn-send">Agregar Computadora</button>

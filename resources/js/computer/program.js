@@ -11,10 +11,10 @@ function createElementProgram(program, dataComputer){
     version.textContent = `Version: ${program.version}`
     infoContainer.appendChild(versionContainer)
     infoContainer.appendChild(version)
-    
+
     let inputCheck = document.createElement("input")
     inputCheck.setAttribute("type", "checkbox")
-    
+
     container.appendChild(infoContainer)
     container.appendChild(inputCheck)
 
@@ -39,10 +39,8 @@ function addButtonLoadPorgrams(node, callbackEvent){
 }
 
 function renderListPrograms(request, node, dataComputer){
-    const {data: {data, links}} = request 
-        console.log(links)
+    const {data: {data, links}} = request
         data.map(p => {
-            console.log(p)
             const programChild = createElementProgram(p, dataComputer)
             node.appendChild(programChild)
         })

@@ -24,6 +24,7 @@ class ComputerRequest extends FormRequest
         return [
             "dataComputer.name" => ["required"],
             "dataComputer.ram" => ["required", "gt:0"],
+            "dataComputer.computerNumber" => ["required", "numeric", "unique:computers,computer_number"],
             "dataComputer.ports" => ["required", "array"],
             "dataComputer.ports.*.name" => ["required"],
             "dataComputer.ports.*.amount" => ["required", "numeric"],
@@ -36,6 +37,9 @@ class ComputerRequest extends FormRequest
         return [
             "dataComputer.name" => "El cpu del equipo es obligatorio",
             "dataComputer.ram" => "La ram del equipo es obligatoria",
+            "dataComputer.computerNumber.required" => "El numero de equipo es obligatorio",
+            "dataComputer.computerNumber.numeric" => "El numero de equipo debe ser numerico",
+            "dataComputer.computerNumber.unique" => "El numero de equipo no debe repetirse",
             "dataComputer.ports" => "Debes agregar al menos un puerto",
             "dataComputer.programs" => "Debes agregar al menos un programa",
             "dataComputer.ports.*.name" => "El nombre del puerto es obligatorio",

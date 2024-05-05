@@ -18,7 +18,7 @@ class ComputerController extends Controller
         $data = [
             "computers" => $Computers
         ];
-        
+
         return view("computer.show", $data);
     }
 
@@ -34,7 +34,8 @@ class ComputerController extends Controller
 
         $computer = Computer::create([
             "ram" => $dataComputer["ram"],
-            "cpu" => $dataComputer["name"]
+            "cpu" => $dataComputer["name"],
+            "computer_number" => $dataComputer["computerNumber"]
         ]);
 
         foreach ($ports as $port) {
@@ -69,7 +70,7 @@ class ComputerController extends Controller
         $data = [
             "computer" => $computer,
         ];
-        
+
         return view("computer.edit", $data);
     }
 
@@ -108,7 +109,7 @@ class ComputerController extends Controller
     public function update(Computer $computer, ComputerUpdateRequest $request) {
         $data = $request->validated();
         $dataComputer = $data["dataComputer"];
-        
+
         $computer->cpu = $dataComputer["name"];
         $computer->ram = $dataComputer["ram"];
         if(count($dataComputer["ports"]) > 0){

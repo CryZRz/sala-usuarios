@@ -77,14 +77,15 @@
 
                     </ol>
                     <div id="btn-show-more">
-                    
+
                     </div>
+                    <x-create-program-component/>
                 </section>
                 <section class="border-top border-secondary border-1 pt-3 mb-2">
                     <label class="h5" for="">Programas del equipo</label>
                     <ol class="list-group list-group-numbered" id="section-programs-computer">
                         @forelse ($computer->programs as $programComp)
-                        <li 
+                        <li
                             class="list-group-item d-flex justify-content-between align-items-start"
                             id="li-program-computer" program="{{ $programComp->id }}"
                             >

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReportRequest;
 use App\Http\Utils\reports\ReportsConsultsU;
 use App\Http\Utils\TimeFormatU;
 use App\Models\Period;
@@ -22,6 +23,12 @@ class ReportesController extends Controller{
     }
 
     public function reportTotalTimeBySemesterAndCareerDetail(Request $request){
+        $this->validate($request, [
+            "periodId" => ["required", "exists:periods,id"],
+            "career" => ["required", "string"],
+            "semester" => ["required", "numeric"],
+        ]);
+
         $career = $request->get("career");
         $semester = intval($request->get("semester"));
         $periodId = intval($request->get("periodId"));
@@ -50,7 +57,8 @@ class ReportesController extends Controller{
         return view('reportes.reportesPdfViews.timeUse', $data);
     }
 
-    public function reportTotalTimeByCareer(Request $request){
+    public function reportTotalTimeByCareer(ReportRequest $request){
+        $request->validated();
         $periodId = intval($request->get("periodId"));
         $listReports = ReportsConsultsU::getTotalTimeUseCareersByPeriod($periodId);
 
@@ -73,7 +81,8 @@ class ReportesController extends Controller{
         return view("reportes.reportesPdfViews.totalTimeCareer", $data);
     }
 
-    public function reportTotalTimeByCareerDetail(Request $request){
+    public function reportTotalTimeByCareerDetail(ReportRequest $request){
+        $request->validated();
         $periodId = intval($request->get("periodId"));
         $listReports = ReportsConsultsU::getTotalTimeUseCareersByPeriod($periodId);
         $studentsReport = ReportsConsultsU::getTimeUseStudentByPeriodDetail($periodId, true);
@@ -98,7 +107,8 @@ class ReportesController extends Controller{
         return view("reportes.reportesPdfViews.totalTimeCareer", $data);
     }
 
-    public function reportApplicationsComputerByCareer(Request $request){
+    public function reportApplicationsComputerByCareer(ReportRequest $request){
+        $request->validated();
         $periodId = intval($request->get("periodId"));
         $listTimeUseComputerPerCareer = ReportsConsultsU::getTimeUseComputerByCareer($periodId, true);
         $period = Period::find($periodId);
@@ -111,7 +121,8 @@ class ReportesController extends Controller{
         return view("reportes.reportesPdfViews.totalTimeUseComputer", $data);
     }
 
-    public function reportApplicationMostUsedByCareer(Request $request){
+    public function reportApplicationMostUsedByCareer(ReportRequest $request){
+        $request->validated();
         $periodId = intval($request->get("periodId"));
         $listApplicationMostUsedByCareer = ReportsConsultsU::getApplicationsMostUsedByCareer($periodId, true);
         $period = Period::find($periodId);

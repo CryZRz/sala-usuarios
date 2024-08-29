@@ -1,14 +1,12 @@
-import ShowLoading from "../utils/showLoading";
+const listBtnsEndIncidences = document.querySelectorAll(".btn-end-incidence")
+const formEndIncidence = document.getElementById("formEndIncidence")
 
-$(document).ready(function () {
-    const pantallaCarga = document.getElementById("section-loading");
-    const carga = new ShowLoading(pantallaCarga);
-    carga.setPageLoading();
+listBtnsEndIncidences.forEach(button => {
+    button.addEventListener("click", e => {
+        const idIncidence =  button.getAttribute("id-incidence")
+        if (idIncidence !== null){
+            formEndIncidence.action = `incidencia/${idIncidence}`
+        }
 
-    //Terminar incidencia
-    const formFinIndiv = $("#formFinIndividual");
-    //Concatenar id de la sesión elegida a la ruta del form de finalizar incidencia. 
-    $(".botonFin").on("click", function () {
-        formFinIndiv.attr("action", $(this).data("ruta-fin"));
-    });
-});
+    })
+})

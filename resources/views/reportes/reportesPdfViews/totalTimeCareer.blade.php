@@ -38,9 +38,9 @@
                 </tr>
             </table>
         @endforeach
-        <div class="w-3p5 mx-auto mt-5">
-            <canvas id="ctx"></canvas>
-        </div>
+        <section class="w-full d-flex justify-content-center align-items-center">
+            <canvas class="w-1p3 mx-auto mt-3 mb-3" id="ctx"></canvas>
+        </section>
         @if(!empty($studentsReport))
             <div class="mt-5">
                 <h3 class="fw-bold">Detalle de usos</h3>

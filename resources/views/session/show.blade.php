@@ -4,11 +4,10 @@
     Sala de usuarios
 @endsection
 
-@inject('prestamos', 'App\Http\Controllers\PrestamosController')
-
 @section('vite')
     @vite(['resources/js/session/show.js'])
     @vite(['resources/js/session/counterManager.js'])
+    @vite(['resources/js/session/manageSessionCheck.js'])
 @endsection
 
 @section('main')
@@ -46,14 +45,21 @@
                             data-ruta-fin-multiple="{{ route('session.destroyMany') }}">
                             @csrf
                             @method('delete')
-                            <button type="submit" class="btn btn-turquesa">Finalizar</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Regresar</button>
+                            <button id="btnEndSelectSessions" type="submit" class="btn btn-turquesa">
+                                Finalizar
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Regresar
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
+        @if(session("alert") != null)
+            {{session("alert")}}
+        @endif
+        {{$errors}}
         <!-- Recuadro de la tabla de sesiones de préstamo-->
         <div class="container-fluid mx-auto px-md-5">
             <h4 class="titulo text-center">Sesiones de préstamo</h4>
@@ -74,21 +80,26 @@
                     <tbody>
                         @foreach ($sesiones as $sesion)
                             <tr>
-                                <th><input class="form-check-input checkSesion" data-id-sesion="{{ $sesion->id }}"
-                                        type="checkbox"></th>
+                                <th>
+                                    <input
+                                        class="form-check-input checkSesion"
+                                        data-id-sesion="{{ $sesion->id }}"
+                                        type="checkbox"
+                                    >
+                                </th>
                                 <td>{{ $indice = $loop->index + 1 }}</td>
-                                <td>{{ $sesion->computer->id }}</td>
-                                <td>{{ $sesion->studentUpdate->controlNumber .
+                                <td>{{ $sesion->computer->computer_number }}</td>
+                                <td>
+                                    {{ $sesion->studentUpdate->controlNumber .
                                     ' - ' .
-                                    ($sesion->nombreCompleto = $sesion->student->lastName . ' ' . $sesion->student->name) }}
+                                    $sesion->student->lastName . ' ' . $sesion->student->name }}
                                 </td>
                                 <td>
-                                    @php($sesion->tiempos = $prestamos::calcularHorario($sesion->startTime, $sesion->timeAssigment))
-                                    {{ $sesion->tiempos['horario'] }}
+                                    {{$sesion->timeInterval}}
                                 </td>
                                 <td>{{ $sesion->timeAssigment }}</td>
                                 <td id="timeAssigment" sessionId="{{ $sesion->id }}">
-                                    {{ $prestamos::calcularTiempoRestante($sesion->tiempos['horaFin']) }}
+                                    {{$sesion->remainingTime}}
                                 </td>
                                 <td>
                                     <div class="d-md-flex justify-content-center">
@@ -118,7 +129,7 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Número de equipo</td>
-                                                                    <td>{{ $sesion->computer->id }}</td>
+                                                                    <td>{{ $sesion->computer->computer_number }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Tiempo asignado</td>
@@ -126,11 +137,11 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Horario de sesión</td>
-                                                                    <td>{{ $sesion->tiempos['horario'] }}</td>
+                                                                    <td>{{ $sesion->timeInterval }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Hora de fin</td>
-                                                                    <td>{{ $sesion->tiempos['horaFin']->format("d/m/y H:i") }}</td>
+                                                                    <td>{{$sesion->finishTime}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Uso</td>
@@ -149,7 +160,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Nombre</td>
-                                                                    <td>{{ $sesion->nombreCompleto }}</td>
+                                                                    <td>
+                                                                        {{ $sesion->student->lastName . ' ' . $sesion->student->name }}
+                                                                    </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Carrera</td>
@@ -186,13 +199,13 @@
                                         </div>
 
                                         <a class="botonReasignar btn btn-verde btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                            data-ruta-reasignar="{{ route('session.reassign', ['numSesion' => $sesion->id]) }}"
-                                            data-bs-toggle="modal" data-bs-target="#infoReasignar">
+                                           sessionId="{{$sesion->id}}"
+                                           data-bs-toggle="modal" data-bs-target="#infoReasignar">
                                             Reasignar
                                         </a>
 
                                         <a class="botonFin btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                            data-ruta-fin="{{ route('session.destroy', $sesion->id) }}"
+                                            sessionId="{{$sesion->id}}"
                                             data-bs-toggle="modal" data-bs-target="#infoFin">
                                             Fin
                                         </a>
@@ -202,7 +215,7 @@
 
                         <!-- Ventana emergente para el botón Reasignar -->
                         <div class="modal fade" id="infoReasignar" tabindex="-1">
-                            <form id="formReasignarIndividual" method="POST" action="">
+                            <form id="formReasignarIndividual" method="POST" action="{{route("session.reassign")}}">
                                 @csrf
                                 <div class="modal-dialog modal-dialog-scrollable">
                                     <div class="modal-content">
@@ -215,17 +228,20 @@
                                             <div class="d-flex justify-content-center align-items-center">
                                                 <label for="numEquipo" class="form-label mb-1 fw-bold me-3">Nuevo
                                                     equipo</label>
-                                                <select class="form-select w-auto" name="numEquipo"
-                                                    id="equipoReasignadoIndividual">
+                                                <select class="form-select w-auto" name="computerNumber"
+                                                    id="list-computers-re-using">
                                                 </select>
+                                                <input type="hidden" name="sessionId" value="0" id="change-computer-input">
                                             </div>
                                             <p id="msgReasignarIndividual" class="text-danger text-center mt-2 mb-0"></p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button id="confirmarReasignarIndividual" type="submit" class="btn btn-turquesa"
-                                                disabled>Reasignar</button>
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Regresar</button>
+                                            <button id="confirmarReasignarIndividual" type="submit" class="btn btn-turquesa">
+                                                Reasignar
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Regresar
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -246,9 +262,10 @@
                                         <p id="msgFinIndividual" class="text-danger text-center mt-2 mb-0"></p>
                                     </div>
                                     <div class="modal-footer">
-                                        <form id="formFinIndividual" method="POST" action="">
+                                        <form id="formFinIndividual" method="POST" action="{{route("session.destroy")}}">
                                             @csrf
                                             @method('delete')
+                                            <input type="hidden" name="sessionId" id="inputEndSession">
                                             <button type="submit" class="btn btn-turquesa">Finalizar</button>
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Regresar</button>

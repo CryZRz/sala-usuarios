@@ -13,4 +13,15 @@ class Student extends Model
         "name",
         "lastName",
     ];
+
+    //Accessors
+    public function getFullNameAttribute()
+    {
+        return "{$this->name} {$this->lastName}";
+    }
+
+    public function getLastNameFirstAttribute()
+    {
+        return "{$this->lastName} {$this->name}";
+    }
 }

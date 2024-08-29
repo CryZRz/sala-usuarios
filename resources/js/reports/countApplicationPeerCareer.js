@@ -1,7 +1,5 @@
 import Chart from 'chart.js/auto';
 
-console.log(dataReport)
-
 const dataReportFormat = dataReport.reduce((acum, report) => {
     acum.push({
         applicationId: report.application.id,

@@ -43,7 +43,9 @@
                         @endforeach
                     </tbody>
                 </table>
-                <canvas class="w-3p5 mx-auto mt-3 mb-3" id="ctx-{{$report["application"]["id"]}}"></canvas>
+                <section class="w-full d-flex justify-content-center align-items-center">
+                    <canvas class="w-1p3 mx-auto mt-3 mb-3" id="ctx-{{$report["application"]["id"]}}"></canvas>
+                </section>
             @endforeach
         </section>
     </main>

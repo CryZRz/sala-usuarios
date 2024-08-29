@@ -2,215 +2,175 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StudentResource;
 use App\Http\Utils\CareersE;
+use App\Http\Utils\SessionU;
 use App\Models\Application;
 use App\Models\Computer;
 use App\Models\Loan;
-use App\Models\Period;
 use App\Models\Student;
-use App\Http\Controllers\StudentController;
 use App\Models\StudentUpdate;
 use App\Http\Utils\TimeFormatU;
 use Carbon\Carbon;
-use DateInterval;
-use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PrestamosController extends Controller
 {
-    public static function calcularHorario(Carbon $horaInicio, string $tiempoAsignado)
-    {
-        $tiempos["horario"] = $horaInicio->format("H:i");
-        $tiempoAsignado = new DateTime($tiempoAsignado);
-        $tiempos["horaFin"] = TimeFormatU::sumTimeToDate(
-            $horaInicio,
-            hours: $tiempoAsignado->format("H"),
-            minutes: $tiempoAsignado->format("i")
-        );
-        $tiempos["horario"] = $tiempos["horario"] . " - " . $tiempos["horaFin"]->format("H:i");
-        return $tiempos;
-    }
-
-    /** Convierte una hora a un timeInterval (Ej.: PT1H30M)
-     * para hacer sumas o diferencias de tiempo. */
-    private static function convertirAIntervalo(string $hora)
-    {
-        //Reemplaza una hora 01:30 por 01H30; 
-        $horaFormato = str_replace(':', 'H', $hora);
-        return new DateInterval('PT' . $horaFormato . 'M');
-    }
-
-    public static function calcularTiempoRestante(Carbon $tiempoFin)
-    {
-        $horaActual = Carbon::now();
-
-        if ($tiempoFin <= $horaActual) {
-            $tiempoRestante = "00:00:00";
-        } else {
-            $tiempoRestante = TimeFormatU::subtractTimeToDate(
-                $tiempoFin,
-                hours: $horaActual->format("H"),
-                minutes: $horaActual->format("i")
-            )->format("H:i:00");
-        }
-        return $tiempoRestante;
-    }
 
     public function mostrarSesiones()
     {
         $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();
 
-        //Si la redirección se encadenó tras autenticación 
-        if (session("autenticacion") == true) {
-            //Si hay sesiones activas del administrador anterior
-            if (isset($sesiones)) {
-                //Asignar al nuevo administrador como "propietario"
-                foreach ($sesiones as $sesion) {
-                    if ($sesion->created_by != auth()->user()->id) {
-                        Loan::where('id', $sesion->id)->update(['created_by' => auth()->user()->id]);
-                        $sesion->owner->name = auth()->user()->name;
-                        $sesion->owner->email = auth()->user()->email;
-                    }
-                }
-            }
-            //Indicar no necesitar volver a revisarlo en el resto de la sesión.
-            session()->put("autenticacion", false);
-        }
+
+        $sessionAddData = $sesiones->map(function($session){
+            $finishTime = SessionU::calculateEndTimeSession(
+                $session->startTime,
+                new Carbon($session->timeAssigment)
+            );
+            $timeIntervalFormat = $session->startTime->format("H:i")."-".$finishTime->format("H:i");
+
+            $session->timeInterval = $timeIntervalFormat;
+            $session->remainingTime = SessionU::calculateRemainingTime($finishTime);
+            $session->finishTime = $finishTime->format("H:i");
+
+            return $session;
+        });
 
         $data = [
-            "sesiones" => $sesiones
+            "sesiones" => $sessionAddData
         ];
 
         return view("session.show", $data);
     }
 
-    /**
-     * Reasignar mediante la navbar usa el núm. de control del alumno;
-     * desde la tabla de sesiones usa el núm. de sesión.
-     */
-    public function reasignarEquipo(Request $request, int $numSesion = null)
+
+    public function reasignarEquipo(Request $request)
     {
-        //Revisar si hay alguna sesión activa con el equipo deseado asignado,
-        $sesionNuevoEquipo = Loan::where("computer_id", $request->numEquipo)->first();
+        $this->validate($request, [
+            "computerNumber" => ["required", "numeric", "exists:computers,computer_number"],
+            "sessionId" => ["required", "exists:loans,id"]
+        ]);
 
-        if (isset($sesionNuevoEquipo)) {
-            return response()->json([
-                'error' => 'Hay una sesión con el equipo ' . $request->numEquipo . ' asignado.'
-            ], 200);
-        } else {
-            //Obtener la sesión dependiendo si se llamó desde el menú o desde la tabla.
-            if (isset($numSesion)) { //Desde la tabla, con su núm. de sesión
-                $sesion = Loan::where("id", $numSesion)->first();
-            } else { //Desde el menú, con núm. de control
-                $estudiante = StudentUpdate::where("controlNumber", "=", $request->numControl)->first();
-                if (!isset($estudiante)) {
-                    return response()->json([
-                        'error' => 'El número de control ' . $request->numControl . ' no está registrado.'
-                    ], 200);
-                } else {
-                    $sesion = Loan::where("student_id", $estudiante->student_id)->first();
-                }
-            }
+        $computerId = $request->get("computerNumber");
+        $sessionId = $request->get("sessionId");
 
-            if (!isset($sesion)) {
-                return response()->json([
-                    'error' => 'El alumno ' . $request->numControl . ' no tiene una sesión activa.'
-                ], 200);
-            } else {
-                //Asignar el nuevo equipo a la sesión.
-                $sesion->computer_id = $request->numEquipo;
-                $sesion->save();
+        $computer = Computer::where("computer_number",$computerId)->first();
+        $session = Loan::where("computer_id",$computer->id)->first();
 
-                return response()->json([
-                    'redireccion' => route("session.show")
-                ], 200);
-            }
+        if ($session != null) {
+          return redirect()
+              ->route("session.show")
+              ->with("alert", "la computadora seleccionada esta en uso");
         }
+
+        Loan::find($sessionId)->update(["computer_id"=> $computer->id]);
+
+        return redirect()
+            ->route("session.show")
+            ->with("alert", "la session se ha actualizado correctamente");
     }
 
-    public function terminarSesion(Request $request, int $numSesion = null)
+    public function terminarSesion(Request $request)
     {
-        //Si se llamó con el número de sesión (desde la tabla de sesiones)
-        if (isset($numSesion)) {
-            $sesion = Loan::where("id", $numSesion)->first();
-        } else { //Se llamó desde la navbar o del menú de acciones.
-            if ($request->opcionBuscar == "numControl") { //Si se buscó con el número de control
-                $estudiante = StudentUpdate::where("controlNumber", "=", $request->finNumControl)->first();
-                if (!isset($estudiante)) { //Alumno no está en la BD.
-                    return response()->json([
-                        'error' => 'El número de control ' . $request->finNumControl . ' no está registrado.'
-                    ], 200);
-                } else { //Alumno indicado no tiene sesión activa
-                    $sesion = Loan::where("student_id", $estudiante->student_id)->first();
-                    if (!isset($sesion)) {
-                        return response()->json([
-                            'error' => 'El alumno ' . $request->finNumControl . ' no tiene una sesión activa.'
-                        ], 200);
-                    }
-                }
-            } else { //Se buscó con id de equipo
-                $sesion = Loan::where("computer_id", $request->finNumEquipo)->first();
-            }
+        $this->validate($request, [
+            "sessionId" => ["required", "numeric", "exists:loans,id"]
+        ]);
+
+        $sessionId = $request->get("sessionId");
+        Loan::find($sessionId)->delete();
+
+        return redirect()->route("session.show");
+    }
+
+    public function terminarSesionNumEquio(Request $request)
+    {
+        $this->validate($request, [
+           "computerNumber" => ["required", "numeric", "exists:computers,computer_number"]
+        ]);
+
+        $computerNumber = $request->get("computerNumber");
+        $computerId = Computer::where("computer_number", $computerNumber)->first()->id;
+
+        Loan::where("computer_id", $computerId)->first()->delete();
+
+        return redirect()
+            ->route("session.show")
+            ->with("alert", "session terminada correctamente");
+    }
+
+    public function terminarSesionNumControl(Request $request)
+    {
+        $this->validate($request, [
+            "controlNumber" => ["required", "numeric", "exists:student_updates,controlNumber"]
+        ]);
+
+        $controlNumber = $request->get("controlNumber");
+        $student = StudentUpdate::getLastByControlNumber($controlNumber);
+
+        $session = Loan::where("student_id", $student->student_id)->first();
+
+        if ($session != null) {
+            $session->delete();
+            return redirect()
+                ->route("session.show")
+                ->with("alert", "session terminada correctamente");
         }
-        if (isset($sesion)) { //No hay problemas; ajustar el tiempo transcurrido total
-            $sesion->timeAssigment = $this->calcularTiempoTranscurrido($sesion->startTime);
-            $sesion->save();
-            $sesion->delete();
+
+        return redirect()
+            ->route("session.show")
+            ->with("alert", "El numero de control no tiene una sesión activa");
+    }
+
+    public function terminarMultiples(Request $request)
+    {
+        $this->validate($request, [
+            "listSessions" => ["required", "array"],
+            "listSessions.*" => ["required", "integer" ,"exists:loans,id"],
+        ]);
+
+        $listSessionsIds = $request->get("listSessions");
+
+        foreach ($listSessionsIds as $sessionId) {
+            $sessionDb = Loan::find($sessionId);
+
+            $sessionDb->timeAssigment = TimeFormatU::diffHoursDates(
+                Carbon::now(),
+                new Carbon($sessionDb->startTime)
+            );
+
+            $sessionDb->save();
+            $sessionDb->delete();
         }
-        //Regresar a la vista de sesiones aunque la sesión ya hubiera estado eliminada. 
-        return response()->json(['redireccion' => route("session.show")]);
+
+        return response()->json(null, 204);
     }
 
-    public function calcularTiempoTranscurrido(Carbon $horaInicio)
+    public function create()
     {
-        $horaActual = Carbon::now();
+        $usesPrograms = Application::orderBy('name')->get();
+        $careers = CareersE::getCareers();
+        $listComputers = SessionU::getListComputersFree();
 
-        return TimeFormatU::subtractTimeToDate(
-            $horaActual,
-            hours: $horaInicio->format("H"),
-            minutes: $horaInicio->format("i")
-        );
+        $data = [
+            "usesPrograms" => $usesPrograms,
+            "careers" => $careers,
+            "listComputers" => $listComputers
+        ];
+
+        return view("session.nuevaSesion", $data);
     }
 
-    public function terminarMultiples(string $jsonNumsSesion)
-    {
-        $jsonNumsSesion = json_decode($jsonNumsSesion);
-        foreach ($jsonNumsSesion as $numSesion) {
-            $sesion = Loan::find($numSesion);
-            if (isset($sesion)) { //Ajustar el tiempo transcurrido total
-                $sesion->timeAssigment = $this->calcularTiempoTranscurrido($sesion->startTime);
-                $sesion->save();
-                $sesion->delete();
-            }
-        }
-        return redirect(route("session.show"));
-    }
-
-    public function mostrarCreacion()
-    {
-        return view("session.nuevaSesion");
-    }
-
-    public function cargarUsos()
-    {
-        return response()->json(Application::orderBy('name')->get());
-    }
     public function cargarEquipos()
     {
-        //Se necesita traer de las sesiones todas aquellas que aun no han terminado
-        $loansInUse = Loan::all()
-            ->map(fn($query) => $query->computer_id);
-
-        //Buscamos todas las computadoras que no esten en uso
-        $computers = Computer::whereNotIn("id", $loansInUse)->get();
-
-        return response()->json($computers);
+        return response()->json(SessionU::getListComputersFree());
     }
 
     public function cargarEquiposUso()
     {
         //Se necesita traer de las sesiones todas aquellas que aun no han terminado
-        $loansInUse = Loan::all()
+        $loansInUse = Loan::whereNull("endTime")
+            ->get()
             ->map(fn($query) => $query->computer_id);
 
         //Buscamos todas las computadoras que esten en uso
@@ -219,87 +179,113 @@ class PrestamosController extends Controller
         return response()->json($computers);
     }
 
-    public function cargarCarreras()
+    public function getInfoStudentForSession(string $numControl)
     {
-        return CareersE::getCareers();
-    }
+        $student = StudentUpdate::getLastByControlNumber($numControl);
 
-    public function cargarAlumno(string $numControl)
-    {
-        $alumno = StudentController::search($numControl);
-
-        if ($alumno != null) {
+        if ($student != null) {
             //Buscar si el estudiante tiene una sesión de préstamo activa
-            $prestamo = Loan::where("student_id", "=", $alumno['student_id'])->first();
-            if ($prestamo != null) {
-                $alumno['prestamo'] = $prestamo->computer_id;
+            $session = Loan::where("student_id", $student->student_id)->first();
+            if ($session != null) {
+                return response()
+                    ->json(["error" => "El estudiante tiene una sesión activa"], 409);
             }
+            return new StudentResource($student);
         }
-        return response()->json($alumno);
+
+        return response()->json(["error" => "El estudiante no esta registrado"], 404);
     }
 
     public function registrarSesion(Request $request)
     {
-        $dataSesion = [
-            "student_id" => null,
-            "student_update_id" => null,
-            "computer_id" => $request->equipo,
-            "application_id" => $request->uso,
-            "timeAssigment" => $request->tiempo,
-            "created_by" => auth()->user()->id
-        ];
+        $this->validate($request, [
+            "controlNumber" => ["required", "numeric", "exists:student_updates,controlNumber"],
+            "application" => ["required", "exists:applications,id"],
+            "computer" => ["required", "exists:computers,id"],
+            "timeAssigment" => ["required"],
+        ]);
 
-        //Si el número de control ya está registrado
-        $actualizacionActual = StudentUpdate::where("controlNumber", $request->numControl)->first();
-        if (isset($actualizacionActual)) {
-            $dataSesion["student_id"] = $actualizacionActual->student_id;
-            $dataSesion["student_update_id"] = $actualizacionActual->id;
-        } else {
-            $periodoActual = Period::orderByDesc('created_at')->first();
+        $controlNumber = $request->get("controlNumber");
+        $studentData = StudentUpdate::getLastByControlNumber($controlNumber);
+        $student = $studentData->student;
+        $loan = Loan::where("student_id", $student->id)->first();
 
-            $alumno = new Student();
-            $alumno->name = $request->nombre;
-            $alumno->lastName = $request->apellidos;
-            $alumno->save();
-            $actualizacionActual = new StudentUpdate();
-            $actualizacionActual->student_id = $alumno->id;
-            $actualizacionActual->controlNumber = $request->numControl;
-            $actualizacionActual->career = $request->carrera;
-            $actualizacionActual->semester = $request->semestre;
-            $actualizacionActual->period_id = $periodoActual->id;
-            $actualizacionActual->save();
-            $dataSesion["student_id"] = $alumno->id;
-            $dataSesion["student_update_id"] = $actualizacionActual->id;
+        if ($loan != null){
+            return redirect()
+                ->route("session.nuevaSession")
+                ->with("alert","El estudiante ya esta en una sesión");
         }
-        Loan::create($dataSesion);
+
+        Loan::create([
+            "student_id" => $student->id,
+            "student_update_id" => $studentData->id,
+            "computer_id" => $request->get("computer"),
+            "application_id" => $request->get("application"),
+            "timeAssigment" => $request->get("timeAssigment"),
+            "created_by" => auth()->user()->id,
+        ]);
+
+        return redirect()->route("session.show");
+    }
+
+    public  function createSessionAndStudent(Request $request){
+        $this->validate($request, [
+           "controlNumber" => ["required", "unique:student_updates,controlNumber", "min:8"],
+            "name" =>["required"],
+            "lastName" => ["required"],
+            "career" => ["required", Rule::in(CareersE::getCareers())],
+            "semester" => ["required", "numeric", "min:1", "max:13"],
+            "application" => ["required", "exists:applications,id"],
+            "computer" => ["required", "exists:computers,id"],
+            "timeAssigment" => ["required"],
+        ]);
+
+        $student = Student::create([
+            "name" => $request->get("name"),
+            "lastName" => $request->get("lastName"),
+        ]);
+
+        $studentData = StudentUpdate::create([
+            "student_id" => $student->id,
+            "career" => $request->get("career"),
+            "controlNumber" => $request->get("controlNumber"),
+            "semester" => $request->get("semester"),
+            "period_id" => $request->get("application"),
+        ]);
+
+        Loan::create([
+            "student_id" => $student->id,
+            "student_update_id" => $studentData->id,
+            "computer_id" => $request->get("computer"),
+            "application_id" => $request->get("application"),
+            "timeAssigment" => $request->get("timeAssigment"),
+            "created_by" => auth()->user()->id,
+        ]);
+
         return redirect()->route("session.show");
     }
 
     public function actualizarTiempo(Request $request)
     {
+        $this->validate($request, [
+            "idSession" => ["required", "numeric", "exists:loans,id"],
+            "timeSession" => ["required"],
+        ]);
+
         $idSesion = $request->get("idSession");
         $sesion = Loan::find($idSesion);
-        $extensionTiempo = new Carbon($request->get("timeSession"));
+        $timeToAdd = new Carbon($request->get("timeSession"));
 
-        if ($sesion == null) {
-            return response(404);
-        }
-        $tiempoTranscurrido = $this->calcularTiempoTranscurrido($sesion->startTime);
 
-        //Ajustar la asignación de tiempo 
+        //Ajustar la asignación de tiempo
         $sesion->timeAssigment = TimeFormatU::sumTimeToDate(
-            $tiempoTranscurrido,
-            hours: $extensionTiempo->format("H"),
-            minutes: $extensionTiempo->format("i")
+            TimeFormatU::diffHoursDates(Carbon::now(), new Carbon($sesion->startTime)),
+            hours: $timeToAdd->format("H"),
+            minutes: $timeToAdd->format("i")
         )->format("H:i");
 
         $sesion->save();
 
         return redirect()->route("session.show");
-    }
-
-    public function contarSesiones()
-    {
-        return Loan::count();
     }
 }

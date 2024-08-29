@@ -11,9 +11,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('applications', Application::DELETED_AT)) {
+        if (!Schema::hasColumn('applications', "deleted_at")) {
             Schema::table('applications', function (Blueprint $table) {
-                $table->softDeletes(Application::DELETED_AT);
+                $table->softDeletes();
             });
         }
     }
@@ -23,9 +23,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        if (Schema::hasColumn('applications', Application::DELETED_AT)) {
+        if (Schema::hasColumn('applications', "deleted_at")) {
             Schema::table('applications', function (Blueprint $table) {
-                $table->dropColumn(Application::DELETED_AT);
+                $table->dropColumn("deleted_at");
             });
         }
     }

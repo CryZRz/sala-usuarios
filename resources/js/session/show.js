@@ -1,86 +1,41 @@
-import { cargarEquiposDisponibles, interpretarResponse } from "./actualizarSesion";
+import {getListComputersAvailable} from "../utils/computerU.js";
 
-$(document).ready(function () {
-    //Al reasignar equipo mediante un botón individual en la tabla de sesiones.
-    const formReasignarIndiv = $("#formReasignarIndividual");
-    const selectEquipoReasignarIndiv = $("#equipoReasignadoIndividual");
-    const btnConfirmarReasignarIndiv = document.getElementById("confirmarReasignarIndividual");
-    const mensajeReasignarIndiv = document.getElementById("msgReasignarIndividual");
+const listSessions = document.querySelectorAll(".botonReasignar")
+const btnsEndSession = document.querySelectorAll(".botonFin")
 
-    $(".botonReasignar").on("click", function () {
-        formReasignarIndiv.attr("action", $(this).data("ruta-reasignar"));
-        cargarEquiposDisponibles(selectEquipoReasignarIndiv, btnConfirmarReasignarIndiv, mensajeReasignarIndiv);
-    });
+function addListComputersAvailable(listComputers){
+    const selectElementListComputersReAsign = document.getElementById("list-computers-re-using")
+    selectElementListComputersReAsign.innerHTML = ""
+    listComputers.map(computer => {
+        const optionComputerElement = document.createElement("option")
+        optionComputerElement.value = computer.computer_number
+        optionComputerElement.innerText = computer.computer_number
+        selectElementListComputersReAsign.append(optionComputerElement)
+    })
+}
 
-    //Reasignar desde la tabla
-    //Interceptar la acción y hacerla con ajax para indicar errores con los datos proporcionados, si los hay.   
-    formReasignarIndiv.on("submit", (event) => {
-        event.preventDefault();
-        interpretarResponse(formReasignarIndiv, mensajeReasignarIndiv);
-    });
+listSessions.forEach(session => {
+    const changeComputerInput = document.getElementById("change-computer-input")
+    const messageAlertChangeComputer = document.getElementById("msgReasignarIndividual")
 
-    //Terminar desde la tabla
-    const formFinIndiv = $("#formFinIndividual");
-    const mensajeFinIndiv = $("#msgFinIndividual");
-    //Concatenar id de la sesión elegida a la ruta del form de finalizar sesión. 
-    $(".botonFin").on("click", function () {
-        formFinIndiv.attr("action", $(this).data("ruta-fin"));
-    });
-    formFinIndiv.on("submit", (event) => {
-        event.preventDefault();
-        interpretarResponse(formFinIndiv, mensajeFinIndiv);
-    });
-
-    const checkboxGlobal = $("#checkGlobal");
-    const checkboxesSesiones = $(".checkSesion");
-    const btnTerminarMultiple = $("#btnTerminarMultiple");
-    let checkboxesActivas = 0;
-    checkboxesSesiones.each(function () {
-        if ($(this).is(":checked")) {
-            checkboxesActivas++
-        }
-    });
-
-    checkboxGlobal.change(function () {
-        if ($(this).is(":checked")) {
-            if(checkboxesSesiones.length > 0){
-                checkboxesSesiones.each(function () {
-                    $(this).prop("checked", true);
-                });
-                btnTerminarMultiple.prop("disabled", false);
+    session.addEventListener("click", async e => {
+        changeComputerInput.value = session.getAttribute("sessionId")
+        try {
+            const listComputers = await getListComputersAvailable()
+            if (listComputers.length > 0){
+                addListComputersAvailable(listComputers)
+            }else{
+                messageAlertChangeComputer.innerText = "No hay computadoras disponibles"
             }
-            checkboxesActivas = checkboxesSesiones.length;
-        } else {
-            checkboxesSesiones.each(function () {
-                $(this).prop("checked", false);
-            });
-            btnTerminarMultiple.prop("disabled", true);
-            checkboxesActivas = 0;
+        }catch (e){
+            console.log(e)
         }
-    });
+    })
+})
 
-    checkboxesSesiones.change(function () {
-        if ($(this).is(":checked")) {
-            checkboxesActivas++;
-            if (checkboxesActivas == 1) {
-                btnTerminarMultiple.prop("disabled", false);
-            };
-        } else {
-            checkboxesActivas--;
-            if (checkboxesActivas == 0) {
-                btnTerminarMultiple.prop("disabled", true);
-            };
-        }
-    });
-
-    const formFinMultiple = $("#formFinMultiple");
-    btnTerminarMultiple.on("click", function () {
-        const seleccionadas = [];
-        checkboxesSesiones.each(function () {
-            if ($(this).is(":checked")) {
-                seleccionadas.push($(this).data("id-sesion"));
-            }
-        })
-        formFinMultiple.attr("action", formFinMultiple.data("ruta-fin-multiple") + "/" + JSON.stringify(seleccionadas));
-    });
-});
+btnsEndSession.forEach(button => {
+    button.addEventListener("click", e => {
+        const inputEndSession = document.getElementById("inputEndSession")
+        inputEndSession.setAttribute("value", button.getAttribute("sessionId"))
+    })
+})

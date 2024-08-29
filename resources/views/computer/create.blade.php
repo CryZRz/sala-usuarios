@@ -23,7 +23,7 @@
                         name="computerNumber"
                         type="text"
                         class="col-12"
-                        placeholder="Nombre del procesador"
+                        placeholder="N. computadora"
                         required
                     >
                 </div>
@@ -52,7 +52,7 @@
             <section id="ports-section">
                 <label class="h5" for="">Puertos</label>
                 <button class="btn btn-warning text-white col-12 mb-2" id="btn-add-port">Agregar</button>
-                <div id="list-prots">
+                <div id="list-prots"></div>
             </section>
             <section class="mb-3">
                 <label class="h5" for="">Programas</label>

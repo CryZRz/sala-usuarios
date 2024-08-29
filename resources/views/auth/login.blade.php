@@ -7,52 +7,67 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
-    @vite(['resources/scss/app.scss', 'resources/scss/authLayout.scss', 'resources/js/app.js'])
+    @vite(['resources/scss/app.scss', 'resources/scss/auth/login.scss'])
 </head>
 <body>
-    <div class="d-flex flex-column" style="height:100dvh">
-        <header class="navbar navbar-expand-sm justify-content-center sombraDegradado">
-            <img src="images/logoITL.png" class="img-fluid rounded-top me-3" style="max-width:60px;" alt="Logo ITL">
-            <a class="navbar-brand fw-bold text-white" href="#">
-                Sala de Usuarios
-            </a>
-        </header>
+    <main class="w-full vh-100 row g-0">
+        <section class="section-left-container col-lg-7 col-md-7 col-sm-12">
 
-        <div class="d-flex flex-grow-1 align-items-center text-center">
-            <div class="container-sm py-3">
-                <p class="mb-3 h3 titulo">Inicia sesión:</p>
-                <form class="sombraCaja rounded-5 p-4 mx-auto bg-light boxInicio" action="{{ route('login.store') }}"
-                    method="POST">
-                    @csrf
-                    <div class="col-12 text-center">
-                        @if(session("error"))
-                            <span class="text-danger fw-bold p-1">{{session("error")}}</span>
-                        @endif
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label m-0 fw-bold fs-5">Correo electrónico</label>
-                        <input type="email" class="form-control text-center col-12 p-1" id="email"
-                            placeholder="Ingresa tu correo" name="email" required>
-                        @error("email")
-                            <p class="text-danger text-center mt-1">{{$message}}</p>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label for="pass" class="form-label m-0 fw-bold fs-5">Contraseña</label>
-                        <input type="password" class="form-control text-center col-12 p-1" id="pass"
-                            placeholder="Ingresa tu contraseña" name="password" required
-                            autocomplete="new-password">
-                        @error("password")
-                            <p class="text-danger text-center mt-1">{{$message}}</p>
-                        @enderror
-                    </div>
-                    <a href="{{route('forgotPassword.show')}}" class="d-block mb-3 text-center">¿Olvidaste tu contraseña?</a>
-                    <div class="mx-auto">
-                        <button type="submit" class="w-50 btn btn-marino fw-bold">Iniciar sesión</button>
-                    </div>
-                </form>
+        </section>
+        <section class="col-lg-5 col-md-5 col-sm-12 h-full section-right-container">
+            <div class="w-full d-flex justify-content-center align-items-center">
+                <div class="login-container rounded col-12">
+                    <section class="login-header d-flex justify-content-center align-items-center bg-azul-tecnm">
+                        <img src="/images/tecnmLGW.png" alt="logo-itl">
+                    </section>
+                    <section class="login-body d-flex flex-column justify-content-center ">
+                        <div>
+                            <h3>Inicia sesion</h3>
+                        </div>
+                        <div>
+                            <form class="d-flex flex-column" action="{{route("login.store")}}" method="post">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="col-12" for="email">Correo</label>
+                                    <input
+                                        class="col-12 p-1"
+                                        type="email"
+                                        name="email"
+                                        placeholder="Ingresa tu correo"
+                                    >
+                                    @error("email")
+                                        <p class="text-danger small m-0 fw-bold">{{$message}}</p>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="col-12" for="password">Contraseña</label>
+                                    <input
+                                        class="col-12 p-1"
+                                        type="password"
+                                        name="password"
+                                        placeholder="Ingresa tu contraseña"
+                                    >
+                                    @error("password")
+                                        <p class="text-danger small m-0 fw-bold">{{$message}}</p>
+                                    @enderror
+                                    @if(session("error"))
+                                        <p class="text-danger small m-0 fw-bold">
+                                            {{session("error")}}
+                                        </p>
+                                    @endif
+                                </div>
+                                <div class="mb-2">
+                                    <button class="col-12 p-2 rounded btn-login">Entrar</button>
+                                </div>
+                                <div>
+                                    <a href="{{route("forgotPassword.show")}}" class="small ">¿Olvidaste tu contraseña?</a>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>

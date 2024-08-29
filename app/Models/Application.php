@@ -14,6 +14,4 @@ class Application extends Model
     protected $fillable = [
         "name"
     ];
-    public const DELETED_AT = "fecha_baja";
-
 }

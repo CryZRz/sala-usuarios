@@ -14,8 +14,9 @@
         <div class="container-fluid my-3 d-flex justify-content-center">
             <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
                 <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
-                    <button type="button" class="btn btn-sm btn-turquesa lh-md fw-bold" data-bs-toggle="modal"
-                        data-bs-target="#modalCrear">Registrar incidencia</button>
+                    <a href="{{route("incidence.create")}}" class="btn btn-sm btn-turquesa lh-md fw-bold">
+                        Registrar incidencia
+                    </a>
                     <button type="button" class="btn btn-sm btn-verde lh-md fw-bold" data-bs-toggle="modal"
                         data-bs-target="#modalActualizar">Buscar incidencia</button>
                     @if ($muestra == 'estudiante' || $muestra == 'resueltas')
@@ -35,7 +36,7 @@
             <h4 class="titulo text-center">
                 @if ($muestra == 'estudiante')
                     Incidencias de
-                    {{ $incidencias[0]->studentUpdate->student->lastName . ' ' . $incidencias[0]->studentUpdate->student->name }}:
+                    {{ $infoStudent->student->last_name_first }}:
                 @endif
                 @if ($muestra == 'resueltas')
                     Incidencias resueltas:
@@ -64,22 +65,23 @@
                         @foreach ($incidencias as $incidencia)
                             <tr>
                                 <td>{{ $indice = $loop->index + 1 }}</td>
-                                <td>{{ $incidencia->studentUpdate->controlNumber .
-                                    ' - ' .
-                                    ($incidencia->studentUpdate->student->nombreCompleto =
-                                        $incidencia->studentUpdate->student->lastName . ' ' . $incidencia->studentUpdate->student->name) }}
+                                <td>{{
+                                        $incidencia->studentUpdate->controlNumber .
+                                        ' - ' .
+                                        $incidencia->studentUpdate->student->last_name_first
+                                         }}
                                 </td>
-                                <td>{{ $incidencia->descripción }}</td>
-                                <td>{{ $incidencia->estatus }}</td>
-                                <td>{{ $incidencia->fecha_alta->format('d/m/y H:i') }}</td>
+                                <td>{{ $incidencia->description }}</td>
+                                <td>{{ $incidencia->status_text }}</td>
+                                <td>{{ $incidencia->created_at }}</td>
                                 @if ($muestra == 'estudiante' || $muestra == 'resueltas')
-                                    @if (isset($incidencia->fecha_baja))
-                                        <td>{{ $incidencia->fecha_baja->format('d/m/y H:i') }}</td>
+                                    @if (isset($incidencia->deleted_at))
+                                        <td>{{ $incidencia->deleted_at }}</td>
                                     @else
                                         <td>-</td>
                                     @endif
                                 @endif
-                                <td>{{ $incidencia->fecha_actualización->format('d/m/y H:i') }}
+                                <td>{{ $incidencia->updated_at }}
                                 <td>
                                     <div class="d-md-flex justify-content-center">
                                         <a class="btn btn-turquesa btn-sm me-1 p-0 p-md-1 w-100 fw-bold lh-1 d-flex align-items-center justify-content-center"
@@ -93,8 +95,9 @@
                                         </a>
 
                                         @if (!isset($incidencia->fecha_baja))
-                                            <a class="botonFin btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                                data-ruta-fin="{{ route('incidence.destroy', $incidencia->id) }}"
+                                            <a
+                                                class="btn-end-incidence btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
+                                                id-incidence="{{$incidencia->id}}"
                                                 data-bs-toggle="modal" data-bs-target="#modalFin">Finalizar
                                             </a>
                                         @endif
@@ -120,21 +123,21 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Descripción</td>
-                                                                    <td>{{ $incidencia->descripción }}</td>
+                                                                    <td>{{ $incidencia->description }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Fecha de alta</td>
-                                                                    <td>{{ $incidencia->fecha_alta->format('d/m/y H:i') }}
+                                                                    <td>{{ $incidencia->created_at }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Fecha de última actualización</td>
-                                                                    <td>{{ $incidencia->fecha_actualización->format('d/m/y H:i') }}
+                                                                    <td>{{ $incidencia->updated_at }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Estatus</td>
-                                                                    <td>{{ $incidencia->estatus }}</td>
+                                                                    <td>{{ $incidencia->status_text }}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -150,7 +153,7 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td>Nombre</td>
-                                                                    <td>{{ $incidencia->studentUpdate->student->nombreCompleto }}
+                                                                    <td>{{ $incidencia->studentUpdate->student->last_name_first }}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
@@ -196,16 +199,27 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
-                                                    <form id="form-crear-incidencia" method="POST"
-                                                        action="{{ route('incidence.update') }}">
+                                                    <form
+                                                        id="form-crear-incidencia"
+                                                        method="POST"
+                                                        action="{{ route('incidence.update', $incidencia->id) }}"
+                                                    >
+                                                        @method("PUT")
                                                         @csrf
                                                         <div class="modal-body text-center mb-2 mx-3 mx-sm-5 ">
                                                             <input type="text" name="id"
                                                                 value="{{ $incidencia->id }}" hidden>
                                                             <div class="d-flex flex-column gap-1 mt-2">
-                                                                <label for="descripción"
+                                                                <label for="description"
                                                                     class="form-label text-center fw-bold">Detalles</label>
-                                                                <textarea type="text" class="form-control" name="descripción" id="descripción" required>{{ $incidencia->descripción }}</textarea>
+                                                                <textarea
+                                                                    type="text"
+                                                                    class="form-control"
+                                                                    name="description"
+                                                                    id="description"
+                                                                    required
+                                                                >{{ $incidencia->description }}
+                                                                </textarea>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
@@ -235,7 +249,7 @@
                                         ¿Deseas finalizar esta incidencia?
                                     </div>
                                     <div class="modal-footer">
-                                        <form id="formFinIndividual" method="POST" action="">
+                                        <form id="formEndIncidence" method="POST" action="">
                                             @csrf
                                             @method('delete')
                                             <button type="submit" class="btn btn-turquesa">Finalizar</button>
@@ -251,9 +265,7 @@
                 </table>
             </div>
             <section class="mt-3">
-                @if ($incidencias instanceof \Illuminate\Pagination\AbstractPaginator)
-                    {{ $incidencias->links() }}
-                @endif
+                {{ $incidencias->links() }}
             </section>
         </div>
     </main>

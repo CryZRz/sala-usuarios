@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('loans', function (Blueprint $table) {
             $table->foreignId("created_by")
-                ->constrained(table: 'users', column: 'id')
+                ->constrained(table: 'users')
                 ->onDelete("cascade");
         });
     }

@@ -2,8 +2,8 @@ import '../../scss/utils/loadingPage.scss'
 import 'animate.css'
 
 class ShowLoading {
-    
-    constructor(node){
+
+    constructor(node = null){
         this.node = node
         this.nodeStyle
     }
@@ -25,15 +25,15 @@ class ShowLoading {
 
         let infoContainer = document.createElement("div")
         infoContainer.className = "animate__animated animate__flash"
-        
+
         let imgLoading = document.createElement("img")
         imgLoading.className = "img-loading"
         imgLoading.src = "/images/tecnmLGW.png"
         imgLoading.alt = "tecnm-logo"
-        
+
         let messageLoding = document.createElement("h1")
         messageLoding.className = "title"
-        messageLoding.textContent = "Cargando" 
+        messageLoding.textContent = "Cargando"
 
         infoContainer.appendChild(imgLoading)
         infoContainer.appendChild(messageLoding)
@@ -42,12 +42,16 @@ class ShowLoading {
         this.nodeStyle = mainContainer
     }
 
+    setNode(node){
+        this.node = node
+    }
+
     onLoading(){
         this.node.appendChild(this.nodeStyle)
     }
 
     offLoading(){
-        this.node.removeChild(this.nodeStyle) 
+        this.node.removeChild(this.nodeStyle)
     }
 }
 

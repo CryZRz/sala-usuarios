@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,23 +14,36 @@ class Incidence extends Model
 
     protected $fillable = [
         "student_update_id",
-        "user_id",
-        "descripción",
-        "estatus"
+        "created_by",
+        "description",
+        "status"
     ];
 
     public function studentUpdate(){
         return $this->belongsTo(StudentUpdate::class);
     }
     public function owner(){
-        return $this->belongsTo(User::class, "user_id", "id");
+        return $this->belongsTo(User::class, "created_by", "id");
     }
 
-    /**
-     * Personalización de los nombres al insertar tuplas y hacer borrado suave:
-     */
-    protected $dateFormat = "Y/m/d H:i:s";
-    public const CREATED_AT = 'fecha_alta';
-    public const UPDATED_AT = 'fecha_actualización';
-    public const DELETED_AT = "fecha_baja";
+
+    //Accessors
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/y H:i');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/y H:i');
+    }
+
+    public function getStatusTextAttribute()
+    {
+        if ($this->status){
+            return "Resuelta";
+        }
+
+        return "Pendiente";
+    }
 }

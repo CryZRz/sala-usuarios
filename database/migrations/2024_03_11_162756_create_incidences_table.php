@@ -11,18 +11,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('incidences')) {
-            Schema::create('incidences', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId("student_update_id")->constrained()->onDelete("cascade");
-                $table->foreignId("user_id")->constrained()->onDelete("cascade");
-                $table->string("descripción");
-                $table->string("estatus");
-                $table->timestamp(Incidence::CREATED_AT)->nullable();
-                $table->timestamp(Incidence::UPDATED_AT)->nullable();
-                $table->softDeletes(Incidence::DELETED_AT);
-            });
-        }
+        Schema::create('incidences', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId("student_update_id")
+                ->constrained()
+                ->onDelete("cascade");
+            $table->foreignId("created_by")
+                ->constrained(table: 'users')
+                ->onDelete("cascade");
+            $table->string("description");
+            $table->boolean("status")->default(false);
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
     /**

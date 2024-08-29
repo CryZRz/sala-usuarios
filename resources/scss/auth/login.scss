@@ -1,0 +1,67 @@
+@import "../variables";
+
+.section-left-container{
+    background-image: url("http://localhost/images/login2.jpg");
+    height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+}
+.section-left-container::after{
+    content: "*";
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(0,0,0,0.45) 44%, rgba(255,255,255,1) 98%);
+}
+.section-right-container{
+    height: 100vh;
+    &>div{
+        height: 100%;
+    }
+}
+input{
+    outline: none;
+}
+.login-container{
+    width: 70%;
+    border: 1.8px solid $azul-tecnm;
+    height: 480px;
+    &>.login-header{
+        width: 100%;
+        height: 35%;
+        background-color: $azul-tecnm;
+        &>img{
+            width: 100px;
+            height: 130px;
+        }
+    }
+    &>.login-body{
+        width: 100%;
+        height: 65%;
+        padding: 10px;
+    }
+}
+
+.btn-login{
+    color: white;
+    border: none;
+    font-weight: bold;
+    background-color: $azul-tecnm;
+}
+
+@media (max-width: 576px) {
+    .section-left-container{
+        height: 30%;
+    }
+    .section-right-container{
+        height: 70%;
+        padding: 10px;
+    }
+    .login-container{
+        width: 80%;
+        height: auto;
+    }
+}

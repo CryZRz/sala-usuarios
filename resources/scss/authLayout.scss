@@ -41,7 +41,7 @@
 }
 
 .navbar {
-    background-color: $azul-mar;
+    background-color: $azul-tecnm;
 }
 
 /* Links de la barra de navegación */
@@ -106,4 +106,9 @@
 //Para tablas de dos columnas; cada una ocupará mitad de ancho.
 .tablaEquitativa>tr>td {
     width: 50%;
+}
+.main-content{
+    position: fixed;
+    width: 100%;
+    z-index: -1;
 }

@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentUpdate extends Model
 {
-    use HasFactory; 
+    use HasFactory;
 
     const UPDATED_AT = null; //No incluir columna de tiempo de última actualización.
 
-    protected $fillable = [ 
+    protected $fillable = [
         "student_id",
         "career",
         "controlNumber",
@@ -21,5 +21,16 @@ class StudentUpdate extends Model
 
     public function student(){
         return $this->belongsTo(Student::class);
+    }
+
+    public function period(){
+        return $this->belongsTo(Period::class);
+    }
+
+    public static function getLastByControlNumber($controlNumber)
+    {
+        return self::where('controlNumber', $controlNumber)
+            ->orderBy('created_at', 'desc')
+            ->first();
     }
 }

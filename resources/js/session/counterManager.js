@@ -1,5 +1,3 @@
-import { getCSRF } from "../utils/SCRF.js";
-
 const listCounters = document.querySelectorAll("#timeAssigment")
 const inputSessionExten = document.getElementById("idExtenSession")
 let listCountersMaped = []
@@ -28,8 +26,7 @@ listCounters.forEach(element => {
 })
 
 function removeListSessions(id) {
-    const listFilter = listCountersMaped.filter(session => session.id != id)
-    listCountersMaped = listFilter
+    listCountersMaped = listCountersMaped.filter(session => session.id !== id)
 }
 
 function addBtnExtenseSession(id) {
@@ -78,7 +75,7 @@ function changeTimeSession(time, id, timeFormat) {
         return addBtnExtenseSession(id)
     }
     let minutes = time.minutes - 1
-    if (time.hours == 0 && time.minutes == 1){
+    if (time.hours === 0 && time.minutes === 1){
         time.seconds= 59
     }
     if (minutes < 0) {

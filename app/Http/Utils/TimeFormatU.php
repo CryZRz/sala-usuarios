@@ -81,6 +81,13 @@ class TimeFormatU{
         return sprintf('%02d:%02d:%02d', $totalHours, $minutes, $seconds);
     }
 
+    public static function diffHoursDates(Carbon $dateMain, Carbon $dateDiff)
+    {
+        $hoursDiffCalc = $dateMain->diff($dateDiff);
+
+        return new Carbon($hoursDiffCalc->format("%H:%i:%S"));
+    }
+
     public function getInitialDate(): Carbon
     {
         return $this->initialDate;

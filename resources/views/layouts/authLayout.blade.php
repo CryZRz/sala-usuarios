@@ -81,13 +81,31 @@
                                 Incidencias
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropIncidencias">
-                                <li><a class="dropdown-item btn {{ Route::currentRouteNamed('incidence.show') ? 'active' : '' }}"
-                                        href="{{ route('incidence.show') }}">Ver incidencias activas</a></li>
-                                <li><a class="dropdown-item btn {{ Route::currentRouteNamed('incidence.showFinished') ? 'active' : '' }}"
-                                        href="{{ route('incidence.showSolved') }}">Ver incidencias resueltas</a></li>
+                                <li>
+                                    <a
+                                        class="dropdown-item btn {{ Route::currentRouteNamed('incidence.show') ? 'active' : '' }}"
+                                        href="{{ route('incidence.show') }}"
+                                    >
+                                        Ver incidencias activas
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        class="dropdown-item btn {{ Route::currentRouteNamed('incidence.showFinished') ? 'active' : '' }}"
+                                        href="{{ route('incidence.showSolved') }}"
+                                    >
+                                        Ver incidencias resueltas
+                                    </a>
+                                </li>
                                 <div class="dropdown-divider"></div>
-                                <li><a class="dropdown-item btn" data-bs-toggle="modal"
-                                        data-bs-target="#modalCrear">Registrar incidencia</a></li>
+                                <li>
+                                    <a
+                                        class="dropdown-item btn"
+                                        href="{{route("incidence.create")}}"
+                                    >
+                                        Registrar incidencia
+                                    </a>
+                                </li>
                                 <li><a class="dropdown-item btn" data-bs-toggle="modal"
                                         data-bs-target="#modalActualizar">Buscar incidencia</a></li>
                             </ul>
@@ -126,7 +144,8 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="dropCuenta">
                                 <p class="text-center text-light btn-sm rounded-0 fw-bold w-100 p-1 mt-2 mb-2">
-                                    {{ auth()->user()->name }}</p>
+                                    {{ auth()->user()->name }}
+                                </p>
                                 <li><a class="btn btn-secondary btn-sm rounded-0 fw-bold w-100 p-1 text-nowrap"
                                         data-bs-toggle="modal" data-bs-target="#avisoCambio">Cambiar contraseña</a>
                                 </li>
@@ -192,194 +211,7 @@
     </div>
 
     <!-- Ventana emergente para el botón Reasignar -->
-    <div class="modal fade" id="modalReasignarGeneral" tabindex="-1">
-        <form id="formReasignarGeneral" method="POST" action="{{ route('session.reassign') }}">
-            @csrf
-            <div class="modal-dialog modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title titulo">Reasignar equipo</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="text-center text-sm-end mx-3 mx-sm-5">
-                            <div class="row align-items-center mb-2">
-                                <div class="col">
-                                    <label for="numControl" class="form-label fw-bold">Número de control del
-                                        alumno</label>
-                                </div>
-                                <div class="col">
-                                    <input type="input" class="form-control" id="numControlReasignar"
-                                        placeholder="Núm. control" name="numControl" autocomplete="off" required>
-                                </div>
-                            </div>
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <label for="numEquipo" class="form-label fw-bold">Nuevo equipo</label>
-                                </div>
-                                <div class="col">
-                                    <select id="equipoReasignadoGeneral" class="form-select" name="numEquipo"
-                                        id="numEquipo" required>
-                                    </select>
-                                </div>
-                            </div>
-                            <p id="msgReasignarGeneral" class="text-danger mt-2 mb-0 text-center"></p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="confirmarReasignarGeneral" type="submit" class="btn btn-turquesa"
-                            disabled>Reasignar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Regresar</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Ventana emergente para el botón Terminar sesión -->
-    <div class="modal fade" id="modalTerminar" tabindex="-1">
-        <form id="formFinGeneral" method="POST" action="{{ route('session.destroy') }}">
-            @csrf
-            @method('delete')
-            <div class="modal-dialog modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title titulo">Terminar sesión</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="text-center text-sm-end mx-3 mx-sm-5">
-                            <div class="row align-items-center mb-2">
-                                <div class="col">
-                                    <label for="opcionBuscar" class="form-label fw-bold">¿Cómo quieres ubicar la
-                                        sesión?</label>
-                                </div>
-                                <div class="col">
-                                    <select class="form-select" name="opcionBuscar" id="opcionBuscar" required>
-                                        <option value="numControl" required selected>Núm. de control</option>
-                                        <option value="numEquipo" required>Núm. de equipo</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="busquedaNumControl" class="row align-items-center mb-2">
-                                <div class="col">
-                                    <label for="numControl" class="form-label fw-bold">Número de control del
-                                        alumno</label>
-                                </div>
-                                <div class="col">
-                                    <input type="input" class="form-control" id="numControlFin"
-                                        placeholder="Núm. control" name="finNumControl" autocomplete="off">
-                                </div>
-                            </div>
-                            <div id="busquedaNumEquipo" class="row align-items-center" hidden>
-                                <div class="col">
-                                    <label for="numEquipo" class="form-label fw-bold">Número de equipo</label>
-                                </div>
-                                <div class="col">
-                                    <select class="form-select" name="finNumEquipo" id="selectEquiposFin">
-                                    </select>
-                                </div>
-                            </div>
-                            <p id="msgFinGeneral" class="text-danger text-center mt-2 mb-0"></p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="btnFinGeneral" type="submit" class="btn btn-turquesa">Finalizar la
-                            sesión</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Regresar</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Ventana emergente para el botón de crear incidencia -->
-    <div class="modal fade" id="modalCrear" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title titulo">Nueva incidencia</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="form-crear-incidencia" method="POST" action="{{ route('incidence.store') }}">
-                    @csrf
-                    <div class="modal-body text-center mb-2">
-                        <div class="d-flex flex-column text-sm-end mx-3 mx-sm-5 gap-2">
-                            <label for="controlNumber" class="fw-bold text-center">Número de control del
-                                alumno</label>
-                            <div>
-                                <div class="input-group">
-                                    <input type="text" class="form-control text-center w-50"
-                                        id="num-control-crear" placeholder="Núm. control" name="controlNumber"
-                                        autocomplete="off" value="{{ old('controlNumber') }}" required>
-                                    <button type="button" id="btn-num-control-crear"
-                                        class="btn btn-sm btn-secondary w-25">Buscar</button>
-                                </div>
-                                <p id="msg-num-control-crear" class="text-success mt-2 mb-0 text-center">
-                                    @if (isset($messages))
-                                        {{ $messages->controlNumber }}
-                                    @endif
-                                </p>
-                            </div>
-
-                            <div id="registro-alumno" class="d-none d-flex flex-column gap-2">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="name">Nombre</label>
-                                    <input class="form-control" type="text" id="name" name="name"
-                                        autocomplete="off" required>
-                                    <div class="mt-1 invalid-feedback text-center">
-                                        Ingresa el nombre del alumno.
-                                    </div>
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-group-text" for="lastName">Apellidos</label>
-                                    <input class="form-control" type="text" id="lastName" name="lastName"
-                                        autocomplete="off" required>
-                                    <div class="mt-1 invalid-feedback text-center">
-                                        Ingresa el apellido del alumno.
-                                    </div>
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-group-text" for="career">Carrera</label>
-                                    <select class="form-select" id="selectCarrerasIncidencia" name="career" required>
-                                        <option selected class="d-none"></option>
-                                        {{-- Las carreras se agregan programáticamente --}}
-                                    </select>
-                                    <div class="mt-1 invalid-feedback text-center">
-                                        Ingresa la carrera del alumno.
-                                    </div>
-                                </div>
-                                <p id="msg-carreras-crear" class="text-success m-0 text-center"></p>
-                                <div class="input-group">
-                                    <label class="input-group-text" for="semester">Semestre</label>
-                                    <input type="number" class="form-control" id="semester" name="semester"
-                                        min="1" max="13" required>
-                                    <div class="mt-1 invalid-feedback text-center">
-                                        Ingresa el semestre del alumno.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex flex-column gap-1 mt-2">
-                                <label for="descripción" class="form-label text-center fw-bold">Detalles</label>
-                                <textarea type="text" class="form-control" name="descripción" id="descripción" required>{{ old('descripción') }}</textarea>
-                                @if (isset($messages->descripción))
-                                    <p id="msg-num-control-crear" class="text-success mt-2 mb-0 text-center">
-                                        {{ $messages->descripción }} </p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" class="btn btn-turquesa" value="Confirmar">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <x-end-session-component></x-end-session-component>
 
     <!-- Ventana emergente para el botón de actualizar incidencia -->
     <div class="modal fade" id="modalActualizar" tabindex="-1">

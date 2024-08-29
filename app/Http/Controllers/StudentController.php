@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StudentRequest;
 use App\Http\Requests\StudentSearchRequest;
 use App\Http\Requests\StudentUpdateRequest;
+use App\Http\Resources\StudentResource;
 use App\Http\Utils\CareersE;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\StudentUpdate;
+use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
@@ -33,20 +35,15 @@ class StudentController extends Controller
         return view("student.show", $data);
     }
 
-    public static function search(string $numControl)
+    public function search(string $numControl)
     {
-        //Buscar el registro más reciente de los datos actualizados del estudiante con su núm. control
-        $alumno = StudentUpdate::where("controlNumber", "=", $numControl)
-            ->orderBy("created_at", "desc")
-            ->first();
-        if ($alumno != null) {
-            //Añadir los datos no cambiantes del alumno.
-            $datosAlumno = $alumno->student()
-                ->select("name", "lastName")
-                ->first();
-            $alumno = collect($alumno)->merge($datosAlumno);
+        $student = StudentUpdate::getLastByControlNumber($numControl);
+
+        if ($student != null) {
+            return new StudentResource($student);
         }
-        return $alumno;
+
+        return response()->json(["error" => "estudiante no registrado"], 404);
     }
 
     public function store(StudentRequest $request)

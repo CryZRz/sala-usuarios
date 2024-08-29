@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Validator;
 
 class IncidenciasController extends Controller
 {
-    public function mostrarIncidencias()
+    public function show()
     {
-        $incidencias = Incidence::orderByDesc("fecha_actualización")->paginate(10);
+
+        $incidencias = Incidence::orderByDesc("updated_at")->paginate(10);
 
         $data = [
             "incidencias" => $incidencias,
@@ -23,9 +24,17 @@ class IncidenciasController extends Controller
         return view("incidences.show", $data);
     }
 
+    public function create()
+    {
+        return view("incidences.create");
+    }
+
     public function mostrarIncidenciasResueltas()
     {
-        $incidencias = Incidence::onlyTrashed()->orderByDesc("fecha_actualización")->paginate(10);
+        $incidencias = Incidence::onlyTrashed()
+            ->orderByDesc("updated_at")
+            ->paginate(10);
+
         $data = [
             "incidencias" => $incidencias,
             "muestra" => "resueltas"
@@ -34,77 +43,74 @@ class IncidenciasController extends Controller
         return view("incidences.show", $data);
     }
 
-    public function registrarIncidencia(Request $request)
+    public function store(Request $request)
     {
-        $valido = Validator::make($request->all(), [
-            "controlNumber" => ["required", "exists:student_updates,controlNumber"],
-            "descripción" => ["required"]
+        $this->validate($request, [
+            "description" => ["required"],
+            "controlNumber" => ["required", "min:8", "exists:student_updates,controlNumber"],
         ]);
 
-        if ($valido->fails()) {
-            $this->validate($request, [
-                "name" => ["required"],
-                "lastName" => ["required"],
-                "semester" => ["required"],
-                "career" => ["required"]
-            ]);
-        }
+        $controlNumber = $request->get("controlNumber");
+        $description = $request->get("description");
+        $studentData = StudentUpdate::getLastByControlNumber($controlNumber);
 
-        //Relacionar con los datos del estudiante más recientes al momento
-        $actualizacionActual = StudentUpdate::where("controlNumber", $request->controlNumber)->orderByDesc("created_at")->first();
-        if (!isset($actualizacionActual)) {
-            $actualizacionActual = StudentController::createStudent($request->toArray());
-        }
+        Incidence::create([
+            "student_update_id" => $studentData->id,
+            "description" => $description,
+            "created_by" => auth()->user()->id
+        ]);
 
-        $dataIncidencia = [
-            "student_update_id" => $actualizacionActual->id,
-            "descripción" => $request->descripción,
-            "estatus" => "Pendiente",
-            "user_id" => auth()->user()->id
-        ];
-        Incidence::create($dataIncidencia);
-        return response()->json([
-            'redireccion' => route("incidence.show")
-        ], 200);
+        return redirect()->route("incidence.show");
     }
 
-    public function actualizarIncidencia(Request $request)
+    public function update(Incidence $incidence, Request $request)
     {
-        //Revisar si la incidencia está activa
-        $incidencia = Incidence::withTrashed()->where("id", $request->id)->first();
-        if (isset($incidencia)) {
-            $incidencia->descripción = $request->descripción;
-            $incidencia->save();
-        }
+        $this->validate($request, [
+           "description" => ["required"]
+        ]);
+
+        $description = trim($request->get("description"));
+        $incidence->update([
+            "description" => $description,
+        ]);
+
         return redirect()->back();
     }
 
-    public function buscarEstudiante(StudentSearchRequest $request)
+    public function buscarEstudiante(Request $request)
     {
-        $data = $request->validated();
+        $this->validate($request, [
+            "controlNumber" => ["required", "min:8", "exists:student_updates,controlNumber"],
+        ]);
 
-        if (!isset($data)) {
-            return response()->json($request->messages(), 200);
-        }
-        //Buscar al estudiante, para tomar en cuenta todas las incidencias a través de los cambios de su información
-        $actualizacionActual = StudentUpdate::where("controlNumber", $request->controlNumber)->orderByDesc("created_at")->first();
-        $alumno = Student::where("id", $actualizacionActual->student()->first()->id)->first();
-        $actualizacionesAlumno = StudentUpdate::where("student_id", $alumno->id)->get();
+        $controlNumber = $request->get("controlNumber");
+        $infoStudent = StudentUpdate::getLastByControlNumber($controlNumber);
 
-        $idsActualizaciones = $actualizacionesAlumno->map(fn($alumno) => $alumno->id);
-        $incidencias = Incidence::withTrashed()->whereIn("student_update_id", $idsActualizaciones)->orderByDesc("fecha_actualización")->get();
+        $incidencesStudent = Incidence::withTrashed("student_update_id", $infoStudent->id)
+            ->orderByDesc("updated_at")
+            ->paginate(10);
 
         $data = [
-            "incidencias" => $incidencias,
+            "incidencias" => $incidencesStudent,
+            "infoStudent" => $infoStudent,
             "muestra" => "estudiante"
         ];
+
         return view("incidences.show", $data);
     }
 
-    public function terminarIncidencia(int $id)
+    public function destroy(Incidence $incidence)
     {
-        Incidence::where('id', $id)->update(['estatus' => 'Resuelta']);
-        Incidence::destroy($id);
-        return redirect()->route("incidence.show");
+        if (!$incidence->status){
+            $incidence->update([
+               "status" => true
+            ]);
+            $incidence->delete();
+            return redirect()->route("incidence.show");
+        }
+
+        return redirect()
+            ->route("incidence.show")
+            ->with("message", "Incidencia ya finalizada");
     }
 }

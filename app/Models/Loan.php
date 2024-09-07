@@ -39,10 +39,6 @@ class Loan extends Model
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
-    /**
-     * Personalización de los nombres al insertar tuplas y hacer borrado suave:
-     */
-    protected $dateFormat = "Y/m/d H:i:s";
     public const CREATED_AT = 'startTime';
     public const UPDATED_AT = 'updateTime';
     public const DELETED_AT = "endTime";

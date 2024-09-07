@@ -30,7 +30,7 @@ class StudentRequest extends FormRequest
                 "required",
                 "in:".implode(",", CareersE::getCareers())
             ],
-            "semester" => ["required", "numeric", "gt:0"]
+            "semester" => ["required", "numeric", "min:0", "max:13"]
         ];
     }
 
@@ -40,7 +40,7 @@ class StudentRequest extends FormRequest
             "controlNumber" => "El numero de control no debe haberse registrado antes",
             "lastName" => "Los apellidos son obligatorios",
             "career" => "La carrera no es valida",
-            "semester" => "el semestre no debe ser negativo"
+            "semester" => "El semestre no debe ser negativo"
         ];
     }
 }

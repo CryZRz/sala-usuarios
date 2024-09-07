@@ -8,7 +8,7 @@
     <title>@yield('title')</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/scss/app.scss', 'resources/scss/authLayout.scss', 'resources/js/app.js', 'resources/js/session/navbarActions.js'])
+    @vite(['resources/scss/app.scss', 'resources/scss/authLayout.scss', 'resources/js/app.js', 'resources/js/session/logout.js'])
     @yield('vite')
 </head>
 
@@ -16,8 +16,8 @@
     <!-- Pantalla de carga durante la subida del registro -->
     <section id="section-loading"></section>
 
-    <header class="sticky-top bg-black mb-2">
-        <nav class="navbar navbar-dark navbar-expand-md sticky-top sombraDegradado mb-3">
+    <header class="sticky-top bg-black">
+        <nav class="navbar navbar-dark navbar-expand-md sticky-top sombraDegradado">
             <div class="container-fluid">
                 <img src="/images/logoITL.png" class="img-fluid rounded-top me-3" style="max-width:60px;"
                     alt="Logo ITL">
@@ -110,6 +110,11 @@
                                         data-bs-target="#modalActualizar">Buscar incidencia</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a class="text-decoration-none text-white fw-bold" href="{{route('student.showAll')}}">
+                                Estudiantes
+                            </a>
+                        </li>
                     </ul>
 
                     <!-- Parte derecha -->
@@ -133,7 +138,7 @@
                                         href="{{ route('register.show') }}">Registrar<br>administrador</a></li>
                                 <div class="dropdown-divider"></div>
                                 <li><a class="dropdown-item btn {{ Route::currentRouteNamed('import.show') ? 'active' : '' }}"
-                                        href="{{route('importe.show')}}">Importar alumnos</a></li>
+                                        href="{{route('import.show')}}">Importar alumnos</a></li>
                                 <li>
                             </ul>
                         </li>
@@ -150,8 +155,13 @@
                                         data-bs-toggle="modal" data-bs-target="#avisoCambio">Cambiar contraseña</a>
                                 </li>
                                 <li>
-                                    <a id="btnCierre" class="btn btn-danger btn-sm rounded-0 fw-bold w-100 p-1 mb-2"
-                                        data-bs-target="#avisoCierre">Cerrar sesión</a>
+                                    <a
+                                        id="btnLogout"
+                                        data-toggle="modal"
+                                        class="btn btn-danger btn-sm rounded-0 fw-bold w-100 p-1 mb-2"
+                                        >
+                                        Cerrar sesión
+                                    </a>
                                 </li>
                             </ul>
                         </li>
@@ -163,7 +173,7 @@
 
 
     <!-- Ventana emergente para el confirmar cerrar sesión -->
-    <div class="modal fade" id="avisoCierre" tabindex="-1">
+    <div class="modal fade" id="logoutModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -179,10 +189,23 @@
                     <form id="formCierre" action="{{ route('login.destroy') }}" method="POST">
                         @csrf
                         @method('delete')
-                        <button type="submit" name="accion" value="salir" class="btn btn-turquesa">Dejarlos
-                            activos</button>
-                        <button type="submit" name="accion" value="finalizar"
-                            class="btn btn-secondary">Finalizarlos</button>
+                        <input type="hidden" name="option" id="input-option-logout">
+                        <button
+                            id="btn-end-modal"
+                            type="submit"
+                            name="accion"
+                            value="salir"
+                            class="btn btn-turquesa">
+                            Dejarlos activos
+                        </button>
+                        <button
+                            id="btn-reassign-modal"
+                            type="submit"
+                            name="accion"
+                            value="finalizar"
+                            class="btn btn-secondary">
+                            Finalizarlos
+                        </button>
                     </form>
                 </div>
             </div>
@@ -242,10 +265,7 @@
             </div>
         </div>
     </div>
-
     @yield('main')
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
 </body>
 
 </html>

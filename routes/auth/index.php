@@ -24,4 +24,5 @@ Route::middleware("auth")->group(function(){
     Route::get("/registro", [RegisterController::class, "show"])->name("register.show");
     Route::post("/registro", [RegisterController::class, "store"])->name("register.store");
     Route::delete("/login", [LoginController::class, "destroy"])->name("login.destroy");
+    Route::delete("/logout", [LoginController::class, "logout"])->name("login.logout");
 });

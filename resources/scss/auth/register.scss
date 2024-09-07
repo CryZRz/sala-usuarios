@@ -1,20 +1,20 @@
 @import "../variables";
 
 .section-left-container{
-    background-image: url("http://localhost/images/incidence-image.jpg");
+    background-image: url("http://localhost/images/register.jpg");
     height: 100vh;
     background-size: cover;
     background-repeat: no-repeat;
     position: relative;
 }
 .section-left-container::after{
-    content: "*";
+    content: "";
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 1;
     background: rgb(2,0,36);
-    background: linear-gradient(90deg, rgba(0,0,0,0.3) 70%, rgba(255,255,255,1) 98%);
+    background: linear-gradient(90deg, rgba(0,0,0,0.45) 44%, rgba(255,255,255,1) 98%);
 }
 .section-right-container{
     height: 100vh;
@@ -25,46 +25,36 @@
 input{
     outline: none;
 }
-textarea{
-    outline: none;
-    resize: none;
-}
 .login-container{
     width: 75%;
-    border: 1.8px solid #3f37c9;
+    border: 1.8px solid $azul-tecnm;
     height: 550px;
+    box-shadow: -3px 1px 30px 1px rgba(26,50,91,0.75);
     &>.login-header{
         width: 100%;
-        height: 32%;
-        background-color: #3f37c9;
-        padding: 5px;
+        height: 30%;
+        background-color: $azul-tecnm;
+        &>img{
+            width: 250px;
+            height: 100px;
+        }
     }
-    box-shadow: -2px 5px 53px 1px rgba(63,55,201,0.75);
     &>.login-body{
         width: 100%;
         height: 70%;
         padding: 10px;
     }
 }
-
-.profile-image-container{
-    padding: 2px;
-    &>img{
-        width: 87px;
-        height: 90px;
-    }
+.form-register{
+    height: 100%;
+    justify-content: center;
 }
 
-.btn-find-student{
-    background: #fbf304;
-}
-
-.btn-create-incidence{
+.btn-login{
     color: white;
     border: none;
     font-weight: bold;
-    padding: 5px;
-    background-color: #3f37c9;
+    background-color: $azul-tecnm;
 }
 
 @media (max-width: 576px) {
@@ -72,11 +62,18 @@ textarea{
         height: 30%;
     }
     .section-right-container{
-        height: 70%;
+        height: auto;
         padding: 10px;
     }
     .login-container{
-        width: 80%;
+        width: 90%;
         height: auto;
+        &>.login-header{
+            padding: 10px;
+            &>img{
+                width: 200px;
+                height: 90%;
+            }
+        }
     }
 }

@@ -16,10 +16,13 @@ return new class extends Migration {
             $table->foreignId("student_update_id")
                 ->constrained()
                 ->onDelete("cascade");
+            $table->foreignId("student_id")
+                ->constrained()
+                ->onDelete("cascade");
             $table->foreignId("created_by")
                 ->constrained(table: 'users')
                 ->onDelete("cascade");
-            $table->string("description");
+            $table->text("description");
             $table->boolean("status")->default(false);
             $table->timestamps();
             $table->softDeletes();

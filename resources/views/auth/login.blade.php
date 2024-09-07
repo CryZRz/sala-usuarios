@@ -6,7 +6,6 @@
     <title>Sala de usuarios</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
     @vite(['resources/scss/app.scss', 'resources/scss/auth/login.scss'])
 </head>
 <body>

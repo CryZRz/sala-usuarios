@@ -14,6 +14,15 @@ class Student extends Model
         "lastName",
     ];
 
+    public function studentUpdates(){
+        return $this->hasMany(StudentUpdate::class);
+    }
+
+    public function latestStudentUpdate()
+    {
+        return $this->studentUpdates()->latest()->first();
+    }
+
     //Accessors
     public function getFullNameAttribute()
     {

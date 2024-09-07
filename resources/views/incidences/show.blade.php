@@ -45,224 +45,171 @@
                     Incidencias activas:
                 @endif
             </h4>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered sombraBasica">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Alumno</th>
-                            <th>Descripción</th>
-                            <th>Estatus</th>
-                            <th>Alta</th>
+            <div class="table-responsive d-flex gap-3 flex-wrap">
+                @foreach($incidencias as $index => $incidence)
+                    <div class="card rounded-3" style="width: 18rem;">
+                        <a
+                            class="card-header mx-auto border-0 d-block"
+                            href="{{route('incidence.showOne', $incidence->id)}}"
+                        >
+                            <i class="bi bi-person-square" style="font-size: 4.5rem"></i>
+                        </a>
+                        <div class="card-body py-2 px-3 border-1">
+                            <div class="">
+                                <p class="col-12 fw-bold m-0">Alumno:</p>
+                                <p class="col-12 m-0">
+                                    {{$incidence->studentUpdate->student->last_name_first }}
+                                    -
+                                    {{$incidence->studentUpdate->controlNumber}}
+                                </p>
+                            </div>
                             @if ($muestra == 'estudiante' || $muestra == 'resueltas')
-                                <th>Resolución</th>
-                            @endif
-                            <th>Actualización</th>
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($incidencias as $incidencia)
-                            <tr>
-                                <td>{{ $indice = $loop->index + 1 }}</td>
-                                <td>{{
-                                        $incidencia->studentUpdate->controlNumber .
-                                        ' - ' .
-                                        $incidencia->studentUpdate->student->last_name_first
-                                         }}
-                                </td>
-                                <td>{{ $incidencia->description }}</td>
-                                <td>{{ $incidencia->status_text }}</td>
-                                <td>{{ $incidencia->created_at }}</td>
-                                @if ($muestra == 'estudiante' || $muestra == 'resueltas')
-                                    @if (isset($incidencia->deleted_at))
-                                        <td>{{ $incidencia->deleted_at }}</td>
-                                    @else
-                                        <td>-</td>
-                                    @endif
+                                @if (isset($incidence->deleted_at))
+                                    <p class="fw-bold m-0">Resolución</p>
+                                    <p class="m-0">{{$incidence->deleted_at}}</p>
+                                @else
+                                    <p class="fw-fold">Resolución</p>
+                                    <p>-</p>
                                 @endif
-                                <td>{{ $incidencia->updated_at }}
-                                <td>
-                                    <div class="d-md-flex justify-content-center">
-                                        <a class="btn btn-turquesa btn-sm me-1 p-0 p-md-1 w-100 fw-bold lh-1 d-flex align-items-center justify-content-center"
-                                            data-bs-toggle="modal" data-bs-target="{{ '#infoAlumno' . $indice }}">
-                                            Info.
-                                        </a>
+                            @endif
+                            <div class="mt-1">
+                                <p class="fw-bold m-0">Descripción:</p>
+                                <p class="m-0">
+                                    @if(strlen($incidence->description) < 50)
+                                        {{$incidence->description  }}
+                                    @else
+                                        {{substr($incidence->description, 0, 50)}}...
+                                    @endif
+                                </p>
+                            </div>
+                            <div class="mt-1">
+                                <p class="d-inline col-12 fw-bold m-0">Estatus:</p>
+                                <p class="d-inline col-12 m-0">{{$incidence->status_text}}</p>
+                            </div>
+                            <div class="mt-1">
+                                <p class="col-12 fw-bold m-0">Creado a:</p>
+                                <p class="col-12 m-0">{{$incidence->created_at}}</p>
+                            </div>
+                            <div class="mt-1">
+                                <p class="col-12 fw-bold m-0">Actulizado a:</p>
+                                <p class="m-0">
+                                    {{$incidence->updated_at}}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-footer p-2 d-flex flex-column gap-1">
+                            <a
+                                class="btn col-12 btn-success btn-sm me-1 p-0 p-md-1 mb-1    fw-bold"
+                                data-bs-toggle="modal"
+                                data-bs-target="{{'#modalActualizar'.$index}}"
+                            >
+                                Actualizar descripción
+                            </a>
 
-                                        <a class="btn btn-verde btn-sm me-1 p-0 p-md-1 w-100 fw-bold lh-1"
-                                            data-bs-toggle="modal" data-bs-target="{{ '#modalActualizar' . $indice }}">
-                                            Actualizar descripción
-                                        </a>
+                            @if (!isset($incidence->fecha_baja))
+                                <a
+                                    class="btn btn-primary btn-sm me-1 p-0 p-md-1 w-100 fw-bold btn-end-incidence"
+                                    id-incidence="{{$incidence->id}}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalFin"
+                                >
+                                    Finalizar
+                                </a>
+                            @endif
+                        </div>
+                    </div>
 
-                                        @if (!isset($incidencia->fecha_baja))
-                                            <a
-                                                class="btn-end-incidence btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                                id-incidence="{{$incidencia->id}}"
-                                                data-bs-toggle="modal" data-bs-target="#modalFin">Finalizar
-                                            </a>
-                                        @endif
-
-                                        <!-- Ventana emergente para el botón Info. -->
-                                        <div class="modal fade" id="{{ 'infoAlumno' . $indice }}" tabindex="-1">
-                                            <div class="modal-dialog modal-dialog-scrollable">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title titulo">Detalles</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Incidencia:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Número de incidencia</td>
-                                                                    <td>{{ $indice }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Descripción</td>
-                                                                    <td>{{ $incidencia->description }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Fecha de alta</td>
-                                                                    <td>{{ $incidencia->created_at }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Fecha de última actualización</td>
-                                                                    <td>{{ $incidencia->updated_at }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Estatus</td>
-                                                                    <td>{{ $incidencia->status_text }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Alumno:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Número de control</td>
-                                                                    <td>{{ $incidencia->studentUpdate->controlNumber }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Nombre</td>
-                                                                    <td>{{ $incidencia->studentUpdate->student->last_name_first }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Carrera</td>
-                                                                    <td>{{ $incidencia->studentUpdate->career }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Semestre</td>
-                                                                    <td>{{ $incidencia->studentUpdate->semester }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Creado por:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Nombre</td>
-                                                                    <td>{{ $incidencia->owner->name }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Email</td>
-                                                                    <td>{{ $incidencia->owner->email }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-turquesa"
-                                                            data-bs-dismiss="modal">Cerrar</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                    <!-- Ventana emergente para el botón Actualizar -->
+                    <div class="modal fade" id="{{'modalActualizar'.$index}}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title titulo">
+                                        Actualizar incidencia
+                                    </h5>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    >
+                                    </button>
+                                </div>
+                                <form
+                                    id="form-crear-incidencia"
+                                    method="POST"
+                                    action="{{ route('incidence.update', $incidence->id) }}"
+                                >
+                                    <div class="modal-body text-center mb-2 mx-3 mx-sm-5 ">
+                                        <div class="d-flex flex-column gap-1 mt-2">
+                                            @method("PUT")
+                                            @csrf
+                                            <label
+                                                for="description"
+                                                class="form-label text-center fw-bold"
+                                            >
+                                                Detalles
+                                            </label>
+                                            <textarea
+                                                type="text"
+                                                class="form-control"
+                                                name="description"
+                                                id="description"
+                                                required
+                                            >{{ $incidence->description }}
+                                            </textarea>
                                         </div>
-
-                                        <!-- Ventana emergente para el botón Actualizar -->
-                                        <div class="modal fade" id="{{ 'modalActualizar' . $indice }}" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title titulo">Actualizar incidencia</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <form
-                                                        id="form-crear-incidencia"
-                                                        method="POST"
-                                                        action="{{ route('incidence.update', $incidencia->id) }}"
-                                                    >
-                                                        @method("PUT")
-                                                        @csrf
-                                                        <div class="modal-body text-center mb-2 mx-3 mx-sm-5 ">
-                                                            <input type="text" name="id"
-                                                                value="{{ $incidencia->id }}" hidden>
-                                                            <div class="d-flex flex-column gap-1 mt-2">
-                                                                <label for="description"
-                                                                    class="form-label text-center fw-bold">Detalles</label>
-                                                                <textarea
-                                                                    type="text"
-                                                                    class="form-control"
-                                                                    name="description"
-                                                                    id="description"
-                                                                    required
-                                                                >{{ $incidencia->description }}
-                                                                </textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <input type="submit" class="btn btn-turquesa"
-                                                                value="Confirmar">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Cerrar</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                </td>
-                            </tr>
-                        @endforeach
-
-                        <!-- Ventana emergente para el botón Fin -->
-                        <div class="modal fade" id="modalFin" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title titulo">Finalizar incidencia</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body text-center">
-                                        ¿Deseas finalizar esta incidencia?
                                     </div>
                                     <div class="modal-footer">
-                                        <form id="formEndIncidence" method="POST" action="">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit" class="btn btn-turquesa">Finalizar</button>
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Regresar</button>
-                                        </form>
+                                        <input
+                                            type="submit"
+                                            class="btn btn-turquesa"
+                                            value="Confirmar"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal"
+                                        >
+                                            Cerrar
+                                        </button>
                                     </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ventana emergente para el botón Fin -->
+                    <div class="modal fade" id="modalFin" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title titulo">Finalizar incidencia</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    ¿Deseas finalizar esta incidencia?
+                                </div>
+                                <div class="modal-footer">
+                                    <form id="formEndIncidence" method="POST" action="">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-turquesa">
+                                            Finalizar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+                                            Regresar
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-
-                    </tbody>
-                </table>
+                    </div>
+                @endforeach
             </div>
             <section class="mt-3">
                 {{ $incidencias->links() }}

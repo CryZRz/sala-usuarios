@@ -24,6 +24,17 @@ class IncidenciasController extends Controller
         return view("incidences.show", $data);
     }
 
+    public function showOne(int $id)
+    {
+        $incidence = Incidence::withTrashed()->find($id);
+
+        $data = [
+            "incidence" => $incidence,
+        ];
+
+        return view("incidences.showOne", $data);
+    }
+
     public function create()
     {
         return view("incidences.create");
@@ -56,6 +67,7 @@ class IncidenciasController extends Controller
 
         Incidence::create([
             "student_update_id" => $studentData->id,
+            "student_id" => $studentData->student->id,
             "description" => $description,
             "created_by" => auth()->user()->id
         ]);
@@ -63,18 +75,24 @@ class IncidenciasController extends Controller
         return redirect()->route("incidence.show");
     }
 
-    public function update(Incidence $incidence, Request $request)
+    public function update(int $incidenceId, Request $request)
     {
         $this->validate($request, [
            "description" => ["required"]
         ]);
 
-        $description = trim($request->get("description"));
-        $incidence->update([
-            "description" => $description,
-        ]);
+        $incidence = Incidence::withTrashed()->find($incidenceId);
 
-        return redirect()->back();
+        if ($incidence != null) {
+            $description = trim($request->get("description"));
+            $incidence->update([
+                "description" => $description,
+            ]);
+
+            return redirect()->back();
+        }
+
+        return redirect()->back()->withErrors("Incidencia no encontrada");
     }
 
     public function buscarEstudiante(Request $request)
@@ -86,7 +104,8 @@ class IncidenciasController extends Controller
         $controlNumber = $request->get("controlNumber");
         $infoStudent = StudentUpdate::getLastByControlNumber($controlNumber);
 
-        $incidencesStudent = Incidence::withTrashed("student_update_id", $infoStudent->id)
+        $incidencesStudent = Incidence::withTrashed()
+            ->where("student_id", $infoStudent->student->id)
             ->orderByDesc("updated_at")
             ->paginate(10);
 

@@ -14,6 +14,7 @@ class Incidence extends Model
 
     protected $fillable = [
         "student_update_id",
+        "student_id",
         "created_by",
         "description",
         "status"
@@ -26,6 +27,11 @@ class Incidence extends Model
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
+    public function student()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 
     //Accessors
     public function getCreatedAtAttribute($value)
@@ -34,6 +40,11 @@ class Incidence extends Model
     }
 
     public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d/m/y H:i');
+    }
+
+    public function getDeletedAtAttribute($value)
     {
         return Carbon::parse($value)->format('d/m/y H:i');
     }

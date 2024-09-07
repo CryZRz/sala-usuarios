@@ -199,7 +199,7 @@ class PrestamosController extends Controller
     public function registrarSesion(Request $request)
     {
         $this->validate($request, [
-            "controlNumber" => ["required", "numeric", "exists:student_updates,controlNumber"],
+            "controlNumber" => ["required", "string", "exists:student_updates,controlNumber"],
             "application" => ["required", "exists:applications,id"],
             "computer" => ["required", "exists:computers,id"],
             "timeAssigment" => ["required"],
@@ -212,7 +212,7 @@ class PrestamosController extends Controller
 
         if ($loan != null){
             return redirect()
-                ->route("session.nuevaSession")
+                ->route("session.store")
                 ->with("alert","El estudiante ya esta en una sesión");
         }
 
@@ -287,5 +287,15 @@ class PrestamosController extends Controller
         $sesion->save();
 
         return redirect()->route("session.show");
+    }
+
+    public function checkSessionsActiveUser(Request $request){
+        $activeSessionsCount = Loan::where("created_by", auth()->user()->id)->count();
+
+        if ($activeSessionsCount > 0){
+            return response()->json(["activeSessions" => $activeSessionsCount], 202);
+        }
+
+        return response()->json(["activeSessions" => 0], 404);
     }
 }

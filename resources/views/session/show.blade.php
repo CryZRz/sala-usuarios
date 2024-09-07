@@ -13,17 +13,41 @@
 @section('main')
     <main>
         <!-- Menú desplegable de acciones-->
-        <div class="container-fluid my-3 d-flex justify-content-center">
-            <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
-                <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
-                    <a type="button" class="btn btn-sm btn-turquesa lh-md fw-bold" href="{{ route('session.new') }}">Nueva
-                        sesión</a>
-                    <button type="button" class="btn btn-sm btn-verde lh-md fw-bold" data-bs-toggle="modal"
-                        data-bs-target="#modalReasignarGeneral">Reasignar equipo</button>
-                    <button type="button" class="btn btn-sm btn-secondary lh-md fw-bold" data-bs-toggle="modal"
-                        data-bs-target="#modalTerminar">Terminar sesión</button>
-                    <button type="button" class="btn btn-sm btn-secondary lh-md fw-bold" id="btnTerminarMultiple"
-                        data-bs-toggle="modal" data-bs-target="#modalTerminarMultiple" disabled>
+        <div class="container mb-1 d-flex justify-content-center">
+            <div class="col-12 bg-light px-4 py-3 sombraBasica">
+                <div class="col-12 d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
+                    <a
+                        type="button"
+                        class="flex-fill btn btn-yw-primary lh-md fw-medium rounded-0 btn-sm"
+                        href="{{ route('session.new') }}"
+                    >
+                        Nueva sesión
+                    </a>
+                    <button
+                        type="button"
+                        class="flex-fill btn btn-yw-primary lh-md fw-medium btn-sm rounded-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalReasignarGeneral"
+                    >
+                        Reasignar equipo
+                    </button>
+                    <button
+                        type="button"
+                        class="flex-fill btn btn-yw-primary btn-sm lh-md fw-medium rounded-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalTerminar"
+                    >
+                        Terminar sesión
+                    </button>
+                    <button
+                        type="button"
+                        class="flex-fill btn btn-sm rounded-0 lh-md fw-medium"
+                        id="btnTerminarMultiple"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalTerminarMultiple"
+                        disabled
+                        style="background: #fbf304"
+                    >
                         Terminar seleccionadas</button>
                 </div>
             </div>
@@ -57,161 +81,76 @@
             </div>
         </div>
         @if(session("alert") != null)
-            {{session("alert")}}
+            <div class="alert alert-primary p-2 mt-3 container" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>{{session("alert")}}</span>
+            </div>
         @endif
-        {{$errors}}
+        @foreach($errors->all() as $error)
+            <div class="alert alert-danger p-2 mt-3 container" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span>{{$error}}</span>
+            </div>
+        @endforeach
         <!-- Recuadro de la tabla de sesiones de préstamo-->
-        <div class="container-fluid mx-auto px-md-5">
-            <h4 class="titulo text-center">Sesiones de préstamo</h4>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered sombraBasica">
-                    <thead class="table-light">
-                        <tr>
-                            <th><input class="form-check-input" id="checkGlobal" type="checkbox"></th>
-                            <th>#</th>
-                            <th>N° equipo</th>
-                            <th>Alumno</th>
-                            <th>Horario</th>
-                            <th>Tiempo asignado</th>
-                            <th>Tiempo restante</th>
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($sesiones as $sesion)
-                            <tr>
-                                <th>
-                                    <input
-                                        class="form-check-input checkSesion"
-                                        data-id-sesion="{{ $sesion->id }}"
-                                        type="checkbox"
-                                    >
-                                </th>
-                                <td>{{ $indice = $loop->index + 1 }}</td>
-                                <td>{{ $sesion->computer->computer_number }}</td>
-                                <td>
-                                    {{ $sesion->studentUpdate->controlNumber .
-                                    ' - ' .
-                                    $sesion->student->lastName . ' ' . $sesion->student->name }}
-                                </td>
-                                <td>
-                                    {{$sesion->timeInterval}}
-                                </td>
-                                <td>{{ $sesion->timeAssigment }}</td>
-                                <td id="timeAssigment" sessionId="{{ $sesion->id }}">
-                                    {{$sesion->remainingTime}}
-                                </td>
-                                <td>
-                                    <div class="d-md-flex justify-content-center">
-                                        <a class="btn btn-turquesa btn-sm me-1 p-0 p-md-1 w-100 fw-bold" data-bs-toggle="modal"
-                                            data-bs-target="{{ '#infoAlumno' . $indice }}">
-                                            Info.
-                                        </a>
+        <section class="d-flex gap-3 flex-wrap justify-content-center mt-3">
+            @forelse ($sesiones as $sesion)
+                <div class="card rounded-3" style="width: 18rem;">
+                    <div class="col-12 px-2 py-1 text-end">
+                        <input
+                            class="rounded-2 form-check-input checkSesion"
+                            data-id-sesion="{{ $sesion->id }}"
+                            type="checkbox"
+                        >
+                    </div>
+                    <div class="card-header mx-auto border-0">
+                        <i class="bi bi-pc-display" style="font-size: 4.5rem"></i>
+                    </div>
+                    <div class="card-body py-2 px-3 border-1">
+                        <div class="">
+                            <p class="col-12 fw-bold m-0">Alumno:</p>
+                            <p class="col-12 m-0">
+                                {{$sesion->student->full_name}}
+                                -
+                                {{$sesion->studentUpdate->controlNumber}}
+                            </p>
+                        </div>
+                        <div class="mt-1">
+                            <p class="d-inline fw-bold m-0">N°equipo:</p>
+                            <p class="d-inline m-0">{{$sesion->computer->computer_number}}</p>
+                        </div>
+                        <div class="mt-1">
+                            <p class="d-inline col-12 fw-bold m-0">Horario:</p>
+                            <p class="d-inline col-12 m-0">{{$sesion->timeInterval}}</p>
+                        </div>
+                        <div class="mt-1">
+                            <p class="d-inline col-12 fw-bold m-0">Tiempo asignado:</p>
+                            <p class="d-inline col-12 m-0">{{$sesion->timeAssigment}}</p>
+                        </div>
+                        <div class="mt-1">
+                            <p class="col-12 fw-bold m-0">Tiempo restante:</p>
+                            <p class="m-0" id="timeAssigment" sessionId="{{ $sesion->id }}">
+                                {{$sesion->remainingTime}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer p-2 d-flex flex-column gap-1">
+                        <a class="botonReasignar btn btn-success btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
+                           sessionId="{{$sesion->id}}"
+                           data-bs-toggle="modal" data-bs-target="#infoReasignar">
+                            Reasignar
+                        </a>
+                        <a class="botonFin btn btn-primary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
+                           sessionId="{{$sesion->id}}"
+                           data-bs-toggle="modal" data-bs-target="#infoFin">
+                            Fin
+                        </a>
+                    </div>
+                </div>
+            @empty
 
-                                        <!-- Ventana emergente para el botón Info. -->
-                                        <div class="modal fade" id="{{ 'infoAlumno' . $indice }}" tabindex="-1">
-                                            <div class="modal-dialog modal-dialog-scrollable">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title titulo">Detalles</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Préstamo:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Número de préstamo</td>
-                                                                    <td>{{ $indice }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Número de equipo</td>
-                                                                    <td>{{ $sesion->computer->computer_number }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Tiempo asignado</td>
-                                                                    <td>{{ $sesion->timeAssigment }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Horario de sesión</td>
-                                                                    <td>{{ $sesion->timeInterval }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Hora de fin</td>
-                                                                    <td>{{$sesion->finishTime}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Uso</td>
-                                                                    <td>{{ $sesion->application->name }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Alumno:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Número de control</td>
-                                                                    <td>{{ $sesion->studentUpdate->controlNumber }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Nombre</td>
-                                                                    <td>
-                                                                        {{ $sesion->student->lastName . ' ' . $sesion->student->name }}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Carrera</td>
-                                                                    <td>{{ $sesion->studentUpdate->career }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Semestre</td>
-                                                                    <td>{{ $sesion->studentUpdate->semester }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <h5 class="titulo">Creado por:</h5>
-                                                            </thead>
-                                                            <tbody class="tablaEquitativa">
-                                                                <tr>
-                                                                    <td>Nombre</td>
-                                                                    <td>{{ $sesion->owner->name }}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Email</td>
-                                                                    <td>{{ $sesion->owner->email }}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-turquesa"
-                                                            data-bs-dismiss="modal">Cerrar</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <a class="botonReasignar btn btn-verde btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                           sessionId="{{$sesion->id}}"
-                                           data-bs-toggle="modal" data-bs-target="#infoReasignar">
-                                            Reasignar
-                                        </a>
-
-                                        <a class="botonFin btn btn-secondary btn-sm me-1 p-0 p-md-1 w-100 fw-bold"
-                                            sessionId="{{$sesion->id}}"
-                                            data-bs-toggle="modal" data-bs-target="#infoFin">
-                                            Fin
-                                        </a>
-                                </td>
-                            </tr>
-                        @endforeach
+            @endforelse
+        </section>
 
                         <!-- Ventana emergente para el botón Reasignar -->
                         <div class="modal fade" id="infoReasignar" tabindex="-1">
@@ -304,6 +243,5 @@
                 </div>
             </div>
         </div>
-
     </main>
 @endsection

@@ -8,6 +8,13 @@
     margin: 0;
 }
 
+body{
+    background-color: #f0ead2;
+}
+main{
+    padding: 15px;
+}
+
 .texto-brillo {
     text-shadow: rgba(255, 255, 255, 0.5) 0px 0px 5px;
 }
@@ -41,7 +48,7 @@
 }
 
 .navbar {
-    background-color: $azul-tecnm;
+    background-color: #000000;
 }
 
 /* Links de la barra de navegación */
@@ -69,7 +76,7 @@
 
 /* Submenús de la barra de navegación */
 .dropdown-menu {
-    background-color: $azul;
+    background-color: rgba(0,0,0,1);
     box-shadow: rgba(0, 0, 0, 0.2) 0px -50px 36px -28px inset;
 }
 

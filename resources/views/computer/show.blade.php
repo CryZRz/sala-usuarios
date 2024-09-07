@@ -7,7 +7,7 @@
 @section('main')
     <main>
         <section class="container">
-            <a class="btn btn-success col-12 mb-2" href="{{ route('computer.create') }}">
+            <a class="btn btn-primary col-12 mb-2" href="{{ route('computer.create') }}">
                 Agregar computadora
             </a>
             <section>

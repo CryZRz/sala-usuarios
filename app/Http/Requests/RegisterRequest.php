@@ -32,17 +32,17 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "email.required" => "Ingresa el correo electrónico del nuevo administrador.",
+            "email.required" => "Ingresa el correo electrónico ",
             "email.email" => "El correo electrónico no es válido.",
             "email.unique" => "El correo electrónico ya está registrado para otra cuenta",
 
-            "name.required" => "Ingresa el nombre del nuevo administrador.",
+            "name.required" => "Ingresa el nombre.",
             "name.min" => "Asegurate que el nombre tenga 3 o más caracteres.",
 
-            "pass.required" => "Ingresa la contraseña del nuevo administrador.",
+            "pass.required" => "Ingresa la contraseña",
             "pass.min" => "Asegurate que la contraseña tenga 4 o más caracteres.",
 
-            "confirm-password.required" => "Repite la contraseña del nuevo administrador.",
+            "confirm-password.required" => "Repite la contraseña.",
             "confirm-password.min" => "Asegurate que la contraseña tenga 4 o más caracteres.",
             "confirm-password.same" => "La contraseña no es la misma en ambos campos."
         ];

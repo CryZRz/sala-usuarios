@@ -12,7 +12,9 @@
 @section('main')
     <main class="d-flex justify-content-center">
         @if(count($listComputers) <= 0)
-            <h1>Blinzzia</h1>
+            <x-show-alert-component
+                text="No hay equipos disponibles."
+            />
         @else
             <div class="container-fluid mx-auto">
                 <form id="formSesion" class="bg-light sombraBasica rounded-5 p-4 mx-sm-5" novalidate method="POST"
@@ -25,7 +27,7 @@
                                 <label for="numControl" class="input-group-text">Número de control</label>
                                 <input
                                     type="text"
-                                    class="form-control text-center @error("controlNumber") is-invalid @enderror"
+                                    class="form-control rounded-end-0 text-center @error("controlNumber") is-invalid @enderror"
                                     id="numControl"
                                     name="controlNumber"
                                     autocomplete="off"
@@ -38,8 +40,12 @@
                                     {{$message}}
                                 </div>
                             @enderror
-                            <button id="botonBuscar" type="button"
-                                    class="btn-secondary btn btn-sm fw-bold ms-2">Buscar</button>
+                            <button
+                                id="botonBuscar"
+                                class="btn-yw-primary btn rounded-end-1 rounded-start-0"
+                            >
+                                Buscar
+                            </button>
                         </div>
                         <div class="mt-1 text-center text-danger" id="msgNumControl"></div>
                     </div>
@@ -207,7 +213,7 @@
                         </div>
 
                         <div class="text-center">
-                            <button class="btn btn-turquesa fw-bold" type="submit">Registrar sesión</button>
+                            <button class="btn btn-yw-primary fw-medium" type="submit">Registrar sesión</button>
                         </div>
                     </div>
                 </form>

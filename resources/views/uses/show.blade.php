@@ -7,11 +7,13 @@
 @section('main')
     <main>
         <section class="container d-flex flex-column">
-            <a class="btn btn-turquesa fw-bold col-12 mb-2 w-auto mx-auto" href="{{ route('computer.createUse') }}">
+            <a
+                class="btn btn-primary fw-bold col-12 mb-2 m-0 "
+                href="{{ route('computer.createUse') }}">
                 Agregar tipo de uso
             </a>
             <section>
-                <ol class="list-group list-group-numbered w-50 mx-auto">
+                <ol class="list-group list-group-numbered">
                     @forelse ($usos as $uso)
                         <li class="list-group-item d-flex justify-content-between align-items-start">
                             <div class="ms-2 me-auto">
@@ -25,17 +27,18 @@
                             </div>
 
                             <div class="d-flex flex-row gap-1">
-                                <a href="{{ route('computer.editUse', $uso->id) }}" class="btn text-light badge bg-primary rounded-pill text-decoration-none">
-                                    <span class="h6 fw-bold">Editar</span>
+                                <a
+                                    href="{{ route('computer.editUse', $uso->id) }}"
+                                    class="btn btn-primary">
+                                    Editar
                                 </a>
                                 <form action="{{ route('computer.destroyUse', $uso->id) }}" method="POST">
                                     @csrf
                                     @method("delete")
-                                    <button class="badge bg-danger rounded-pill text-decoration-none" type="submit">
-                                        <span class="h6 fw-bold">Eliminar</span>
+                                    <button class="btn btn-danger" type="submit">
+                                        Eliminar
                                     </button>
                                 </form>
-                            </div>
                             </div>
                         </li>
                     @empty

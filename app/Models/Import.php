@@ -5,15 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Period extends Model{
+class Import extends Model
+{
     use HasFactory;
 
     protected $fillable = [
-        "name"
+        "file_name",
+        "hash_file",
+        "period_id"
     ];
 
-    public static function getLastPeriod()
+    public function period()
     {
-        return self::latest()->first();
+        return $this->belongsTo(Period::class);
     }
 }

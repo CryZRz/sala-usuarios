@@ -56,8 +56,9 @@ controlNumberInput.addEventListener("keypress", e => {
     }
 })
 
-btnFindStudent.addEventListener("click", _ => {
+btnFindStudent.addEventListener("click", e => {
     main()
+    e.preventDefault()
 })
 
 window.addEventListener("load", _ => {

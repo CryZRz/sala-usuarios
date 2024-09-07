@@ -20,7 +20,7 @@
                         <label for="cpu">CPU</label>
                         <input
                             id="input-name"
-                            class="col-12"
+                            class="col-12 p-1"
                             name="cpu"
                             type="text"
                             placeholder="Nombre del procesador"
@@ -31,7 +31,7 @@
                         <label for="ram">RAM</label>
                         <input
                             id="input-ram"
-                            class="col-12"
+                            class="col-12 p-1"
                             name="ram"
                             type="number"
                             placeholder="Ingresa la ram en GB"

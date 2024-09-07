@@ -1,71 +1,91 @@
-@extends('layouts.authLayout')
-@section('title')
-    Registro
-@endsection
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sala de usuarios</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    @vite(['resources/scss/app.scss', 'resources/scss/auth/register.scss'])
+</head>
+<body>
+<main class="w-full vh-100 row g-0">
+    <section class="section-left-container col-lg-7 col-md-7 col-sm-12">
 
-@section('vite')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-@endsection
-
-@section('main')
-    <main class="d-flex justify-content-center my-3">
-        <form action="{{ route('register.store') }}"
-            class="bg-light sombraBasica rounded-5 p-4 mx-sm-5 d-inline-flex flex-column justify-content-center align-items-center"
-            novalidate method="POST">
-            @csrf
-            <h4 class="titulo text-center mb-2">Nuevo administrador</h4>
-            <div class="d-inline-flex flex-column gap-2">
-                <p class="form-text text-center my-1">Recuerda que los datos que ingreses son para el nuevo administrador, no
-                    los tuyos.</p>
-                <div class="input-group">
-                    <label for="numControl" class="input-group-text">Correo electrónico</label>
-                    <input type="text" class="form-control text-center" id="email" name="email" size="30"
-                        autocomplete="off" value="{{ old('email') }}" required>
-                </div>
-                @error('email')
-                    <p class="m-0 mb-1 text-center text-danger">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                <div class="input-group">
-                    <label class="input-group-text" for="nombre">Nombre</label>
-                    <input class="form-control" type="text" id="name" name="name" autocomplete="off"
-                        value="{{ old('name') }}" required>
-                </div>
-                @error('name')
-                    <p class="m-0 mb-1 text-center text-danger">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                <div class="input-group">
-                    <label class="input-group-text col-5" for="semestre">Contraseña</label>
-                    <input type="text" class="form-control" id="pass" name="pass" autocomplete="off"
-                        value="{{ old('pass') }}" required>
-                </div>
-                @error('password')
-                    <p class="m-0 mb-1 text-center text-danger">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                <div class="input-group mb-1">
-                    <label class="input-group-text col-5" for="semestre">Repite la contraseña</label>
-                    <input type="text" class="form-control" id="confirm-password" name="confirm-password"
-                        autocomplete="off" value="{{ old('confirm-password') }}" required>
-                    <div class="m-0 mb-1 invalid-feedback text-center">
-                        Ingresa el semestre del alumno.
-                    </div>
-                </div>
-                @error('confirm-password')
-                    <p class="m-0 mb-2 text-center text-danger">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                <button class="btn btn-turquesa fw-bold" type="submit">Registrar administrador</button>
+    </section>
+    <section class="col-lg-5 col-md-5 col-sm-12 h-full section-right-container">
+        <div class="w-full d-flex justify-content-center align-items-center">
+            <div class="login-container rounded col-12">
+                <section class="login-header d-flex justify-content-center align-items-center bg-azul-tecnm">
+                    <img src="/images/tecnmLGWL.png" alt="logo-itl">
+                </section>
+                <section class="login-body d-flex flex-column justify-content-center ">
+                    <form class="d-flex flex-column form-register" action="{{route("register.store")}}" method="post">
+                        @csrf
+                        <div class="mb-1">
+                            <label class="col-12 small" for="email">Nombre</label>
+                            <input
+                                class="col-12"
+                                type="text"
+                                name="name"
+                                placeholder="Ingresa tu nombre"
+                                value="{{@old('name')}}"
+                            >
+                            @error("name")
+                                <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="mb-1">
+                            <label class="col-12 small" for="email">Correo</label>
+                            <input
+                                class="col-12"
+                                type="email"
+                                name="email"
+                                value="{{@old('email')}}"
+                                placeholder="Ingresa tu correo"
+                            >
+                            @error("email")
+                                <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="mb-1">
+                            <label class="col-12 small" for="password">Contraseña</label>
+                            <input
+                                class="col-12"
+                                type="password"
+                                name="pass"
+                                value="{{@old('pass')}}"
+                                placeholder="Ingresa tu contraseña"
+                            >
+                            @error("pass")
+                            <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="col-12 small" for="password">Confirmar contraseña</label>
+                            <input
+                                class="col-12"
+                                type="password"
+                                name="confirm-password"
+                                value="{{@old('confirm-password')}}"
+                                placeholder="Confirma tu contraseña"
+                            >
+                            @error("confirm-password")
+                                <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                            @enderror
+                            @if(session("error"))
+                                <p class="text-danger small m-0 fw-bold">
+                                    {{session("error")}}
+                                </p>
+                            @endif
+                        </div>
+                        <div class="mb-2">
+                            <button class="col-12 p-2 rounded btn-login">Registrar</button>
+                        </div>
+                    </form>
+                </section>
             </div>
-        </form>
-    </main>
-@endsection
+        </div>
+    </section>
+</main>
+</body>
+</html>

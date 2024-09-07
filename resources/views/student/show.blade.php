@@ -18,20 +18,26 @@
                     <div class="col-lg-6">
                         <label for="name">Nombre</label>
                         <input
-                            class="col-12  @error('name') form-control is-invalid @enderror"
+                            class="col-12 p-1 @error('name') form-control is-invalid @enderror"
                             name="name"
                             type="text"
                             placeholder="Nombre del alumno"
                         >
+                        @error('name')
+                            <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                        @enderror
                     </div>
                     <div class="col-lg-6">
                         <label for="lastName">Apellidos</label>
                         <input
-                            class="col-12 @error('lastName') form-control is-invalid @enderror"
+                            class="col-12 p-1 @error('lastName') form-control is-invalid @enderror"
                             name="lastName"
                             type="text"
                             placeholder="Apellidos del alumno"
                         >
+                        @error('lastName')
+                            <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                        @enderror
                     </div>
                 </section>
                 <section class="mb-2">
@@ -43,25 +49,34 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('career')
+                        <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                    @enderror
                 </section>
                 <section class="row mb-3">
                     <div class="col-lg-6">
                         <label for="semester">Semestre</label>
                         <input
-                            class="col-12 @error('semester') form-control is-invalid @enderror"
+                            class="col-12 p-1 @error('semester') form-control is-invalid @enderror"
                             type="number"
                             name="semester"
                             placeholder="Semestre del alumno"
                         >
+                        @error('semester')
+                            <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                        @enderror
                     </div>
                     <div class="col-lg-6">
                         <label for="controlNumber">Numero de control</label>
                         <input
-                            class="col-12 @error('controlNumber') form-control is-invalid @enderror"
+                            class="col-12 p-1 @error('controlNumber') form-control is-invalid @enderror"
                             name="controlNumber"
                             type="text"
                             placeholder="Numero de control"
                         >
+                        @error('controlNumber')
+                            <p class="text-danger small m-0 fw-medium">{{$message}}</p>
+                        @enderror
                     </div>
                 </section>
                 <section>
@@ -70,10 +85,4 @@
             </form>
         </section>
     </main>
-    @if (count($errors) > 0)
-        <script>
-            let errors = @json($errors->all())
-            showErrors(errors)
-        </script>
-    @endif
 @endsection

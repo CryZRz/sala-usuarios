@@ -1,7 +1,7 @@
 export function addPortComputer(dataComputer){
     const btnAddPort = document.getElementById("btn-add-port")
     const sectionListPorts = document.getElementById("list-prots")
-    
+
     let counterPorts = 1
     let listPortsAdd = []
 
@@ -9,7 +9,7 @@ export function addPortComputer(dataComputer){
         const elementsPorts = [...document.getElementsByClassName("liPort")]
 
         const elementsFilter = elementsPorts.filter(e => {
-            const idElement = e.getAttribute("port") 
+            const idElement = e.getAttribute("port")
             return idElement != id
         })
         listPortsAdd = listPortsAdd.filter(p => p.id != id)

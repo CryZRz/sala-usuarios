@@ -13,8 +13,8 @@ return new class extends Migration {
         if (!Schema::hasIndex('student_updates', 'actualizacion_unica')) {
             Schema::table('student_updates', function (Blueprint $table) {
                 $table->unique(
-                    name: "actualizacion_unica",
-                    columns: ['controlNumber', 'career', 'semester', 'period_id']
+                    columns: ['controlNumber', 'career', 'semester', 'period_id'],
+                    name: "actualizacion_unica"
                 );
             });
         }

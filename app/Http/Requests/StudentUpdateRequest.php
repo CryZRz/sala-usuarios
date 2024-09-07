@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Http\Utils\CareersE;
+use App\Models\StudentUpdate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StudentUpdateRequest extends FormRequest
 {
@@ -22,12 +24,14 @@ class StudentUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $student = $this->route("student");
-        $controlNumber = $student->controlNumber;
- 
+        $controlNumber = $this->route("controlNumber");
         return [
             "name" => ["required"],
-            "controlNumber" => ["required", "unique:students,controlNumber,$controlNumber,controlNumber"],
+            "controlNumber" => [
+                "required",
+                Rule::unique("student_updates", "controlNumber")
+                    ->ignore($controlNumber, "controlNumber")
+            ],
             "lastName" => ["required"],
             "career" => [
                 "required",

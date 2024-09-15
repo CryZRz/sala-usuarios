@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Period;
 use Carbon\Carbon;
+use Complex\Exception;
 use Illuminate\Console\Command;
 
 class GeneratePeriod extends Command
@@ -30,18 +31,23 @@ class GeneratePeriod extends Command
         $month = Carbon::now()->month;
         $year = Carbon::now()->year;
         if ($month >= 1 && $month < 7) {
-            Period::create([
-                "name" => "ENERO-JUNIO-$year"
-            ]);
+            $periodName = "ENERO-JUNIO-$year";
         }
         else if ($month >= 7 && $month < 8) {
-            Period::create([
-                "name" => "JUNIO-JULIO-$year"
-            ]);
+            $periodName = "JUNIO-JULIO-$year";
         }else{
-            Period::create([
-                "name" => "AGOSTO-DICIEMBRE-$year"
-            ]);
+            $periodName = "AGOSTO-DICIEMBRE-$year";
         }
+
+        $existingPeriod = Period::where('name', $periodName)->first();
+
+        if ($existingPeriod) {
+            $this->info("Se intento crear el periodo: " . $periodName . " pero ya existe");
+            return;
+        }
+
+        Period::create([
+            "name" => $periodName,
+        ]);
     }
 }

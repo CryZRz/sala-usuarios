@@ -14,9 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command("app:generate-period")->cron('0 0 1 1 *');
-        $schedule->command("app:generate-period")->cron('0 0 1 7 *');
-        $schedule->command("app:generate-period")->cron("0 0 1 8 *");
+        $schedule->command("app:generate-period")->cron("0 0 * * *");
     }
 
     /**

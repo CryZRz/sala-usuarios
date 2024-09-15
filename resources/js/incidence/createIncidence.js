@@ -1,6 +1,7 @@
 import {showError} from "../utils/showError.js";
 import {getInfoStudent} from "../utils/studentU.js";
 import ShowLoading from "../utils/showLoading.js";
+import {showToast} from "../utils/toastU.js";
 
 const inputControlNumber = document.getElementById("control-number")
 const btnFindStudent = document.getElementById("btn-find-student")
@@ -73,5 +74,16 @@ async function main(){
     }catch (e){
         inputControlNumberHidden.value = ""
         loadingManager.offLoading()
+        showToast(
+            "Alumno no regitrado\n Haz click para registrarlo"
+        , {
+                background: "red",
+                color: "white"
+            },
+            {
+                onClick: () => {
+                    location.href = "/estudiante"
+                }
+            }).show()
     }
 }

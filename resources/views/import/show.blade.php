@@ -19,7 +19,7 @@
                 <p class="fs-6">Los encabezados de los registros deben ser los siguientes, en cualquier orden: <br>
                     <span class="fw-bold">NControl | Apellidos | Nombre | Carrera | Semestre</span>
                 </p>
-                <form id="form-import" action="{{ route('import.upload') }}" method="POST" enctype="multipart/form-data">
+                <form id="form-import" action="{{ route('import.uploadPending') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <section class="row mb-2">
                         <div class="col-md-6 mb-2 mx-auto">

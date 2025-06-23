@@ -37,7 +37,7 @@
                         <div class="col-lg-8 mb-2 d-flex flex-column justify-content-center">
                             <div class="col-12">
                                 Numero de control: <p class="d-inline fw-bold">
-                                    {{$student->latestStudentUpdate()->controlNumber}}
+                                    {{$student->latestStudentUpdate->controlNumber}}
                                 </p>
                             </div>
                             <div class="col-12">
@@ -48,23 +48,23 @@
                             </div>
                             <div class="col-12">
                                 Carrera: <p class="d-inline fw-bold">
-                                    {{$student->latestStudentUpdate()->career}}
+                                    {{$student->latestStudentUpdate->career}}
                                 </p>
                             </div>
                             <div class="col-12">
                                 Semestre: <p class="d-inline fw-bold">
-                                    {{$student->latestStudentUpdate()->semester}}
+                                    {{$student->latestStudentUpdate->semester}}
                                 </p>
                             </div>
                         </div>
                         <div class="col-lg-2 d-flex flex-column justify-content-center">
                             <a
                                 class="btn btn-success mb-2 col-12"
-                                href="{{route('student.edit', $student->latestStudentUpdate()->controlNumber)}}">
+                                href="{{route('student.edit', $student->latestStudentUpdate->controlNumber)}}">
                                 Editar
                             </a>
                             <a
-                                href="{{route('student.show.one.sessions', $student->latestStudentUpdate()->controlNumber)}}"
+                                href="{{route('student.show.one.sessions', $student->latestStudentUpdate->controlNumber)}}"
                                 class="btn-primary btn"
                             >
                                 Ver

@@ -10,9 +10,17 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
+        "id",
         "name",
         "lastName",
+        "curp",
+        "uuid",
     ];
+
+    public static function getByUUid($uuid)
+    {
+        return self::where("uuid", $uuid)->first();
+    }
 
     public function studentUpdates(){
         return $this->hasMany(StudentUpdate::class);
@@ -20,7 +28,8 @@ class Student extends Model
 
     public function latestStudentUpdate()
     {
-        return $this->studentUpdates()->latest()->first();
+        return $this->hasOne(StudentUpdate::class)
+            ->latest('created_at');
     }
 
     //Accessors

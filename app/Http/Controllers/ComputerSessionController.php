@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\StudentResource;
+use App\Http\Resources\StudentUpdateResource;
 use App\Http\Utils\CareersE;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Http\Utils\SessionU;
 use App\Models\Application;
 use App\Models\Computer;
@@ -15,10 +16,14 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class PrestamosController extends Controller
+class ComputerSessionController extends Controller implements HasModule
 {
 
-    public function mostrarSesiones()
+    public function hasModule() :string {
+        return 'computerSession';
+    }
+
+    public function show()
     {
         $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();
 
@@ -190,7 +195,7 @@ class PrestamosController extends Controller
                 return response()
                     ->json(["error" => "El estudiante tiene una sesión activa"], 409);
             }
-            return new StudentResource($student);
+            return new StudentUpdateResource($student);
         }
 
         return response()->json(["error" => "El estudiante no esta registrado"], 404);

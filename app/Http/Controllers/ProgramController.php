@@ -2,18 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Program;
 use Illuminate\Http\Request;
 
-class ProgramController extends Controller
+class ProgramController extends Controller implements HasModule
 {
+
+    public function hasModule(): string
+    {
+        return "program";
+    }
+
     public function show() {
         $programs = Program::paginate(10);
 
         $data = [
             "programs" => $programs
         ];
-        
+
         return view("program.show", $data);
     }
 
@@ -46,7 +53,7 @@ class ProgramController extends Controller
             "program" => $program,
         ];
 
-        return view("program.create", $data); 
+        return view("program.create", $data);
     }
 
     public function update(Request $request) {

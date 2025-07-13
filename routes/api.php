@@ -20,3 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get("/programas", [ProgramController::class, "showApi"]);
+
+include __DIR__ . "/api/students/index.php";

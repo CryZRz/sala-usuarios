@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StudentRequest;
-use App\Http\Requests\StudentSearchRequest;
 use App\Http\Requests\StudentUpdateRequest;
-use App\Http\Resources\StudentResource;
+use App\Http\Resources\StudentUpdateResource;
 use App\Http\Utils\CareersE;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Incidence;
 use App\Models\Loan;
 use App\Models\Period;
@@ -14,10 +14,18 @@ use App\Models\Student;
 use App\Models\StudentUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 
-class StudentController extends Controller
+class StudentController extends Controller implements HasModule
 {
 
+    public function __construct(){
+        View::share("module", $this->hasModule());
+    }
+    public function hasModule(): string
+    {
+        return "student";
+    }
     public function showAll()
     {
         $students = Student::paginate(10);
@@ -39,12 +47,12 @@ class StudentController extends Controller
         return view("student.show", $data);
     }
 
-    public function search(string $numControl)
+    public function findOne(string $numControl)
     {
         $student = StudentUpdate::getLastByControlNumber($numControl);
 
         if ($student != null) {
-            return new StudentResource($student);
+            return new StudentUpdateResource($student);
         }
 
         return response()->json(["error" => "estudiante no registrado"], 404);
@@ -168,5 +176,14 @@ class StudentController extends Controller
         ];
 
         return view("student.edit", $data);
+    }
+
+    //API
+    public function getStudents(string $period, Request $request){
+        $students = StudentUpdate::with("period")
+            ->whereHas("period", fn($query) => $query->where("abbreviation", $period))
+            ->paginate(15);
+
+        return StudentUpdateResource::collection($students);
     }
 }

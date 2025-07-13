@@ -8,7 +8,7 @@ async function fetchMorePrograms(index){
 
 async function fetchMorePogramsAvailable(index, id){
     try {
-        return await axios.get(`/equipo-programas/${id}?page=${index}`)
+        return await axios.get(`/equipo/${id}/programas?page=${index}`)
     } catch (e) {
         throw new Error(e)
     }

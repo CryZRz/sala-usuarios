@@ -19,6 +19,7 @@
                 <div class="col-md-4">
                     <label for="cpu">Numero de computadora</label>
                     <input
+                        class="col-12 p-lg-1"
                         id="input-computer-number"
                         name="computerNumber"
                         type="text"
@@ -30,6 +31,7 @@
                 <div class="col-md-4">
                     <label for="cpu">CPU</label>
                     <input
+                        class="col-12 p-lg-1"
                         id="input-name"
                         name="cpu"
                         type="text"
@@ -41,6 +43,7 @@
                 <div class="col-md-4">
                     <label for="ram">RAM</label>
                     <input
+                        class="col-12 p-lg-1"
                         id="input-ram"
                         name="ram"
                         type="number"
@@ -63,9 +66,11 @@
 
                 </div>
             </section>
-            <section>
-                <x-create-program-component/>
-            </section>
+            @canUse("program.create")
+                <section>
+                    <x-create-program-component/>
+                </section>
+            @endcanUse
             <section>
                 <button class="btn btn-primary col-12 my-2" id="btn-send">Agregar Computadora</button>
             </section>

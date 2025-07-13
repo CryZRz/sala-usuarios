@@ -4,14 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ComputerRequest;
 use App\Http\Requests\ComputerUpdateRequest;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Computer;
 use App\Models\Port;
 use App\Models\Program;
 use App\Models\ProgramComputer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
-class ComputerController extends Controller
+class ComputerController extends Controller implements HasModule
 {
+
+    public function __construct(){
+        View::share('module', $this->hasModule());
+    }
+
+    public function hasModule(): string
+    {
+        return "computer";
+    }
+
     public function show() {
         $Computers = Computer::paginate(10);
 
@@ -83,27 +95,6 @@ class ComputerController extends Controller
         }
 
         return response("el programa no se encontro", 404);
-    }
-
-    public function updatePort(int $id, Request $request) {
-        $this->validate($request, [
-            "type" => ["required"],
-            "amount" => ["required"],
-        ]);
-
-        $port = Port::find($id);
-        $port->type = $request->get("type");
-        $port->amount = $request->get("amount");
-        $port->save();
-
-        return response(null, 203);
-    }
-
-    public function removePort(int $id){
-        $port = Port::find($id);
-        $port->delete();
-
-        return response(null, 203);
     }
 
     public function update(Computer $computer, ComputerUpdateRequest $request) {

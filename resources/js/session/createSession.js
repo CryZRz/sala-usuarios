@@ -17,7 +17,7 @@ const loadingManager = new ShowLoading(pantallaCarga)
 
 async function getDataStudentForSession(controlNumber){
     try {
-        const dataStudentRequest= await axios.get(`/sesion/${controlNumber}`)
+        const dataStudentRequest= await axios.get(`/api/sesion/${controlNumber}`)
         return dataStudentRequest.data.data
     }catch (e){
         throw e
@@ -88,9 +88,10 @@ async function main(){
         loadingManager.offLoading()
     }catch (error){
         if (error.response){
-            if (error.response.status === 409){
+            if (error.response.status !== 404){
                 showError(error.response.data.error)
                 loadingManager.offLoading()
+                console.log(error)
             }
             else if (error.response.status === 404){
                 infoSessionContainer.hidden = false

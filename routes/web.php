@@ -1,7 +1,10 @@
 <?php
 
 use App\Models\Period;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\StudentUpdateResource;
+use App\Models\StudentUpdate;
 
 Route::get('/', function () {
     return redirect()->route("login.show");
@@ -26,3 +29,7 @@ require __DIR__ . "/incidences/index.php";
 require __DIR__ . "/auth/index.php";
 require __DIR__ . "/reports/index.php";
 require __DIR__ . "/import/index.php";
+require __DIR__ . "/uses/index.php";
+require __DIR__ . "/api/ports/index.php";
+require __DIR__ . "/api/session/index.php";
+require __DIR__ . "/tokens/index.php";

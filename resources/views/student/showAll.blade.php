@@ -9,9 +9,11 @@
         <section class="container">
             <h1>Lista de alumnos</h1>
             <section class="row">
-                <a class="btn btn-primary col-12 mt-3" href="{{route("student.show")}}">
-                    Agregar nuevo alumno
-                </a>
+                @canUse("$module.create")
+                    <a class="btn btn-primary col-12 mt-3" href="{{route("student.show")}}">
+                        Agregar nuevo alumno
+                    </a>
+                @endcanUse
             </section>
             <section class="mt-3">
                 <form action="{{route('student.findAll')}}" method="GET" class="row">
@@ -58,11 +60,13 @@
                             </div>
                         </div>
                         <div class="col-lg-2 d-flex flex-column justify-content-center">
-                            <a
-                                class="btn btn-success mb-2 col-12"
-                                href="{{route('student.edit', $student->latestStudentUpdate->controlNumber)}}">
-                                Editar
-                            </a>
+                            @canUse("$module.update")
+                                <a
+                                    class="btn btn-success mb-2 col-12"
+                                    href="{{route('student.edit', $student->latestStudentUpdate->controlNumber)}}">
+                                    Editar
+                                </a>
+                            @endcanUse
                             <a
                                 href="{{route('student.show.one.sessions', $student->latestStudentUpdate->controlNumber)}}"
                                 class="btn-primary btn"

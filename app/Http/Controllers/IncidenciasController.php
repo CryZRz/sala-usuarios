@@ -2,15 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StudentSearchRequest;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Incidence;
-use App\Models\Student;
 use App\Models\StudentUpdate;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 
-class IncidenciasController extends Controller
+class IncidenciasController extends Controller implements HasModule
 {
+
+
+    public function __construct(){
+        View::share("module", $this->hasModule());
+    }
+    public function hasModule(): string
+    {
+        return "incidences";
+    }
+
     public function show()
     {
 

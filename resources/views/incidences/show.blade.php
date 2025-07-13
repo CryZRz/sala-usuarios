@@ -14,9 +14,11 @@
         <div class="container-fluid my-3 d-flex justify-content-center">
             <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
                 <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
-                    <a href="{{route("incidence.create")}}" class="btn btn-sm btn-turquesa lh-md fw-bold">
-                        Registrar incidencia
-                    </a>
+                    @canUse("$module.view")
+                        <a href="{{route("incidence.create")}}" class="btn btn-sm btn-turquesa lh-md fw-bold">
+                            Registrar incidencia
+                        </a>
+                    @endcanUse
                     <button type="button" class="btn btn-sm btn-verde lh-md fw-bold" data-bs-toggle="modal"
                         data-bs-target="#modalActualizar">Buscar incidencia</button>
                     @if ($muestra == 'estudiante' || $muestra == 'resueltas')

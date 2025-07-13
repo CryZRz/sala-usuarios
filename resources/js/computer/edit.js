@@ -113,7 +113,7 @@ async function removePorgram(id){
     loading.setPageLoading()
     try {
         loading.onLoading()
-        await axios.delete(`/equipo-programa/${id}`)
+        await axios.delete(`/equipo/${id}/programa/`)
         removeProgramsUI(id)
         loading.offLoading()
         showMessage("Programa eliminado correctamente", "green", "white")
@@ -128,7 +128,8 @@ async function sendEditPort(id, data){
     loading.setPageLoading()
     try {
         loading.onLoading()
-        await axios.post(`/equipo-puerto/${id}`, data)
+        const r = await axios.post(`/api/puerto/${id}`, data)
+        console.log(r)
         loading.offLoading()
         showMessage("Puerto editado correctamente", "green", "white")
     } catch (e) {
@@ -147,7 +148,7 @@ async function removePort(id){
     loading.setPageLoading()
     try {
         loading.onLoading()
-        await axios.delete(`/equipo-puerto/${id}`)
+        await axios.delete(`/api/puerto/${id}`)
         removePortUI(id)
         loading.offLoading()
         showMessage("Puerto eliminado correctamente", "green", "white")

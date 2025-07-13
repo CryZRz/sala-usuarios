@@ -40,9 +40,11 @@
                     </div>
                 </section>
                 <section class="border-top border-secondary border-1 pt-3 mb-4" id="ports-section">
-                    <label class="h5" for="">Puertos</label>
-                    <button class="btn btn-warning text-white col-12 mb-2" id="btn-add-port">Agregar</button>
-                    <div class="mb-2" id="list-prots"></div>
+                    @canUse("ports.create")
+                        <label class="h5" for="">Puertos</label>
+                            <button class="btn btn-warning text-white col-12 mb-2" id="btn-add-port">Agregar</button>
+                        <div class="mb-2" id="list-prots"></div>
+                    @endcanUse
                     <div id="list-ports-editable">
                         <label class="h5" for="">Puertos del equipo</label>
                         @forelse ($computer->ports as $port)
@@ -79,7 +81,9 @@
                     <div id="btn-show-more">
 
                     </div>
-                    <x-create-program-component/>
+                    @canUse("program.create")
+                        <x-create-program-component/>
+                    @endcanUse
                 </section>
                 <section class="border-top border-secondary border-1 pt-3 mb-2">
                     <label class="h5" for="">Programas del equipo</label>
@@ -104,13 +108,15 @@
                 <section>
                     <button class="btn btn-primary col-12 my-2" id="btn-send">Editar Computadora</button>
                 </section>
-                <section>
-                    <form action="{{route("computer.destroy", $computer->id)}}" method="POST">
-                        @csrf
-                        @method("delete")
-                        <button class="btn btn-danger col-12 mb-2">Eliminar equipo</button>
-                    </form>
-                </section>
+                @canUse("$module.delete")
+                    <section>
+                        <form action="{{route("computer.destroy", $computer->id)}}" method="POST">
+                            @csrf
+                            @method("delete")
+                            <button class="btn btn-danger col-12 mb-2">Eliminar equipo</button>
+                        </form>
+                    </section>
+                @endcanUse
             </form>
         </section>
     </main>

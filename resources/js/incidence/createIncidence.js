@@ -72,6 +72,7 @@ async function main(){
         descriptionStudentInput.disabled = false
         loadingManager.offLoading()
     }catch (e){
+        console.log(e)
         inputControlNumberHidden.value = ""
         loadingManager.offLoading()
         showToast(

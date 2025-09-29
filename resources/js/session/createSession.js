@@ -1,104 +1,166 @@
+import axios from "axios";
 import {showError} from "../utils/showError.js";
-import ShowLoading from "../utils/showLoading.js";
+import {showToast} from "../utils/toastU.js";
 
-const pantallaCarga = document.getElementById("section-loading");
-const mensajeAlumno = document.getElementById("msgNumControl");
-const controlNumberInput = document.getElementById("numControl");
-const nameInput = document.getElementById("nombre");
-const lastNameInput = document.getElementById("apellidos");
-const semesterInput = document.getElementById("semestre");
-const careerInput = document.getElementById("selectCarreras");
-const btnFindStudent = document.getElementById("botonBuscar")
-const inputsInfoStudent = document.querySelectorAll(".info-student")
-const infoSessionContainer = document.getElementById("section-info-session")
-const formSession = document.getElementById("formSesion")
+document.addEventListener("alpine:init", () => {
+    Alpine.data("createSession", () => ({
+        controlNumberFind: "",
+        isDisabled: true,
+        formIncidence: null,
+        studentData: {
+            career: "",
+            controlNumber: "",
+            lastName: "",
+            name: "",
+            semester: 0,
+        },
 
-const loadingManager = new ShowLoading(pantallaCarga)
+        computersAvaiable: [],
+        textFindComputer: "",
+        showListComputerChange: false,
+        hoursSession: 0,
+        minutesSession: 0,
+        timeAssigment: "",
 
-async function getDataStudentForSession(controlNumber){
-    try {
-        const dataStudentRequest= await axios.get(`/api/sesion/${controlNumber}`)
-        return dataStudentRequest.data.data
-    }catch (e){
-        throw e
-    }
-}
+        nextPathComputer: null,
+        hasMoreComputers: false,
+        isLoadingMorePrograms: false,
 
-function changeDisableInputsInfoStudent(value){
-    inputsInfoStudent.forEach(input => {
-        input.disabled = value
-    })
-}
 
-function clearDataInfoStudent(){
-    inputsInfoStudent.forEach(input => {
-        input.value = ""
-    })
-}
+        async init(){
+            await this.getListComputersAvaiable()
+        },
 
-function fillDataStudent(dataStudent){
-    nameInput.value = dataStudent.student.name
-    lastNameInput.value = dataStudent.student.lastName
-    semesterInput.value = dataStudent.semester
-    careerInput.value = dataStudent.career
-    changeDisableInputsInfoStudent(true)
-}
+        async getListComputersAvaiable(){
+            try {
+                this.loadingFetchPrograms = true
+                const response = await axios.get("/api/cargarEquipos")
+                this.computersAvaiable = response.data.data
 
-function checkErrorsSubmit(){
-    formSession.action = "/sesion-estudiante"
-    infoSessionContainer.hidden = false
-}
+                this.nextPathComputer = response.data.next_page_url
+                if (this.nextPathComputer !== null){
+                    this.hasMoreComputers = true
+                }
 
-controlNumberInput.addEventListener("keypress", e => {
-    if (e.key === "Enter"){
-        main()
-        e.preventDefault()
-    }
-})
-
-btnFindStudent.addEventListener("click", e => {
-    main()
-    e.preventDefault()
-})
-
-window.addEventListener("load", _ => {
-    if (typeof errors !== "undefined" ){
-        return checkErrorsSubmit()
-    }
-})
-
-async function main(){
-    changeDisableInputsInfoStudent(false)
-    infoSessionContainer.hidden = true
-    mensajeAlumno.innerText= ""
-    clearDataInfoStudent()
-    loadingManager.setPageLoading()
-
-    const controlNumber = controlNumberInput.value
-    if (controlNumber.length <= 0){
-        return showError("Debes ingresar el numero de control")
-    }
-
-    try {
-        formSession.action = "/sesion"
-        loadingManager.onLoading()
-        const dataStudent = await getDataStudentForSession(controlNumber)
-        infoSessionContainer.hidden = false
-        fillDataStudent(dataStudent)
-        loadingManager.offLoading()
-    }catch (error){
-        if (error.response){
-            if (error.response.status !== 404){
-                showError(error.response.data.error)
-                loadingManager.offLoading()
-                console.log(error)
+                this.loadingFetchPrograms = false
+            }catch (e){
+                this.loadingFetchPrograms = false
+                showError("Error al consultar programas intenta mas tarde")
             }
-            else if (error.response.status === 404){
-                infoSessionContainer.hidden = false
-                mensajeAlumno.innerText = "El alumno no está registrado; continúa manualmente."
-                formSession.action = "/sesion-estudiante"
-                loadingManager.offLoading()
+        },
+
+        async findStudent(event){
+            event.preventDefault()
+            try {
+                const student = await axios.get(`/api/sesion/${this.controlNumberFind}`)
+                this.studentData = student.data.data.student
+                this.isDisabled = false
+            }catch (e){
+                this.studentData = {
+                    career: "",
+                    controlNumber: "",
+                    lastName: "",
+                    name: "",
+                    semester: 0,
+                }
+                this.isDisabled = true
+                if (e.response) {
+                    // Error de respuesta del servidor (por ejemplo 404, 500, etc.)
+                    const statusCode = e.response.status
+
+                    if (statusCode === 422) {
+                        return showError("El usuario no esta activo")
+                    }
+
+                    if (statusCode === 409) {
+                        return showError("El estudiante tiene una sesion activa")
+                    }
+                    if (statusCode === 404){
+                        return showToast(
+                            "Alumno no regitrado\n Haz click para registrarlo"
+                            , {
+                                background: "#d1be4e",
+                                color: "white"
+                            },
+                            {
+                                onClick: () => {
+                                    location.href = "/estudiante"
+                                }
+                            }).show()
+                    }
+                }
             }
+        },
+
+        async findComputerByNum(){
+            try {
+                this.loadingFetchPrograms = true
+                const response = await axios.get(`/api/cargarEquipos?find=${this.textFindComputer}`)
+                this.computersAvaiable = response.data.data
+
+                this.nextPathComputer = response.data.next_page_url
+                if (this.nextPathComputer !== null){
+                    this.hasMoreComputers = true
+                }
+
+                this.loadingFetchPrograms = false
+            }catch (e){
+                this.loadingFetchPrograms = false
+                showError("Error al consultar la computadora intenta mas tarde")
+            }
+        },
+
+        selectComputerChange(computer){
+            this.textFindComputer = computer.computer_number
+        },
+
+        async loadMore(){
+            if(this.hasMoreComputers){
+                try {
+                    this.isLoadingMorePrograms = true
+
+                    const response = await axios.get(this.nextPathComputer)
+                    this.computersAvaiable = [...this.computersAvaiable, ...response.data.data]
+
+                    this.nextPathComputer = response.data.next_page_url
+                    if (this.nextPathComputer === null){
+                        this.hasMoreComputers = false
+                    }
+
+                    this.isLoadingMorePrograms = false
+                }catch (e){
+                    showError("Error al consultar programas intenta mas tarde")
+                }
+            }
+        },
+
+        validateSession(event){
+            event.preventDefault();
+
+            const h = Number(this.hoursSession);
+            const m = Number(this.minutesSession);
+
+            if (h < 0 || m < 0) {
+                return showError("La duración no puede tener valores negativos.");
+            }
+
+            if (h === 0 && m === 0) {
+                return showError("Debes añadir el tiempo.");
+            }
+
+            if (h > 5 || (h === 5 && m > 0)) {
+                return showError("La sesión es máximo de 5 horas.");
+            }
+
+            if (m > 59) {
+                return showError("Los minutos deben ser menores a 60.");
+            }
+            // formato HH:MM:00
+            this.timeAssigment = `${String(this.hoursSession).padStart(2, '0')}:${String(this.minutesSession).padStart(2, '0')}:00`;
+
+            //Se supone que con un bind del input y this.timeAssigment deberia de funcionar pero llega null al backend lpmdr
+            this.$refs.timeAssigmentInput.value = this.timeAssigment
+            this.$refs.formNewSession.submit()
         }
-    }
-}
+    }))
+})

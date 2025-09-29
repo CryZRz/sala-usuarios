@@ -7,6 +7,8 @@ use App\Http\Requests\StudentUpdateRequest;
 use App\Http\Resources\StudentUpdateResource;
 use App\Http\Utils\CareersE;
 use App\Http\Utils\Interfaces\HasModule;
+use App\Http\Utils\Students\excelExports\ToExportStudents;
+use App\Http\Utils\Students\StudentU;
 use App\Models\Incidence;
 use App\Models\Loan;
 use App\Models\Period;
@@ -15,6 +17,7 @@ use App\Models\StudentUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller implements HasModule
 {
@@ -26,13 +29,52 @@ class StudentController extends Controller implements HasModule
     {
         return "student";
     }
-    public function showAll()
+
+    private function getFilteredStudents($request){
+        $query = StudentUpdate::query();
+
+        $textFind = $request->get("textFind");
+        $semester = $request->get("semester");
+        $period = $request->get("periodId");
+        $career = $request->get("career");
+        $lastPeriod = Period::getLastPeriod();
+
+
+        if (!empty($textFind)) {
+            $query->whereHas("student", function ($query) use ($textFind) {
+                $query->where(DB::raw('CONCAT(name, " ", lastname)'), 'LIKE', "%{$textFind}%")
+                    ->orWhere("controlNumber", $textFind);
+            });
+        }
+
+
+        if ($semester != -1 && !empty($semester)) {
+            $query->where("semester", $semester);
+        }
+
+        if ($career != -1 && !empty($career)){
+            $query->where("career", $career);
+        }
+
+        if (!empty($period)) {
+            $query->where("period_id", $period);
+        }else{
+            $query->where("period_id", $lastPeriod->id);
+        }
+
+        return $query;
+    }
+
+    public function showAll(Request $request)
     {
-        $students = Student::paginate(10);
+        $query = $this->getFilteredStudents($request);
+
         $data = [
-            "students" => $students,
-            "paginate" => true
+            "students" => $query->paginate(10)->appends(request()->query()),
+            "semester" => $request->get("semester") ?? -1,
+            "career" => $request->get("career") ?? -1,
         ];
+
         return view("student.showAll", $data);
     }
 
@@ -56,35 +98,6 @@ class StudentController extends Controller implements HasModule
         }
 
         return response()->json(["error" => "estudiante no registrado"], 404);
-    }
-
-    public function findAll(Request $request)
-    {
-        $textFind = $request->get("textFind");
-        $pattern = "/^(?:\d+|(?=\d*\D{1,2}\d*$)[A-Za-z\d]+)$/";
-
-        if (!preg_match($pattern, $textFind)) {
-            $students = Student::where(DB::raw('CONCAT(name, " ", lastname)'), 'LIKE', "%{$textFind}%")
-                    ->paginate(10);
-
-            $students->appends(['textFind' => $textFind]);
-
-            $data = [
-                "students" => $students,
-                "paginate" => true
-            ];
-
-            return view("student.showAll", $data);
-        }
-
-        $students = StudentUpdate::getLastByControlNumber($textFind);
-
-        $data = [
-            "students" => $students != null ? [$students->student] : [],
-            "paginate" => false
-        ];
-
-        return view("student.showAll", $data);
     }
 
     public function showOneSessions(string $numControl)
@@ -122,25 +135,24 @@ class StudentController extends Controller implements HasModule
     public function store(StudentRequest $request)
     {
         $data = $request->validated();
-        $this->createStudent($data);
 
-        return redirect()->route("student.showAll");
-    }
+        $lastPeriod = Period::getLastPeriod();
 
-    public static function createStudent(array $data)
-    {
-        $periodoActual = Period::getLastPeriod();
         $student = Student::create([
-            "name" => $data["name"],
-            "lastName" => $data["lastName"]
+            "name" => strtoupper($data["name"]),
+            "lastName" => strtoupper($data["lastName"]),
+            "uuid" => StudentU::makeUUID($data["name"]." ".$data["lastName"]),
         ]);
-        return StudentUpdate::create([
+
+        StudentUpdate::create([
             "student_id" => $student["id"],
-            "period_id" => $periodoActual->id,
+            "period_id" => $lastPeriod->id,
             "controlNumber" => $data["controlNumber"],
             "career" => $data["career"],
             "semester" => $data["semester"]
         ]);
+
+        return redirect()->route("student.showAll");
     }
 
     public function update(string $controlNumber, StudentUpdateRequest $request)
@@ -151,7 +163,8 @@ class StudentController extends Controller implements HasModule
 
         $student->update([
             "name" => $data["name"],
-            "lastName" => $data["lastName"]
+            "lastName" => $data["lastName"],
+            "uuid" => StudentU::makeUUID($data["name"]." ".$data["lastName"]),
         ]);
 
         StudentUpdate::create([
@@ -176,6 +189,12 @@ class StudentController extends Controller implements HasModule
         ];
 
         return view("student.edit", $data);
+    }
+
+    public function exportToExcel(Request $request){
+        $query = $this->getFilteredStudents($request);
+
+        return Excel::download(new ToExportStudents($query), 'estudiantes.xlsx');
     }
 
     //API

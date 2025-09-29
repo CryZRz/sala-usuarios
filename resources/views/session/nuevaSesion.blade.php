@@ -1,228 +1,125 @@
-@extends('layouts.authLayout')
+@extends("layouts.mainLayout")
 
-@section('title')
-    Nueva Sesión
+@section("title")
+    Crear sesion
 @endsection
 
-@section('vite')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/js/session/createSession.js'])
+@section("module")
+    Craear sesion
 @endsection
 
-@section('main')
-    <main class="d-flex justify-content-center">
-        @if(count($listComputers) <= 0)
-            <x-show-alert-component
-                text="No hay equipos disponibles."
-            />
-        @else
-            <div class="container-fluid mx-auto">
-                <form id="formSesion" class="bg-light sombraBasica rounded-5 p-4 mx-sm-5" novalidate method="POST"
-                      action="{{ route('session.store') }}">
+@section("content")
+    <div x-data="createSession()" class="w-full mt-20 flex justify-center">
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
+            <div class="p-3">
+                <h3 class="text-gray-700 font-medium">Nueva Sesion</h3>
+            </div>
+            <div>
+                <form action="{{route("session.store")}}" method="post" x-ref="formNewSession">
                     @csrf
-                    <h4 class="titulo text-center mb-3">Nueva sesión</h4>
-                    <div class="row mb-4">
-                        <div class="col d-flex align-items-center justify-content-center">
-                            <div class="input-group w-auto">
-                                <label for="numControl" class="input-group-text">Número de control</label>
-                                <input
-                                    type="text"
-                                    class="form-control rounded-end-0 text-center @error("controlNumber") is-invalid @enderror"
-                                    id="numControl"
-                                    name="controlNumber"
-                                    autocomplete="off"
-                                    value="{{old("controlNumber")}}"
-                                    required
-                                >
-                            </div>
-                            @error("controlNumber")
-                                <div class="mt-1 invalid-feedback text-center">
-                                    {{$message}}
-                                </div>
-                            @enderror
-                            <button
-                                id="botonBuscar"
-                                class="btn-yw-primary btn rounded-end-1 rounded-start-0"
-                            >
-                                Buscar
-                            </button>
-                        </div>
-                        <div class="mt-1 text-center text-danger" id="msgNumControl"></div>
+                    <div class="flex mx-4">
+                                <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-e-0 border-gray-300 rounded-s-md">
+                                  <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+                                  </svg>
+                                </span>
+                        <input autofocus name="controlNumber" x-model="controlNumberFind" type="text" id="website-admin" class="outline-0 rounded-none bg-gray-50 border border-gray-300 text-gray-900 block flex-1 min-w-0 w-full text-sm p-2.5" placeholder="Numero de control">
+                        <button @click="findStudent($event)" class="cursor-pointer bg-brand-primary w-14 rounded-tr-md rounded-br-md">
+                            <i class="bi bi-search text-white text-md"></i>
+                        </button>
                     </div>
-
-                    <div id="section-info-session" hidden >
-                        <div class="d-flex flex-column justify-content-center gap-2 mb-2">
-                            <div class="row justify-content-center gx-3 gy-2">
-                                <div class="col-12 col-sm-6 col-lg-5 col-xl-4">
-                                    <div class="input-group">
-                                        <label class="input-group-text" for="nombre">Nombre</label>
-                                        <input
-                                            class="form-control info-student @error("name") is-invalid @enderror"
-                                            type="text"
-                                            id="nombre"
-                                            name="name"
-                                            autocomplete="off"
-                                            value="{{old("name")}}"
-                                            required
-                                        >
-                                        @error("name")
-                                            <div class="mt-1 invalid-feedback text-center">
-                                                {{$message}}
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="name">Nombres</label>
+                            <input :value="studentData.name" readonly id="name" class="bg-gray-200 border mt-1 w-full border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="name" placeholder="Nombres">
+                            @error("name")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="lastName">Apellidos</label>
+                            <input :value="studentData.lastName" readonly id="lastName" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="lastName" placeholder="Apellidos">
+                            @error("lastName")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="controlNumber">Num.Control</label>
+                            <input :value="studentData.controlNumber" readonly id="controlNumber" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="controlNumber" placeholder="Numero de Control">
+                            @error("controlNumber")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="semester">Semestre</label>
+                            <input :value="studentData.semester" readonly id="semester" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="number" name="semester" placeholder="Semestre">
+                            @error("semester")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="mx-4 mt-4">
+                        <label class="block text-xs text-gray-800 font-semibold" for="career">Plan estudios</label>
+                        <input :value="studentData.career" readonly placeholder="Plan estudios" id="career" name="career" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed"/>
+                        @error("career")
+                        <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                        @enderror
+                    </div>
+                    <template x-if="!isDisabled">
+                        <div class="flex mx-5 mt-4 gap-4">
+                            <div class="relative w-full group mt-1">
+                                <label class="block text-xs text-gray-800 font-semibold">Equpo:</label>
+                                <input @click.outside="showListComputerChange = false" @focus="showListComputerChange = true" name="computer" @input="findComputerByNum" x-model="textFindComputer" id="find-period" class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary" type="text" value="">
+                                <div @scroll.passive="($el.scrollHeight - $el.scrollTop <= $el.clientHeight+2) && loadMore()" x-show="showListComputerChange" id="periods-container" class="h-22 overflow-y-auto absolute top-full left-0 w-full border border-gray-400 bg-white rounded-sm z-10">
+                                    <template x-if="!loadingFetchPrograms">
+                                        <template x-for="computer in computersAvaiable">
+                                            <div @click="selectComputerChange(computer)" class="p-1 hover:bg-gray-200 cursor-pointer rounded-md text-sm">
+                                                <span x-text="computer.computer_number"></span>
                                             </div>
-                                        @enderror
+                                        </template>
+                                    </template>
+                                    <template x-if="isLoadingMorePrograms">
+                                        <x-loading-spin-component styles="h-6 w-6 py-1"/>
+                                    </template>
+
+                                    <template x-if="loadingFetchPrograms">
+                                        <x-loading-spin-component/>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="w-full">
+                                <input type="hidden" name="timeAssigment" x-ref="timeAssigmentInput"/>
+                                <div class="flex gap-2">
+                                    <div class="w-full">
+                                        <label for="" class="text-xs font-bold">Horas</label>
+                                        <input x-model="hoursSession" type="number" min="0" x-model="horas" placeholder="Horas" class="border w-full border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary" />
+                                    </div>
+                                    <div class="w-full">
+                                        <label for="" class="text-xs font-bold">Minutos</label>
+                                        <input x-model="minutesSession" type="number" min="0" max="59" x-model="minutos" placeholder="Minutos" class="border w-full border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary" />
                                     </div>
                                 </div>
-
-                                <div class="col-12 col-sm-6 col-lg-5 col-xl-4">
-                                    <div class="input-group">
-                                        <label class="input-group-text" for="apellidos">Apellidos</label>
-                                        <input
-                                            class="form-control info-student @error("lastName") is-invalid @enderror"
-                                            type="text"
-                                            id="apellidos"
-                                            name="lastName"
-                                            autocomplete="off"
-                                            required
-                                            value="{{old("lastName")}}"
-                                        >
-                                        @error("lastName")
-                                            <div class="mt-1 invalid-feedback text-center">
-                                                {{$message}}
-                                            </div>
-                                        @enderror
-                                    </div>
-                                </div>
                             </div>
-
-                            <div class="col-12 col-sm-10 col-md-7 col-lg-6 col-xl-5 mx-auto">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="carrera">Carrera</label>
-                                    <select
-                                        class="form-select info-student @error("career") is-invalid @enderror"
-                                        id="selectCarreras"
-                                        name="career"
-                                        required
-                                    >
-                                        @foreach($careers as $career)
-                                            <option value="{{$career}}">
-                                                {{$career}}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error("career")
-                                        <div class="mt-1 invalid-feedback text-center">
-                                            {{$message}}
-                                        </div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-5 col-md-4 col-lg-3 col-xl-2 mx-auto">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="semestre">Semestre</label>
-                                    <input
-                                        type="number"
-                                        class="form-control info-student @error("semester") is-invalid @enderror"
-                                        id="semestre"
-                                        name="semester"
-                                        min="1"
-                                        max="13"
-                                        required
-                                        value="{{old("semester")}}"
-                                    >
-                                    @error("semester")
-                                        <div class="mt-1 invalid-feedback text-center">
-                                            {{$message}}
-                                        </div>
-                                    @enderror
-                                </div>
+                            <div class="w-full mt-1">
+                                <label class="block text-xs text-gray-800 font-semibold" for="typeUse">Tipo de uso</label>
+                                <select class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary" name="application" id=typeUse"">
+                                    @foreach($usesPrograms as $useProgram)
+                                        <option value="{{$useProgram->id}}">
+                                            {{$useProgram->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
-
-                        <hr class="hr mx-5 my-4" />
-
-                        <div class="row justify-content-center gx-3 gy-2 mb-2">
-                            <div class="col-12 col-sm-7 col-md-6 col-lg-4 col-xl-3">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="uso">Uso</label>
-                                    <select
-                                        class="form-select @error("application") is-invalid @enderror"
-                                        id="uso"
-                                        name="application"
-                                        required
-                                    >
-                                        @foreach($usesPrograms as $useProgram)
-                                            <option value="{{$useProgram->id}}">
-                                                {{$useProgram->name}}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error("application")
-                                        <div class="mt-1 invalid-feedback text-center">
-                                            {{$message}}
-                                        </div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-auto">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="equipos">Equipo</label>
-                                    <select
-                                        class="form-select @error("computer") is-invalid @enderror"
-                                        id="equipos"
-                                        name="computer"
-                                        required
-                                    >
-                                        @foreach($listComputers as $computer)
-                                            <option value="{{$computer->id}}">
-                                                {{$computer->computer_number}}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error("computer")
-                                        <div class="mt-1 invalid-feedback text-center">
-                                            {{$message}}
-                                        </div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="mt-1 text-center text-danger" id="msgEquipo"></div>
-                        </div>
-
-                        <div class="row justify-content-center gx-3 gy-2 mb-4">
-                            <div class="col-12 col-sm-auto">
-                                <div class="input-group">
-                                    <label class="input-group-text" for="tiempo">Tiempo asignado</label>
-                                    <input
-                                        type="time"
-                                        class="form-control @error("timeAssigment") is-invalid @enderror"
-                                        id="tiempo"
-                                        name="timeAssigment"
-                                        value="01:00"
-                                        min="00:01"
-                                        max="05:00"
-                                        required
-                                    >
-                                    @error("timeAssigment")
-                                        <div class="mt-1 invalid-feedback text-center">
-                                            {{$message}}
-                                        </div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="text-center">
-                            <button class="btn btn-yw-primary fw-medium" type="submit">Registrar sesión</button>
-                        </div>
+                    </template>
+                    <div class="mx-4 mt-8 flex gap-3 justify-end p-4">
+                        <a href="{{url()->previous()}}" class="bg-gray-100  shadow-sm p-3 text-sm rounded-md text-gray-600 font-bold">Atras</a>
+                        <button type="submit" @click="validateSession($event)" class="bg-brand-primary cursor-pointer p-2 rounded-md text-white text-sm font-bold">Guardar</button>
                     </div>
                 </form>
             </div>
-            @if ($errors->any())
-                <script>
-                    const errors = @json($errors->messages());
-                </script>
-            @endif
-        @endif
-    </main>
+        </div>
+    </div>
 @endsection

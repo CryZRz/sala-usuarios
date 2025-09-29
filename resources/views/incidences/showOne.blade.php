@@ -1,96 +1,91 @@
-@extends("layouts.authLayout")
+@extends("layouts.mainLayout")
 
-@section("main")
-    <main class="d-flex justify-content-center">
-        <div class="card border" style="width: 55rem;">
-            <div class="card-header bg-black col-12 p-3">
-                <div class="col-12 d-flex justify-content-center">
-                    <img
-                        class="mx-auto"
-                        src="/images/tecnmLGW.png"
-                        alt="itl logo"
-                        style="height: 5.4rem"
-                    >
+@section("title")
+    Incidencia {{$incidence->id}}
+@endsection
+
+@section("module")
+    Detalle Incidencia {{$incidence->id}}
+@endsection
+
+@section("content")
+    <div class="w-full flex justify-center mt-10">
+        <div class="w-[50rem]">
+            <div class="w-full bg-brand-primary p-2 rounded-tr-md rounded-tl-md">
+                <img class="w-20 mx-auto" src="/images/tecnmLGW.png" alt="logo del tecnm color blanco">
+            </div>
+            <div class="bg-white p-4">
+                <div>
+                    <h3 class="text-gray-600 text-lg">Incidencia</h3>
+                </div>
+                <div class="mt-4">
+                    <div class="mt-1">
+                        <span class="text-gray-500 font-bold text-base">Numero de incidencia: </span>
+                        <span class="text-gray-500 ml-1">{{$incidence->id}}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span class="text-gray-500 font-bold text-base">Fecha de alta: </span>
+                        <span class="text-gray-500 ml-1">{{$incidence->created_at}}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span class="text-gray-500 font-bold text-base">Fecha actulizacion: </span>
+                        <span class="text-gray-500 ml-1">{{$incidence->updated_at}}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span class="text-gray-500 font-bold text-base">Estatus: </span>
+                        <span class="text-gray-500 ml-1">{{$incidence->statusText}}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span class="block text-gray-500 font-bold text-base">Descripcion: </span>
+                        <span class="text-gray-500">{{$incidence->description}}</span>
+                    </div>
+                </div>
+                <div class="flex mt-5 border-t border-t-gray-200">
+                    <div class="w-full mt-2">
+                        <div>
+                            <h3 class="text-gray-600 text-lg">Alumno</h3>
+                        </div>
+                        <div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Numero de control: </span>
+                                <span class="text-gray-500 block">{{$incidence->studentUpdate->controlNumber}}</span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Nombre: </span>
+                                <span class="text-gray-500 block">{{$incidence->student->fullName}}</span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Plan de estudios: </span>
+                                <span class="block text-gray-500">{{$incidence->studentUpdate->career}}</span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Semestre: </span>
+                                <span class="text-gray-500 ml-1">{{$incidence->studentUpdate->semester}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full mt-2">
+                        <div>
+                            <h3 class="text-gray-600 text-lg">Creado Por: </h3>
+                        </div>
+                        <div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Nombre: </span>
+                                <span class="text-gray-500 block">{{$incidence->owner->name}}</span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-gray-500 font-bold text-base">Correo: </span>
+                                <span class="text-gray-500 block">{{$incidence->owner->email}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card-body text-center border border-black p-0">
-                <div class="col-12">
-                    <div>
-                        <span class="fw-bold h3 text-start d-block px-3 pt-3 pb-2">Incidencia:</span>
-                        <ul class="list-unstyled">
-                            <li class="mb-1 d-flex justify-content-between px-3 py-0">
-                                <p class="m-0 d-flex justify-content-between d-inline">Número de incidencia:</p>
-                                <p class="m-0 d-inline">{{ $incidence->id }}</p>
-                            </li>
-                            <li class="mb-1 d-flex justify-content-between px-3 py-0">
-                                <p class="m-0 fw-bold d-inline">Fecha de alta:</p>
-                                <p class="m-0">{{ $incidence->created_at }}</p>
-                            </li>
-                            <li class="mb-1 d-flex justify-content-between px-3 py-0">
-                                <p class="m-0 fw-bold d-inline">Fecha de última actualización:</p>
-                                <p class="m-0">{{ $incidence->updated_at }}</p>
-                            </li>
-                            <li class="mb-1 d-flex justify-content-between px-3 py-0">
-                                <p class="m-0 fw-bold d-inline">Estatus:</p>
-                                <p class="m-0">{{ $incidence->status_text }}</p>
-                            </li>
-                            <li class="mb-1 text-start px-3 py-0">
-                                <p class="m-0 fw-bold d-inline">Descripción:</p>
-                                <p class="m-0">{{ $incidence->description }}</p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="row">
-                        <div class="border col-12 col-md-6">
-                            <span class="fw-bold h3 text-start d-block px-3 pt-2 pb-2">Alumno:</span>
-                            <ul class="list-unstyled">
-                                <li class="mb-1 text-start px-3 py-0">
-                                    <p class="m-0 fw-bold d-inline">Número de control:</p>
-                                    <p class="m-0">
-                                        {{ $incidence->studentUpdate->controlNumber }}
-                                    </p>
-                                </li>
-                                <li class="mb-1 text-start px-3 py-0">
-                                    <p class="m-0 fw-bold d-inline">Nombre:</p>
-                                    <p class="m-0">
-                                        {{ $incidence->studentUpdate->student->last_name_first }}
-                                    </p>
-                                </li>
-                                <li class="mb-1 text-start px-3 py-0">
-                                    <p class="m-0 fw-bold d-inline">Carrera:</p>
-                                    <p class="m-0">{{ $incidence->studentUpdate->career }}</p>
-                                </li>
-                                <li class="mb-1 px-3 py-0 text-start">
-                                    <p class="m-0 fw-bold d-inline">Semestre:</p>
-                                    <p class="m-0 d-inline">{{ $incidence->studentUpdate->semester }}</p>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="col-12 border col-md-6">
-                        <span class="fw-bold h3 text-start d-block px-3 pt-2 pb-2">
-                            Creado por:
-                        </span>
-                            <ul class="list-unstyled">
-                                <li class="mb-1 px-3 py-0 text-start">
-                                    <p class="m-0 fw-bold d-inline">Nombre:</p>
-                                    <p class="m-0">
-                                        {{ $incidence->owner->name }}
-                                    </p>
-                                </li>
-                                <li class="mb-1 px-3 py-0 text-start">
-                                    <p class="m-0 fw-bold d-inline">Email:</p>
-                                    <p class="m-0">{{ $incidence->owner->email }}</p>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                    </div>
-            <div class="card-footer bg-black text-center text-white p-3">
-                <p class="fw-bold p-0 m-0">proudly designed by CryZRz</p>
+            <div class="w-full text-center bg-brand-primary p-2 rounded-br-md rounded-bl-md">
+                <span class="text-white text-md font-bold">
+                     Instituto Tecnológico de León
+                </span>
             </div>
         </div>
-    </main>
+    </div>
 @endsection

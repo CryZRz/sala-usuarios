@@ -4,7 +4,6 @@ namespace App\Http\Utils\reports\excelExports;
 
 use App\Models\Loan;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 

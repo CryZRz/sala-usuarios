@@ -21,4 +21,8 @@ Route::middleware("auth")->group(function(){
         Route::put("/programa", [ProgramController::class, "update"])
             ->name("program.update");
     });
+
+    Route::delete("/programa", [ProgramController::class, "destroy"])
+        ->middleware("hasPermission:delete")
+        ->name("program.destroy");
 });

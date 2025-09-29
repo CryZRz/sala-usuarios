@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Permission;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,10 @@ class HasPermissionMd
     public function handle(Request $request, Closure $next, $permissionNd): Response
     {
         if (Auth::check()) {
-            if (Auth::user()->hasPermission($permissionNd)) {
+            $permission = Permission::where("name", $permissionNd)->first();
+            $dependencies = $permission->getWithDependenciesIds();
+
+            if (Auth::user()->hasPermission($permission) && Auth::user()->hasPermissions($dependencies)) {
                 return $next($request);
             }
         }

@@ -24,5 +24,9 @@ class PermissionServiceProvider extends ServiceProvider
         Blade::if("canUse", function($permission){
             return Auth::check() && Auth::user()->canUse($permission);
         });
+
+        Blade::if("canNotUse", function($permission){
+            return Auth::check() && !Auth::user()->canUse($permission);
+        });
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\Utils\Interfaces\HasModule;
+use App\Models\Permission;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,10 @@ class HasPermission
             if ($controller instanceof HasModule) {
                 $modulo = $controller->hasModule();
 
-                if (Auth::user()->hasPermission("$modulo.$permission")) {
+                $permissionEntity = Permission::where("name", "$modulo.$permission")->first();
+                $permissions = Permission::dependenciesIds($permissionEntity->id);
+
+                if (Auth::user()->hasPermission($permissionEntity) && Auth::user()->hasPermissions($permissions)) {
                     return $next($request);
                 }
             }else{
@@ -32,6 +36,13 @@ class HasPermission
             }
         }
 
-        return response("No tienes permisos.", 401);
+        // Aquí decides según el tipo de petición
+        if ($request->expectsJson() || $request->is('api/*')) {
+            // Petición desde API → devolver JSON con 403
+            return response()->json(['message' => 'No tienes permisos'], 403);
+        }
+
+        // Petición normal → redirigir o mostrar vista
+        return redirect()->route('notPermissions');
     }
 }

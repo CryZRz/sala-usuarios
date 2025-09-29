@@ -1,127 +1,129 @@
-@extends('layouts.authLayout')
+@extends('layouts.mainLayout')
 
 @section('title')
     Importar alumnos
 @endsection
-
-@section('vite')
-    @vite(['resources/js/import/bindColumns.js'])
+@section("module")
+    Seleccion de columnas
 @endsection
 
-@section('main')
-    <main>
-        <div class="container mt-4 text-center">
+@section('content')
+    <div class="w-full mt-15 flex justify-center">
+        @vite('resources/js/import/bindColumns.js')
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
             @if (session("duplicate") != null)
-                <div class="alert alert-danger col-6 mx-auto py-1">
+                <div class="bg-red-200 text-red-400 p-1">
                     <p>{{session("duplicate")}}</p>
                 </div>
             @endif
-            <div class="col-6 mx-auto">
-                <section class="bg-black rounded-top-2">
-                    <div class="col-md-2 mx-auto p-1">
-                        <img src="/images/logoITL.png" alt="logo itl" class="img-fluid m-2">
+            @foreach($errors->all() as $error)
+                    <div class="bg-red-200 text-red-400 p-1">
+                        <p>{{$error}}</p>
                     </div>
-                </section>
-
-                <section class="border border-black rounded-bottom-2">
-                    <form action="{{route("import.upload", $id)}}" class="mt-2" id="formImport" method="post">
-                        @csrf
+            @endforeach
+            <div class="p-3">
+                <h3 class="text-gray-700 font-medium">
+                    Enlazar encabezados
+                </h3>
+            </div>
+            <div class="p-3">
+                <form action="{{route("import.upload", $id)}}" class="mt-2" id="formImport" method="post">
+                    @csrf
+                    <div>
+                        <input type="checkbox" id="cancelInput" hidden name="cancel">
+                    </div>
+                    <div class="mt-4">
                         <div>
-                            <input type="checkbox" id="cancelInput" hidden name="cancel">
+                            <label class="text-xs font-bold block text-start text-gray-700" for="controlNumber">Numero de control: </label>
+                            <select id="controlNumber" class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="controlNumber">
+                                @foreach($headers as $header)
+                                    <option value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-12 d-flex p-2">
-                            <div class="col-6">
-                                <span>NumControl: </span>
-                            </div>
-                            <div class="col-6">
-                                <select class="select-header" name="controlNumber">
-                                    @foreach($headers as $header)
-                                        <option value="{{$header}}" selectId="{{$header}}">
-                                            {{$header}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                    </div>
 
-                        <div class="col-12 d-flex p-2">
-                            <div class="col-6">
-                                <span>Nombres: </span>
-                            </div>
-                            <div class="col-6">
-                                <select id="selectName" class="select-header" name="name">
-                                    @foreach($headers as $header)
-                                        <option value="{{$header}}" selectId="{{$header}}">
-                                            {{$header}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="selectName">Nombres: </label>
+                            <select id="selectName" class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="name">
+                                @foreach($headers as $header)
+                                    <option value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                    </div>
 
-                        <div class="col-12 d-flex p-2">
-                            <div class="col-6">
-                                <span>Apellidos: </span>
-                            </div>
-                            <div class="col-6">
-                                <select class="select-header" name="lastName">
-                                    @foreach($headers as $header)
-                                        <option value="{{$header}}" selectId="{{$header}}">
-                                            {{$header}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="lastName">Apellidos: </label>
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="lastName" id="lastName">
+                                @foreach($headers as $header)
+                                    <option value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                    </div>
 
-                        <div class="col-12 d-flex p-2">
-                            <div class="col-6">
-                                <span>Carrera: </span>
-                            </div>
-                            <div class="col-6">
-                                <select class="select-header" name="career">
-                                    @foreach($headers as $header)
-                                        <option value="{{$header}}" selectId="{{$header}}">
-                                            {{$header}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="career">Carrera: </label>
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="career" id="career">
+                                @foreach($headers as $header)
+                                    <option value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                    </div>
 
-                        <div class="col-12 d-flex p-2">
-                            <div class="col-6">
-                                <span>Semestre: </span>
-                            </div>
-                            <div class="col-6">
-                                <select class="select-header" name="semester">
-                                    @foreach($headers as $header)
-                                        <option class="p-1 rounded-2" value="{{$header}}" selectId="{{$header}}">
-                                            {{$header}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="semester">Semestre: </label>
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="semester" id="semester">
+                                @foreach($headers as $header)
+                                    <option class="p-1 rounded-2" value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                    </div>
 
-                        <div class="mt-3 mx-auto col-11 ">
-                            <div class="mb-2">
-                                <button class="text-black btn btn-yw-primary col-12 p-1 border-black">
-                                    Importar
-                                </button>
-                            </div>
-
-                            <div class="mb-2">
-                                <button id="cancelImportBtn" class="text-black btn btn-yw-primary col-12 p-1 border-black">
-                                    Cancelar
-                                </button>
-                            </div>
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="curp">Curp: </label>
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="curp" id="curp">
+                                @foreach($headers as $header)
+                                    <option class="p-1 rounded-2" value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                    </form>
-                </section>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="w-full flex justify-end p-1 gap-3">
+                            <button id="cancelImportBtn" class="cursor-pointer text-sm bg-brand-alert p-1.5 text-white rounded-md">
+                                Cancelar
+                            </button>
+                            <button @click="$store.loader.show()" class="text-white bg-brand-primary rounded-md p-1.5 cursor-pointer text-sm">
+                                Importar
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </main>
+    </div>
     <script>
         const headers = @json($headers);
     </script>

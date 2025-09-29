@@ -14,7 +14,7 @@ class ComputerUsesController extends Controller implements HasModule
     }
 
     public function show() {
-        $usos = Application::orderBy("name")->get();
+        $usos = Application::orderBy("created_at", "desc")->paginate(10);
 
         $data = [
             "usos" => $usos
@@ -36,22 +36,37 @@ class ComputerUsesController extends Controller implements HasModule
     }
 
     public function store(Request $request){
+        $this->validate($request, [
+            "name" => "required",
+        ]);
+
         $uso = new Application();
-        $uso->name = $request->nombre;
+        $uso->name = $request->name;
         $uso->save();
         return redirect()->route("computer.showUses");
     }
 
     public function update(Request $request){
-        $uso = Application::find($request->id);
-        $uso->name = $request->nombre;
+        $this->validate($request, [
+            "name" => ["required"],
+            "idUso" => ["required", "exists:applications,id"],
+        ]);
+
+        $uso = Application::find($request->idUso);
+        $uso->name = $request->name;
         $uso->save();
         return redirect()->route("computer.showUses");
     }
 
-    public function destroy(int $idUso){
+    public function destroy(Request $request){
+        $this->validate($request, [
+            "idUso" => ["required", "exists:applications,id"],
+        ]);
+
+        $idUso = $request->get("idUso");
         $uso = Application::find($idUso);
         $uso->delete();
+
         return redirect()->route("computer.showUses");
     }
 }

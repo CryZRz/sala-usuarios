@@ -14,6 +14,7 @@ use App\Models\StudentUpdate;
 use App\Http\Utils\TimeFormatU;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ComputerSessionController extends Controller implements HasModule
@@ -23,12 +24,28 @@ class ComputerSessionController extends Controller implements HasModule
         return 'computerSession';
     }
 
-    public function show()
+    public function show(Request $request)
     {
-        $sesiones = Loan::orderByRaw('(startTime + timeAssigment) ASC')->get();
+        $find = strtolower($request->get("find"));
 
+        $query = Loan::with("student")
+            ->orderByRaw('ADDTIME(startTime, timeAssigment) ASC');
 
-        $sessionAddData = $sesiones->map(function($session){
+        if ($find) {
+            $query->where(function ($q) use ($find) {
+                $q->whereHas("studentUpdate", function ($querySUpdate) use ($find) {
+                    $querySUpdate->where("controlNumber", $find);
+                })->orWhereHas("student", function ($queryStudent) use ($find) {
+                    $queryStudent->where(DB::raw("LOWER(CONCAT(name, ' ', lastName))"), "LIKE", "%$find%");
+                })->orWhereHas("computer", function ($queryComputer) use ($find) {
+                    $queryComputer->where("computer_number", $find);
+                });
+            });
+        }
+
+        $paginated = $query->paginate(10);
+
+        $paginated->getCollection()->transform(function($session){
             $finishTime = SessionU::calculateEndTimeSession(
                 $session->startTime,
                 new Carbon($session->timeAssigment)
@@ -43,7 +60,7 @@ class ComputerSessionController extends Controller implements HasModule
         });
 
         $data = [
-            "sesiones" => $sessionAddData
+            "sesiones" => $paginated,
         ];
 
         return view("session.show", $data);
@@ -88,45 +105,6 @@ class ComputerSessionController extends Controller implements HasModule
         return redirect()->route("session.show");
     }
 
-    public function terminarSesionNumEquio(Request $request)
-    {
-        $this->validate($request, [
-           "computerNumber" => ["required", "numeric", "exists:computers,computer_number"]
-        ]);
-
-        $computerNumber = $request->get("computerNumber");
-        $computerId = Computer::where("computer_number", $computerNumber)->first()->id;
-
-        Loan::where("computer_id", $computerId)->first()->delete();
-
-        return redirect()
-            ->route("session.show")
-            ->with("alert", "session terminada correctamente");
-    }
-
-    public function terminarSesionNumControl(Request $request)
-    {
-        $this->validate($request, [
-            "controlNumber" => ["required", "numeric", "exists:student_updates,controlNumber"]
-        ]);
-
-        $controlNumber = $request->get("controlNumber");
-        $student = StudentUpdate::getLastByControlNumber($controlNumber);
-
-        $session = Loan::where("student_id", $student->student_id)->first();
-
-        if ($session != null) {
-            $session->delete();
-            return redirect()
-                ->route("session.show")
-                ->with("alert", "session terminada correctamente");
-        }
-
-        return redirect()
-            ->route("session.show")
-            ->with("alert", "El numero de control no tiene una sesión activa");
-    }
-
     public function terminarMultiples(Request $request)
     {
         $this->validate($request, [
@@ -155,20 +133,27 @@ class ComputerSessionController extends Controller implements HasModule
     {
         $usesPrograms = Application::orderBy('name')->get();
         $careers = CareersE::getCareers();
-        $listComputers = SessionU::getListComputersFree();
 
         $data = [
             "usesPrograms" => $usesPrograms,
             "careers" => $careers,
-            "listComputers" => $listComputers
         ];
 
         return view("session.nuevaSesion", $data);
     }
 
-    public function cargarEquipos()
+    public function cargarEquipos(Request $request)
     {
-        return response()->json(SessionU::getListComputersFree());
+        $find = $request->get("find");
+        $computers = SessionU::getListComputersFree();
+
+        if($find){
+            $computers->where("computer_number", $find);
+        }
+
+        $computers = $computers->paginate(10);
+
+        return response()->json($computers);
     }
 
     public function cargarEquiposUso()
@@ -189,6 +174,12 @@ class ComputerSessionController extends Controller implements HasModule
         $student = StudentUpdate::getLastByControlNumber($numControl);
 
         if ($student != null) {
+
+            //Verificamos si el estudiante esta activo
+            if(!$student->active){
+                return response()->json(["error" => "estudiante no activo"], 422);
+            }
+
             //Buscar si el estudiante tiene una sesión de préstamo activa
             $session = Loan::where("student_id", $student->student_id)->first();
             if ($session != null) {
@@ -201,30 +192,39 @@ class ComputerSessionController extends Controller implements HasModule
         return response()->json(["error" => "El estudiante no esta registrado"], 404);
     }
 
-    public function registrarSesion(Request $request)
+    public function store(Request $request)
     {
+        $computer = Computer::getByComputerNumber($request->get("computer"));
+
+        if (! $computer) {
+            return back()->withErrors(['computer' => 'La computadora no existe']);
+        }
+
+        $request->merge(['computerId' => $computer->id]);
+
         $this->validate($request, [
             "controlNumber" => ["required", "string", "exists:student_updates,controlNumber"],
             "application" => ["required", "exists:applications,id"],
-            "computer" => ["required", "exists:computers,id"],
-            "timeAssigment" => ["required"],
+            "computer" => ["required", "exists:computers,computer_number"],
+            "computerId" => ["required", Rule::unique("loans", "computer_id")->whereNull("endTime")],
+            "timeAssigment" => ["required", "date_format:H:i:s"],
         ]);
 
         $controlNumber = $request->get("controlNumber");
         $studentData = StudentUpdate::getLastByControlNumber($controlNumber);
         $student = $studentData->student;
-        $loan = Loan::where("student_id", $student->id)->first();
+        $loan = Loan::where("student_update_id", $student->id)->first();
 
         if ($loan != null){
             return redirect()
                 ->route("session.store")
-                ->with("alert","El estudiante ya esta en una sesión");
+                ->with("alert", "El estudiante ya esta en una sesión");
         }
 
         Loan::create([
             "student_id" => $student->id,
             "student_update_id" => $studentData->id,
-            "computer_id" => $request->get("computer"),
+            "computer_id" => $computer->id,
             "application_id" => $request->get("application"),
             "timeAssigment" => $request->get("timeAssigment"),
             "created_by" => auth()->user()->id,
@@ -297,10 +297,6 @@ class ComputerSessionController extends Controller implements HasModule
     public function checkSessionsActiveUser(Request $request){
         $activeSessionsCount = Loan::where("created_by", auth()->user()->id)->count();
 
-        if ($activeSessionsCount > 0){
-            return response()->json(["activeSessions" => $activeSessionsCount], 202);
-        }
-
-        return response()->json(["activeSessions" => 0], 404);
+        return response()->json(["activeSessions" => $activeSessionsCount], 200);
     }
 }

@@ -9,7 +9,8 @@ class Period extends Model{
     use HasFactory;
 
     protected $fillable = [
-        "name"
+        "name",
+        "abbreviation"
     ];
 
     public static function getLastPeriod()

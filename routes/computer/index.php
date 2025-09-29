@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ComputerController;
-use App\Http\Controllers\UsosController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware("auth")->group(function(){
@@ -28,8 +27,4 @@ Route::middleware("auth")->group(function(){
     Route::delete("/equipo/{computer}", [ComputerController::class, "destroy"])
         ->middleware("hasPermission:delete")
         ->name("computer.destroy");
-
-    Route::get("/equipo/{computer}/programas", [ComputerController::class, "programsComputer"]);
-    Route::delete("/equipo/{id}/programa/", [ComputerController::class, "removePorgram"]);
-
 });

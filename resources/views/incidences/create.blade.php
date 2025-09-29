@@ -1,120 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sala de usuarios</title>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    @vite(['resources/scss/app.scss',
-            'resources/scss/incidence/create.scss',
-            'resources/js/incidence/createIncidence.js'
-    ])
-</head>
-<body>
-<main class="w-full vh-100 row g-0">
-    <section id="loading-container"></section>
-    <section class="section-left-container col-lg-7 col-md-7 col-sm-12">
+@extends("layouts.mainLayout")
 
-    </section>
-    <section class="col-lg-5 col-md-5 col-sm-12 h-full section-right-container">
-        <div class="w-full d-flex justify-content-center align-items-center">
-            <div class="login-container rounded col-12">
-                <section class="login-header">
-                    <div class="profile-image-container d-flex justify-content-center">
-                        <img src="./images/logoITL.png" alt="tecnm logo">
+@section("title")
+    Crear incidencia
+@endsection
+
+@section("module")
+    Registro de incidencias
+@endsection
+
+@section("content")
+    <div x-data="createIncidence()" class="w-full mt-15 flex justify-center">
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
+            <div class="p-3">
+                <h3 class="text-gray-700 font-medium">Nueva Incidencia</h3>
+            </div>
+            <div>
+                <form class="mt-5" action="{{route("incidence.store")}}" method="post" x-ref="formIncidence">
+                    @csrf
+                    <div class="flex mx-4">
+                                <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-e-0 border-gray-300 rounded-s-md">
+                                  <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+                                  </svg>
+                                </span>
+                        <input x-model="controlNumberFind" type="text" id="website-admin" class="outline-0 rounded-none bg-gray-50 border border-gray-300 text-gray-900 block flex-1 min-w-0 w-full text-sm p-2.5" placeholder="Numero de control">
+                        <button @click="findStudent($event)" class="cursor-pointer bg-brand-primary w-14 rounded-tr-md rounded-br-md">
+                            <i class="bi bi-search text-white text-md"></i>
+                        </button>
                     </div>
-                    <div class="mt-2">
-                        <label class="col-12 text-white" for="control-number">Numero de control</label>
-                        <div class="d-flex col-12">
-                            <input
-                                class="border-0 rounded-start-2 p-1 col-10"
-                                type="text"
-                                name="control-number"
-                                id="control-number"
-                                required
-                            >
-                            <button class="rounded-end-2 border-0 btn-find-student col-2" id="btn-find-student">
-                                <i class="bi bi-search"></i>
-                            </button>
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="name">Nombres</label>
+                            <input :value="studentData.name" readonly id="name" class="bg-gray-200 border mt-1 w-full border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="name" placeholder="Nombres">
+                            @error("name")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="lastName">Apellidos</label>
+                            <input :value="studentData.lastName" readonly id="lastName" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="lastName" placeholder="Apellidos">
+                            @error("lastName")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
                         </div>
                     </div>
-                </section>
-                <section class="login-body d-flex flex-column justify-content-center ">
-                    <div>
-                        <h3>Alumno:</h3>
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="controlNumber">Num.Control</label>
+                            <input :value="studentData.controlNumber" readonly id="controlNumber" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="text" name="controlNumber" placeholder="Numero de Control">
+                            @error("controlNumber")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="semester">Semestre</label>
+                            <input :value="studentData.semester" readonly id="semester" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed" type="number" name="semester" placeholder="Semestre">
+                            @error("semester")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
                     </div>
-                    <div>
-                        <form
-                            class="d-flex flex-column"
-                            action="{{route("incidence.store")}}"
-                            method="post"
-                            id="form-create-incidence"
-                        >
-                            @csrf
-                            <input type="hidden" name="controlNumber" id="control-number-hidden">
-                            <div class="d-flex mb-2">
-                                <div class="">
-                                    <label class="col-12" for="name">Nombres:</label>
-                                    <input
-                                        class="col-12 input-info"
-                                        name="name"
-                                        type="text"
-                                        disabled
-                                        id="name-student-input"
-                                    >
-                                </div>
-                                <div class="">
-                                    <label class="col-12" for="last-name">Apellidos:</label>
-                                    <input
-                                        class="col-12 input-info"
-                                        name="last-name"
-                                        type="text"
-                                        disabled
-                                        id="last-name-student-input"
-                                    >
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <label class="col-12" for="career">Carrera:</label>
-                                <input
-                                    class="col-12 input-info"
-                                    type="text"
-                                    name="career"
-                                    id="career-student-input"
-                                    disabled
-                                >
-                            </div>
-                            <div class="mb-2">
-                                <label class="col-12" for="semester">Semestre:</label>
-                                <input
-                                    class="col-12 input-info"
-                                    type="text"
-                                    name="semester"
-                                    id="semester-student-input"
-                                    disabled
-                                >
-                            </div>
-                            <div>
-                                <label class="col-12" for="description">Descripción:</label>
-                                <textarea
-                                    class="col-12 input-info"
-                                    name="description"
-                                    disabled
-                                    id="description-student-input"
-                                    required
-                                ></textarea>
-                            </div>
-                            <div class="mt-2 col-12">
-                                <button class="rounded col-12 btn-create-incidence">
-                                    Registrar incidencia
-                                </button>
-                            </div>
-                        </form>
+                    <div class="mx-4 mt-4">
+                        <label class="block text-xs text-gray-800 font-semibold" for="career">Plan estudios</label>
+                        <input :value="studentData.career" readonly placeholder="Plan estudios" id="career" name="career" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed"/>
+                        @error("career")
+                        <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                        @enderror
                     </div>
-                </section>
+                    <div class="mt-4 mx-4">
+                        <label class="block text-xs text-gray-800 font-semibold" for="description">
+                            Descripcion
+                        </label>
+                        <textarea name="description" x-model="description" :readonly="isDisabled" :class="{'bg-gray-200 cursor-not-allowed': isDisabled}" placeholder="Descripcion" class="mt-1 w-full border border-gray-300 rounded-md p-1 outline-0 text-sm focus:border-brand-primary"></textarea>
+                    </div>
+                    <div class="mx-4 mt-4 flex gap-3 justify-end">
+                        <button type="submit" @click="sendIncidence($event)" class="bg-brand-primary cursor-pointer p-2 rounded-md text-white text-sm font-bold">Guardar</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
-</main>
-</body>
-</html>
+    </div>
+@endsection

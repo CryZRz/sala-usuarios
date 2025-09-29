@@ -5,7 +5,9 @@ use App\Http\Controllers\Importes\ImporteController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Middleware\PendingImportMd;
 
-Route::middleware("auth")->group(function () {
+Route::middleware("auth")
+    ->middleware("hasPermission:import")
+    ->group(function () {
     Route::get("/importar", [ImporteController::class, "show"])
         ->name("import.show")
         ->middleware(PendingImportMd::class);

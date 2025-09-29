@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ComputerRequest;
-use App\Http\Requests\ComputerUpdateRequest;
 use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Computer;
 use App\Models\Port;
 use App\Models\Program;
-use App\Models\ProgramComputer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
@@ -24,12 +22,20 @@ class ComputerController extends Controller implements HasModule
         return "computer";
     }
 
-    public function show() {
-        $Computers = Computer::paginate(10);
-
+    public function show(Request $request) {
         $data = [
-            "computers" => $Computers
+            "computers" => null
         ];
+
+        if ($request->get("find")) {
+            $data["computers"] = Computer::where("computer_number", $request->get("find"))
+                ->paginate(10)
+                ->appends(request()->query());
+
+            return view("computer.show", $data);
+        }
+
+        $data["computers"] = Computer::paginate(10);
 
         return view("computer.show", $data);
     }
@@ -40,42 +46,43 @@ class ComputerController extends Controller implements HasModule
 
     public function store(ComputerRequest $request) {
         $data = $request->validated();
-        $dataComputer = $data["dataComputer"];
-        $ports = $dataComputer["ports"];
-        $programs = $dataComputer["programs"];
+
+        $ports = $data["ports"];
+        $programs = $data["programs"];
 
         $computer = Computer::create([
-            "ram" => $dataComputer["ram"],
-            "cpu" => $dataComputer["name"],
-            "computer_number" => $dataComputer["computerNumber"]
+            "ram" => $data["ram"],
+            "cpu" => $data["name"],
+            "computer_number" => $data["computerNumber"]
         ]);
 
         foreach ($ports as $port) {
             Port::create([
-                "type" => $port["name"],
+                "type" => $port["type"],
                 "amount" => $port["amount"],
                 "computer_id" => $computer->id
             ]);
         }
-        foreach ($programs as $program) {
-            ProgramComputer::create([
-                "program_id" => $program,
-                "computer_id" => $computer->id
-            ]);
-        }
+
+        $computer->programs()->attach($programs);
+
 
         return response(null, 203);
     }
 
-    public function programsComputer(Computer $computer) {
-        $programs = ProgramComputer::where("computer_id", $computer->id)
-            ->get()
-            ->map(fn($query) => $query->program_id );
+    public function missingPrograms(Computer $computer, Request $request) {
+        $find = $request->get("find");
+        $programsComputer = $computer->programs()->pluck("programs.id");
 
-        $listPrograms = Program::whereNotIn("id", $programs)
-            ->paginate(10);
+        $listProgramsMissing = Program::whereNotIn("id", $programsComputer);
 
-        return response()->json($listPrograms);
+        if ($find) {
+            $programsComputerFind = $listProgramsMissing->where("name", "like", "%$find%")->paginate(10);
+
+            return response()->json($programsComputerFind);
+        }
+
+        return response()->json($listProgramsMissing->paginate(10));
     }
 
     public function edit(Computer $computer) {
@@ -86,48 +93,40 @@ class ComputerController extends Controller implements HasModule
         return view("computer.edit", $data);
     }
 
-    public function removePorgram(int $id){
-        $program = ProgramComputer::find($id);
-        if ($program) {
-            $program->delete();
+    public function update(Computer $computer, Request $request) {
+        $this->validate($request,[
+            "cpu" => "required",
+            "ram" => ["required", "integer", "min:1"],
+        ]);
 
-            return response(null, 203);
-        }
+        $computer->cpu = $request->get("cpu");
+        $computer->ram = $request->get("ram");
 
-        return response("el programa no se encontro", 404);
-    }
-
-    public function update(Computer $computer, ComputerUpdateRequest $request) {
-        $data = $request->validated();
-        $dataComputer = $data["dataComputer"];
-
-        $computer->cpu = $dataComputer["name"];
-        $computer->ram = $dataComputer["ram"];
-        if(count($dataComputer["ports"]) > 0){
-            array_map(function($port) use($computer) {
-                Port::create([
-                    "type" => $port["name"],
-                    "amount" => $port["amount"],
-                    "computer_id" => $computer->id
-                ]);
-            }, $dataComputer["ports"]);
-        }
-        if(count($dataComputer["programs"]) > 0){
-            array_map(function($port) use($computer) {
-                ProgramComputer::create([
-                    "program_id" => $port,
-                    "computer_id" => $computer->id
-                ]);
-            }, $dataComputer["programs"]);
-        }
         $computer->save();
 
-        return response(null, 203);
+        return redirect()->route("computer.show");
     }
 
     public function destroy(Computer $computer) {
         $computer->delete();
 
         return redirect()->route("computer.show");
+    }
+
+    public function addPrograms(Computer $computer, Request $request) {
+        $this->validate($request, [
+            "programs" => ["required"],
+            "programs.*" => ["required", "exists:programs,id"]
+        ]);
+
+        $computer->programs()->attach($request->get("programs"));
+
+        return response(null, 203);
+    }
+
+    public function removeProgram(Computer $computer, Program $program) {
+        $computer->programs()->detach($program);
+
+        return response(null, 204);
     }
 }

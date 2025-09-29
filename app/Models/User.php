@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'last_name',
+        'username',
     ];
 
     /**
@@ -88,6 +90,15 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function hasPermissions($permissions){
+        $userPermissions = $this->roles
+            ->flatMap(fn($role) => $role->permissions)
+            ->pluck('id')
+            ->unique();
+
+        return collect($permissions)->every(fn($perm) => $userPermissions->contains($perm));
     }
 
     public function canUse($permission)

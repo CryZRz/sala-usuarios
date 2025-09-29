@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Http\Utils\Students\StudentU;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\StudentUpdate;
@@ -9,14 +10,12 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Ramsey\Uuid\Uuid;
 
 class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading
 {
-    private const BASE_UUID = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
     private array $headers;
     public function __construct(array $headers){
-        //La implementacion de WithHeadingRow cambia los headers a minuscula
+        //La implementacion de WithHeadingRow cambia los headers a mayusculas nose por que xd
         $this->headers = array_map(fn($header) => strtolower($header), $headers);
     }
 
@@ -29,20 +28,12 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
     {
         $name = $row[$this->headers['name']];
         $lastName = $row[$this->headers['lastName']];
-        $fullName = $name." ".$lastName;
         $career = $row[$this->headers['career']];
         $controlNumber = $row[$this->headers['controlNumber']];
         $semester = $row[$this->headers['semester']];
+        $curp = $row[$this->headers['curp']];
 
-        //Quitamos todos los caracteres especiales que tenga el nombre completo
-        $texto = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fullName);
-        //Tomamos como base un uuid para generar un uuid en base a el nombre sin caracteres especiales
-        $namesPaceUuidObject = Uuid::fromString(self::BASE_UUID);
-
-        //SI DOS PERSONAS TIENEN EL MISMO NOMBRE Y APELLIDOS JODE LAS COSAS !!!!
-        $uuid = UUID::uuid5($namesPaceUuidObject, $texto);
-
-        $studentInfo = Student::getByUUid($uuid);
+        $studentInfo = Student::getByCurp($curp);
 
         if ($studentInfo != null) {
             StudentUpdate::create([
@@ -50,14 +41,15 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
                 "career" => $career,
                 "controlNumber" => $controlNumber,
                 "semester" => intval($semester),
-                "period_id" => Period::getLastPeriod()->id
+                "period_id" => Period::getLastPeriod()->id,
+                "active" => true,
             ]);
         }else{
             $student = Student::create(
                 [
                     "name" => $name,
                     "lastName" => $lastName,
-                    "uuid" =>  $uuid,
+                    "curp" => $curp,
                 ]
             );
 
@@ -66,7 +58,8 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
                 "career" => $career,
                 "controlNumber" => $controlNumber,
                 "semester" => intval($semester),
-                "period_id" => Period::getLastPeriod()->id
+                "period_id" => Period::getLastPeriod()->id,
+                "active" => true,
             ]);
         }
 
@@ -81,6 +74,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
             $this->headers["controlNumber"] => ["required", "min:8"],
             $this->headers["lastName"] => ["required", "string"],
             $this->headers["semester"] => ["required", "numeric", "min:0"],
+            //$this->headers["curp"] => ["required"],
         ];
     }
 

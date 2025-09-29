@@ -18,10 +18,14 @@ class Computer extends Model
     ];
 
     public function programs() {
-        return $this->hasMany(ProgramComputer::class);
+        return $this->belongsToMany(Program::class, "programs_computer", "computer_id", "program_id");
     }
 
     public function ports(){
         return $this->hasMany(Port::class);
+    }
+
+    public static function getByComputerNumber($computerNumber){
+        return self::where("computer_number", $computerNumber)->first();
     }
 }

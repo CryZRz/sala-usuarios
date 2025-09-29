@@ -1,71 +1,72 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sala de usuarios</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/scss/app.scss', 'resources/scss/auth/login.scss'])
+    <title>Inicio de sesion</title>
+    @vite(["resources/css/app.css", "resources/js/app.js"])
 </head>
 <body>
-    <main class="w-full vh-100 row g-0">
-        <section class="section-left-container col-lg-7 col-md-7 col-sm-12">
+    <main class="w-full h-screen overflow-y-hidden flex">
+        <section class="w-3/5 bg-login bg-no-repeat bg-cover relative">
+            <section class="absolute w-full h-full bg-gradient-to-l from-white to-black/15">
 
+            </section>
         </section>
-        <section class="col-lg-5 col-md-5 col-sm-12 h-full section-right-container">
-            <div class="w-full d-flex justify-content-center align-items-center">
-                <div class="login-container rounded col-12">
-                    <section class="login-header d-flex justify-content-center align-items-center bg-azul-tecnm">
-                        <img src="/images/tecnmLGW.png" alt="logo-itl">
-                    </section>
-                    <section class="login-body d-flex flex-column justify-content-center ">
-                        <div>
-                            <h3>Inicia sesion</h3>
+        <section class="w-2/5 ">
+            <section class="w-full h-full flex justify-center items-center">
+                <div class="w-3/4 shadow-2xl">
+                    <div class="h-40">
+                        <div class="bg-[#1a325b] rounded-t-md h-full flex justify-center items-center">
+                            <img class="w-24 h-34 mx-auto py-2" src="/images/tecnmLGW.png" alt="logo-itl">
                         </div>
-                        <div>
-                            <form class="d-flex flex-column" action="{{route("login.store")}}" method="post">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="col-12" for="email">Correo</label>
-                                    <input
-                                        class="col-12 p-1"
-                                        type="email"
-                                        name="email"
-                                        placeholder="Ingresa tu correo"
-                                    >
-                                    @error("email")
-                                        <p class="text-danger small m-0 fw-bold">{{$message}}</p>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="col-12" for="password">Contraseña</label>
-                                    <input
-                                        class="col-12 p-1"
-                                        type="password"
-                                        name="password"
-                                        placeholder="Ingresa tu contraseña"
-                                    >
-                                    @error("password")
-                                        <p class="text-danger small m-0 fw-bold">{{$message}}</p>
-                                    @enderror
-                                    @if(session("error"))
-                                        <p class="text-danger small m-0 fw-bold">
-                                            {{session("error")}}
-                                        </p>
-                                    @endif
-                                </div>
-                                <div class="mb-2">
-                                    <button class="col-12 p-2 rounded btn-login">Entrar</button>
-                                </div>
-                                <div>
-                                    <a href="{{route("forgotPassword.show")}}" class="small ">¿Olvidaste tu contraseña?</a>
-                                </div>
-                            </form>
+                    </div>
+                    <div class="border border-[#1a325b] rounded-b-md">
+                        <div class="p-3 py-4">
+                            <h3 class="text-2xl text-gray-500 font-bold">Inicia sesion</h3>
                         </div>
-                    </section>
+                        <form class="d-flex flex-column" action="{{route("login.store")}}" method="post">
+                            @csrf
+                            <div class="mb-4 px-2">
+                                <label class="block text-base text-gray-700" for="email">Correo</label>
+                                <input
+                                    class="p-1 border border-gray-600 w-full outline-0 text-gray-600"
+                                    type="email"
+                                    name="email"
+                                    placeholder="Ingresa tu correo"
+                                >
+                                @error("email")
+                                    <p class="text-xs text-red-500 p-0">{{$message}}</p>
+                                @enderror
+                            </div>
+                            <div class="mb-3 px-2">
+                                <label class="block text-base text-gray-700" for="password">Contraseña</label>
+                                <input
+                                    class="p-1 border border-gray-600 w-full outline-0 text-gray-600"
+                                    type="password"
+                                    name="password"
+                                    placeholder="Ingresa tu contraseña"
+                                >
+                                @error("password")
+                                    <p class="text-xs text-red-500 p-0">{{$message}}</p>
+                                @enderror
+                                @if(session("error"))
+                                    <p class="text-xs text-red-500 p-0">
+                                        {{session("error")}}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="mb-2 px-2 mt-6">
+                                <button class="w-full text-white bg-[#1a325b] p-1 rounded-md font-bold cursor-pointer">Entrar</button>
+                            </div>
+                            <div class="px-3 pb-3">
+                                <a href="{{route("forgotPassword.show")}}" class="text-blue-400 underline text-sm">¿Olvidaste tu contraseña?</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            </section>
         </section>
     </main>
 </body>

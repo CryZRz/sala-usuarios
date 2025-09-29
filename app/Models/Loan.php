@@ -39,6 +39,22 @@ class Loan extends Model
         return $this->belongsTo(User::class, "created_by", "id");
     }
 
+    public function isEnded(){
+        if ($this->endTime){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getIsEndedAttribute(){
+        if ($this->endTime){
+            return "Finalizado";
+        }
+
+        return "Activa";
+    }
+
     public const CREATED_AT = 'startTime';
     public const UPDATED_AT = 'updateTime';
     public const DELETED_AT = "endTime";

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -19,11 +19,14 @@ class RegisterController extends Controller
         $data = $request->validated();
 
         $user = User::create([
-            "name" => $data["name"],
-            "email" => $data["email"],
-            "password" => $data["pass"]
+            "username" => trim($data["username"]),
+            "name" => strtoupper(trim($data["name"])),
+            "last_name" => strtoupper(trim($data["lastName"])),
+            "email" => trim($data["email"]),
+            "password" => trim($data["pass"])
         ]);
         if ($user != null) {
+            $user->roles()->attach($data["roleId"], ["created_by" => Auth::user()->id]);
             return redirect()->route("session.show");
         }
         return redirect()

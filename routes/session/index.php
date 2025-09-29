@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ComputerSessionController;
+use App\Http\Controllers\ComputerSessionHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware("auth")->group(function () {
@@ -9,11 +10,10 @@ Route::middleware("auth")->group(function () {
         ->name("session.show");
 
     Route::get("/sesion", [ComputerSessionController::class, "create"])
-        ->middleware("hasPermissionMd:computerUses.view")
         ->middleware("hasPermission:create")
         ->name("session.new");
 
-    Route::post("/sesion", [ComputerSessionController::class, "registrarSesion"])
+    Route::post("/sesion", [ComputerSessionController::class, "store"])
         ->middleware("hasPermission:create")
         ->name("session.store");
 
@@ -29,15 +29,12 @@ Route::middleware("auth")->group(function () {
         Route::delete("/sesion", [ComputerSessionController::class, "terminarSesion"])
             ->name("session.destroy");
 
-        Route::delete("/session/terminar-num-euipo", [ComputerSessionController::class, "terminarSesionNumEquio"])
-            ->name("session.destroy.num.computer");
-
-        Route::delete("/session/terminar-num-control", [ComputerSessionController::class, "terminarSesionNumControl"])
-            ->name("session.destroy.num.control");
-
         Route::delete("/sesiones", [ComputerSessionController::class, "terminarMultiples"])
             ->name("session.destroyMany");
     });
 
-    Route::post("/sesion-estudiante", [ComputerSessionController::class, "createSessionAndStudent"]);
+    //Para el historial
+    Route::get("/historial-sesiones", [ComputerSessionHistoryController::class, "show"])
+        ->middleware("hasPermission:history")
+        ->name("session.history");
 });

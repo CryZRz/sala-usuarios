@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\CheckModuleActive;
+use App\Http\Middleware\CheckProfile;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -66,5 +68,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'hasPermission' => \App\Http\Middleware\HasPermission::class,
         'hasPermissionMd' => \App\Http\Middleware\HasPermissionMd::class,
+        'hasProfileOrPermission' => CheckProfile::class,
+        "moduleActive" => CheckModuleActive::class,
     ];
 }

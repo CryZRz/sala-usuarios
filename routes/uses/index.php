@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ComputerUsesController;
 
-Route::middleware("auth")->group(function () {
+Route::middleware("auth")
+    ->middleware("moduleActive")
+    ->group(function () {
     Route::get("/usos", [ComputerUsesController::class, "show"])
         ->middleware("hasPermission:view")
         ->name("computer.showUses");
@@ -15,14 +17,14 @@ Route::middleware("auth")->group(function () {
             ->name("computer.storeUse");
     });
 
-    Route::middleware("hasPermission:update")->group(function () {
+    Route::middleware("hasPermission:edit")->group(function () {
         Route::get("/uso/{id}", [ComputerUsesController::class, "edit"])
             ->name("computer.editUse");
         Route::post("/uso/actualizar", [ComputerUsesController::class, "update"])
             ->name("computer.updateUse");
     });
 
-    Route::delete("/uso/eliminar/{id}", [ComputerUsesController::class, "eliminar"])
+    Route::delete("/uso/eliminar/", [ComputerUsesController::class, "destroy"])
         ->middleware("hasPermission:delete")
         ->name("computer.destroyUse");
 });

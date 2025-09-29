@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Utils\Interfaces\HasModule;
+use App\Models\Computer;
 use App\Models\Program;
 use Illuminate\Http\Request;
 
@@ -14,8 +15,15 @@ class ProgramController extends Controller implements HasModule
         return "program";
     }
 
-    public function show() {
-        $programs = Program::paginate(10);
+    public function show(Request $request) {
+        $textFind = $request->get('textFind');
+        $programsQuery = Program::query()->orderBy('created_at', 'desc');
+
+        if (!empty($textFind)) {
+            $programsQuery->where('name', 'like', '%' . $textFind . '%');
+        }
+
+        $programs = $programsQuery->paginate(10)->appends($request->query());
 
         $data = [
             "programs" => $programs
@@ -24,7 +32,14 @@ class ProgramController extends Controller implements HasModule
         return view("program.show", $data);
     }
 
-    public function showApi() {
+    public function showApi(Request $request) {
+        $find = $request->get("find");
+        if ($find) {
+            $programs = Program::where("name", "like", "%$find%")->paginate(10);
+
+            return response()->json($programs);
+        }
+
         $programs = Program::paginate(10);
 
         return response()->json($programs);
@@ -73,5 +88,25 @@ class ProgramController extends Controller implements HasModule
         $program->update();
 
         return redirect()->route("program.show");
+    }
+
+    public function destroy(Request $request) {
+        $id = $request->get("id");
+        Program::destroy($id);
+
+        return redirect()->route("program.show");
+    }
+
+    public function getByComputer(Computer $computer, Request $request) {
+        $find = $request->get("find");
+        if ($find) {
+            $programs = $computer->programs()->where("name", "like", "%$find%")->paginate(10);
+
+            return response()->json($programs);
+         }
+
+        $programs = $computer->programs()->paginate(10);
+
+        return response()->json($programs);
     }
 }

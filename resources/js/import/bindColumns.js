@@ -37,6 +37,6 @@ for(const select of allSelects){
     })
 }
 
-cancelImportBtn.addEventListener("click",e => {
+cancelImportBtn.addEventListener("click",_ => {
     methodInput.checked = true
 })

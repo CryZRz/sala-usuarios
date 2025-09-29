@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    @vite(['resources/scss/app.scss','resources/scss/utils/colors.scss', 'resources/scss/utils/sizes.scss'])
+    @vite(['resources/css/app.css'])
     @yield("vite")
     <title>
         @yield("title")
@@ -13,13 +13,13 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
 <body>
-<header class="w-100 d-flex justify-content-between bg-azul-tecnm align-items-center p-2">
-    <section class="d-flex align-items-center">
+<header class="w-full flex justify-between bg-brand-primary items-center p-2">
+    <section class="flex items-center">
         <div>
             <img class="w-20" src="/images/logoITL.png" alt="logo itl">
         </div>
         <div class="m-2">
-            <h1 class="text-white fw-bold">SALA USUARIOS</h1>
+            <h1 class="text-white font-bold">SALA USUARIOS</h1>
         </div>
     </section>
     <section>

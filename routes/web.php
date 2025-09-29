@@ -1,25 +1,25 @@
 <?php
 
-use App\Models\Period;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\DashBoardController;
+use App\Http\Controllers\NotiTecController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Resources\StudentUpdateResource;
-use App\Models\StudentUpdate;
 
 Route::get('/', function () {
-    return redirect()->route("login.show");
-})->middleware("guest");
+    return redirect()->route("dashboard.show");
+})->middleware("auth");
 
-Route::get('/test', function () {
-    $lastPeriod = Period::getLastPeriod();
+Route::get("/dashboard", [DashboardController::class, "index"])
+    ->middleware("auth")
+    ->name("dashboard.show");
 
-    $bajas = \App\Models\Student::whereHas("latestStudentUpdate",
-        function($query) use ($lastPeriod) {
-        return $query->where("period_id", "!=", $lastPeriod->id);
-    })->get();
+Route::resource("/api/notitec", NotitecController::class);
 
-    dd($bajas->map(fn ($baja) => $baja->latestStudentUpdate->controlNumber));
-});
+Route::get("/herramientas", fn() => view("utils.show"))
+    ->middleware("auth")
+    ->name("utils.index");
+
+Route::get("/sinPermisos", fn() => view("alerts.notPermissions"))->name("notPermissions");
+Route::get("/sinModulo", fn() => view("alerts.notModule"))->name("notModule");
 
 require __DIR__ . "/programs/index.php";
 require __DIR__ . "/computer/index.php";
@@ -30,6 +30,18 @@ require __DIR__ . "/auth/index.php";
 require __DIR__ . "/reports/index.php";
 require __DIR__ . "/import/index.php";
 require __DIR__ . "/uses/index.php";
+require __DIR__ . "/tokens/index.php";
+require __DIR__ . "/profile/index.php";
+require __DIR__ . "/profile/index.php";
+require __DIR__ . "/roleManager/index.php";
+require __DIR__ . "/users/index.php";
+
+
 require __DIR__ . "/api/ports/index.php";
 require __DIR__ . "/api/session/index.php";
-require __DIR__ . "/tokens/index.php";
+require __DIR__ . "/api/periods/index.php";
+require __DIR__ . "/api/programs/index.php";
+require __DIR__ . "/api/appModules/index.php";
+require __DIR__ . "/api/permissions/index.php";
+require __DIR__ . "/api/roleManager/index.php";
+require __DIR__ . "/api/tokens/index.php";

@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportesController;
 
-Route::middleware("auth")->group(function () {
+Route::middleware("auth")
+    ->middleware("hasPermission:generate")
+    ->middleware("moduleActive")
+    ->group(function () {
     Route::get("/reportes", [ReportesController::class, "show"])->name("reports.show");
 
     Route::get("/reporte1", [ReportesController::class, "reportTotalTimeBySemesterAndCareerDetail"])

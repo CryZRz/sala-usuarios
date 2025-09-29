@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Observers\PersonalAccessTokenObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Token;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::useBootstrapFive();
+        Paginator::useTailwind();
+        Token::observe(PersonalAccessTokenObserver::class);
     }
 }

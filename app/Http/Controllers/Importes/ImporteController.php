@@ -3,17 +3,26 @@
 namespace App\Http\Controllers\Importes;
 
 use App\Http\Controllers\Controller;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Imports\StudentsImport;
 use App\Models\Import;
 use App\Models\PendingImport;
 use App\Models\Period;
+use App\Models\Student;
+use App\Models\StudentUpdate;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ImporteController extends Controller
+class ImporteController extends Controller implements HasModule
 {
+
+    public function hasModule(): string
+    {
+        return "ImportStudents";
+    }
+
     public function show()
     {
         $importPeriod = Import::where("period_id", Period::getLastPeriod()->id)->first();
@@ -37,20 +46,12 @@ class ImporteController extends Controller
         return response(null, 204);
     }
 
-    private function getListHeadersFile($file)
+    private function getListHeadersFile($file): array
     {
-        $data = Excel::toArray([], $file);
-        $headers = $data[0][0];
+        $firstRowCheck = new FirstRowCheckImport();
+        Excel::import($firstRowCheck, $file);
 
-        if (count($headers) > 0) {
-            $headersFilter = array_filter($headers, fn($header) => $header != null);
-
-            if (count($headersFilter) > 0) {
-                return $headersFilter;
-            }
-        }
-
-        return [];
+        return $firstRowCheck->headers;
     }
 
     public function pendingImport(string $id, Request $request)
@@ -58,9 +59,9 @@ class ImporteController extends Controller
         $pendingImport = PendingImport::find($id);
 
         if ($pendingImport?->is_pending) {
-            $file = Storage::disk("imports")->path($pendingImport->hash_file);
-
+            $file = Storage::disk("imports")->path($pendingImport->filename);
             $headers = $this->getListHeadersFile($file);
+
             return view("import.bindColumns", ["headers" => $headers, "id" => $id]);
         }
     }
@@ -74,7 +75,12 @@ class ImporteController extends Controller
 
         if (count($this->getListHeadersFile($file)) > 0) {
             $fileHash = md5_file($file->getRealPath());
-            $fileKey = $fileHash."-". Period::getLastPeriod()->name.".xlsx";
+
+            if (Import::where("hash_file", $fileHash)->exists()) {
+                return redirect()->route("import.show")->with("error", "El archivo ya se ha subido anteriormente");
+            }
+
+            $fileKey = $fileHash."-". Period::getLastPeriod()->name.".".$file->getClientOriginalExtension();
 
             Storage::disk("imports")->put(
                 $fileKey,
@@ -82,13 +88,13 @@ class ImporteController extends Controller
             );
 
             $pendingImport = PendingImport::create([
-                "filename" => $file->getFilename(),
-                "hash_file" => $fileKey,
+                "filename" => $fileKey,
+                "hash_file" => $fileHash,
             ]);
 
             return redirect()->route("import.showPending", $pendingImport->id);
         }else{
-
+            return redirect()->route("import.show")->with("error", "El archivo no contiene encabezados");
         }
     }
 
@@ -109,6 +115,7 @@ class ImporteController extends Controller
             "controlNumber" => ["required"],
             "career" => ["required"],
             "semester" => ["required"],
+            "curp" => ["required"],
         ]);
 
         if(count($request->all()) != count(array_unique($request->all()))){
@@ -118,7 +125,7 @@ class ImporteController extends Controller
         }
 
         $fileHash = PendingImport::find($id);
-        $filePath = Storage::disk("imports")->path($fileHash->hash_file);
+        $filePath = Storage::disk("imports")->path($fileHash->filename);
 
         Excel::import(new StudentsImport($request->all()), $filePath);
 
@@ -130,7 +137,29 @@ class ImporteController extends Controller
 
         $pendingImport->is_pending = false;
         $pendingImport->save();
+        $this->dropStudents();
 
         return redirect()->route("import.show");
+    }
+
+    private function dropStudents(){
+        $lastPeriod = Period::getLastPeriod();
+
+        Student::whereHas("latestStudentUpdate", function($query) use ($lastPeriod) {
+            $query->where('period_id', '!=', $lastPeriod->id);
+        })
+            ->get()
+            ->map(function ($student) use ($lastPeriod) {
+            if ($student->lastInfo->active) {
+                StudentUpdate::create([
+                    "student_id" => $student->id,
+                    "career" => $student->lastInfo->career,
+                    "controlNumber" => $student->lastInfo->controlNumber,
+                    "semester" => $student->lastInfo->semester+1,
+                    "period_id" => $lastPeriod->id,
+                    "active" => false,
+                ]);
+            }
+        });
     }
 }

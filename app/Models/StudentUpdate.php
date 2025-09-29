@@ -9,14 +9,15 @@ class StudentUpdate extends Model
 {
     use HasFactory;
 
-    const UPDATED_AT = null; //No incluir columna de tiempo de última actualización.
+    const UPDATED_AT = null;
 
     protected $fillable = [
         "student_id",
         "career",
         "controlNumber",
         "semester",
-        "period_id"
+        "period_id",
+        "active",
     ];
 
     public function student(){
@@ -32,5 +33,11 @@ class StudentUpdate extends Model
         return self::where('controlNumber', $controlNumber)
             ->orderBy('created_at', 'desc')
             ->first();
+    }
+
+    public static function getByLastPeriod(){
+        $lastPeriod = Period::getLastPeriod();
+
+        return self::where("period_id", $lastPeriod->id);
     }
 }

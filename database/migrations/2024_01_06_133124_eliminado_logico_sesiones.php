@@ -25,9 +25,9 @@ return new class extends Migration {
          * con los nombres personalizados en las constantes, definidas en el modelo de la tabla.
          */
         Schema::table('loans', function (Blueprint $table) {
-            $table->timestamp(Loan::CREATED_AT)->nullable(); 
-            $table->timestamp(Loan::UPDATED_AT)->nullable(); 
-            $table->softDeletes(Loan::DELETED_AT);
+            $table->timestamp('startTime')->nullable();
+            $table->timestamp('updateTime')->nullable();
+            $table->softDeletes('endTime');
         });
     }
 
@@ -37,10 +37,10 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropColumn(["startTime", "endTime", "updateTime"]); 
+            $table->dropColumn(["startTime", "endTime", "updateTime"]);
         });
 
-        Schema::table('loans', function (Blueprint $table) { 
+        Schema::table('loans', function (Blueprint $table) {
             $table->dateTime("startTime");
             $table->dateTime("endTime")->nullable();
             $table->boolean("status");

@@ -1,4 +1,4 @@
-@extends("layouts.authLayout")
+@extends("layouts.mainLayout")
 
 @section("title")
     @isset ($program)
@@ -8,62 +8,65 @@
     @endisset
 @endsection
 
-@section("main")
-    <main>
-        <section class="container mt-2">
-            <form
-              action=@isset($program) {{route("program.update")}} @else {{route("program.store")}} @endisset
-              method="POST"
-              class="col-md-12"
-            >
-            @csrf
-            @isset($program)
-                @method("PUT")
-                <input name="id" type="hidden" value="{{$program->id}}">
-            @endisset
-              @isset($program)
-                <legend>Editar programa</legend>
-              @else
-                <legend>Crear programa</legend>
-              @endisset
+@section("content")
+    <div class="mx-10 mt-10 flex justify-center">
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
+            <div class="py-3">
+                <h3 class="text-gray-700 font-medium">Nuevo Programa</h3>
+            </div>
+            <section>
+                <form
+                    action=@isset($program) {{route("program.update")}} @else {{route("program.store")}} @endisset
+                    method="POST"
+                    class="col-md-12"
+                >
+                    @csrf
+                    @isset($program)
+                        @method("PUT")
+                        <input name="id" type="hidden" value="{{$program->id}}">
+                    @endisset
 
-              <div class="mb-3">
-                <label for="name" class="form-label m-0">Nombre</label>
-                <input
-                    id="name"
-                    type="text"
-                    name="name"
-                    class="col-12 p-1 @error('name') form-control is-invalid @enderror"
-                    placeholder="Nombre del programa"
-                    required
-                    value=@isset ($program) {{$program->name}} @endisset
-                >
-              </div>
-              <div class="mb-3">
-                <label for="version">Version</label>
-                <input
-                    id="version"
-                    type="text"
-                    name="version"
-                    class="col-12 p-1 @error('version') form-control is-invalid @enderror"
-                    placeholder="Version del programa"
-                    required
-                    value=@isset ($program) {{$program->version}} @endisset
-                >
-              </div>
-              <div>
-                @isset($program)
-                    <div class="col-lg-6 mb-2">
-                      <button class="btn btn-success col-12">Editar</button>
+                    <div class="mb-3">
+                        <label for="name" class="m-0 block text-sm text-gray-700">Nombre</label>
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            class="w-full border border-gray-400 rounded-md p-1 outline-0 text-gray-600  @error('name') border-red-400 @enderror"
+                            placeholder="Nombre del programa"
+
+                            value=@isset ($program) {{$program->name}} @endisset
+                        >
+                        @error('name')
+                            <p class="text-xs text-red-500 mt-0.5">{{$message}}</p>
+                        @enderror
                     </div>
-                    <div class="col-lg-6 mb-2">
-                      <button class="btn btn-danger col-12">Eliminar</button>
+                    <div class="mb-3">
+                        <label for="version" class="m-0 block text-sm text-gray-700">Version</label>
+                        <input
+                            id="version"
+                            type="text"
+                            name="version"
+                            class="w-full border border-gray-400 rounded-md p-1 outline-0 text-gray-600 @error('version') border-red-400 @enderror"
+                            placeholder="Version del programa"
+
+                            value=@isset ($program) {{$program->version}} @endisset
+                        >
+                        @error('version')
+                        <p class="text-xs text-red-500 mt-0.5">{{$message}}</p>
+                        @enderror
                     </div>
-                @else
-                    <button class="btn btn-primary col-12">Guardar</button>
-                @endisset
-              </div>
-          </form>
-        </section>
-    </main>
+                    <div class="justify-end flex mt-3 gap-1">
+                        @isset($program)
+                            <div class="col-lg-6 mb-2">
+                                <button class="bg-brand-primary p-2 text-white rounded-md cursor-pointer text-sm">Editar</button>
+                            </div>
+                        @else
+                            <button class="bg-brand-primary p-2 text-white rounded-md cursor-pointer text-sm">Guardar</button>
+                        @endisset
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
 @endsection

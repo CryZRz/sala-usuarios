@@ -1,0 +1,33 @@
+@import "bootstrap-icons/font/bootstrap-icons.css";
+@import 'tailwindcss';
+@import "animate.css";
+
+@theme {
+    --color-brand-primary: #1A436C;
+    --color-brand-secondary: #d1be4e;
+    --color-brand-alert: #e53e37;
+}
+
+@layer utilities {
+    .bg-login {
+        background-image: url('/images/login2.jpg');
+    }
+    .bg-register {
+        background-image: url('/images/register.jpg');
+    }
+    .bg-profile{
+        background-image: url('/images/background-profile.jpg');
+    }
+    .bg-users{
+        background-image: url('/images/background-users.jpg');
+
+    }
+    .bg-forgot-password{
+        background-image: url('/images/background.jpg');
+    }
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';

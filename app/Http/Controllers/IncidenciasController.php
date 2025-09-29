@@ -2,23 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StudentSearchRequest;
+use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Incidence;
-use App\Models\Student;
 use App\Models\StudentUpdate;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 
-class IncidenciasController extends Controller
+class IncidenciasController extends Controller implements HasModule
 {
-    public function show()
-    {
 
-        $incidencias = Incidence::orderByDesc("updated_at")->paginate(10);
+
+    public function __construct(){
+        View::share("module", $this->hasModule());
+    }
+    public function hasModule(): string
+    {
+        return "incidences";
+    }
+
+    public function show(Request $request)
+    {
+        $find = $request->get("find");
+        $active = $request->get("active");
+
+        $incidences = Incidence::query()
+            ->orderByDesc("updated_at");
+
+        if($active == "0"){
+            $incidences->onlyTrashed();
+        }
+        if($find){
+            $incidences->whereHas("studentUpdate", function($query) use ($find){
+                $query->where("controlNumber", "like", "%".$find."%")
+                    ->orWhereHas("student", function($q) use ($find){
+                        $q->where(DB::raw("CONCAT(name, ' ', lastName)"), "like", "%".$find."%");
+                });
+            })->with("studentUpdate.student");
+        }
 
         $data = [
-            "incidencias" => $incidencias,
-            "muestra" => "activas"
+            "incidences" => $incidences->paginate(10),
         ];
 
         return view("incidences.show", $data);
@@ -38,20 +62,6 @@ class IncidenciasController extends Controller
     public function create()
     {
         return view("incidences.create");
-    }
-
-    public function mostrarIncidenciasResueltas()
-    {
-        $incidencias = Incidence::onlyTrashed()
-            ->orderByDesc("updated_at")
-            ->paginate(10);
-
-        $data = [
-            "incidencias" => $incidencias,
-            "muestra" => "resueltas"
-        ];
-
-        return view("incidences.show", $data);
     }
 
     public function store(Request $request)
@@ -75,47 +85,25 @@ class IncidenciasController extends Controller
         return redirect()->route("incidence.show");
     }
 
-    public function update(int $incidenceId, Request $request)
+    public function update(Incidence $incidence, Request $request)
     {
         $this->validate($request, [
-           "description" => ["required"]
+            "description" => ["required"],
         ]);
 
-        $incidence = Incidence::withTrashed()->find($incidenceId);
+        $incidence->update([
+            "description" => trim($request->get("description")),
+        ]);
 
-        if ($incidence != null) {
-            $description = trim($request->get("description"));
-            $incidence->update([
-                "description" => $description,
-            ]);
-
-            return redirect()->back();
-        }
-
-        return redirect()->back()->withErrors("Incidencia no encontrada");
+        return redirect()->route("incidence.show");
     }
 
-    public function buscarEstudiante(Request $request)
-    {
-        $this->validate($request, [
-            "controlNumber" => ["required", "min:8", "exists:student_updates,controlNumber"],
-        ]);
-
-        $controlNumber = $request->get("controlNumber");
-        $infoStudent = StudentUpdate::getLastByControlNumber($controlNumber);
-
-        $incidencesStudent = Incidence::withTrashed()
-            ->where("student_id", $infoStudent->student->id)
-            ->orderByDesc("updated_at")
-            ->paginate(10);
-
+    public function edit(Incidence $incidence){
         $data = [
-            "incidencias" => $incidencesStudent,
-            "infoStudent" => $infoStudent,
-            "muestra" => "estudiante"
+            "incidence" => $incidence,
         ];
 
-        return view("incidences.show", $data);
+        return view("incidences.edit", $data);
     }
 
     public function destroy(Incidence $incidence)

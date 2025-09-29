@@ -1,79 +1,105 @@
-@extends("layouts.authLayout")
+@extends("layouts.mainLayout")
 
 @section("title")
-    Editar usuario
+    Editar estudiante
 @endsection
 
-@section("main")
-    <main>
-        <section class="container">
-            <h1>Editar estudiante</h1>
-            <form action="{{route("student.update", $updatedDetails->controlNumber)}}" method="POST">
-                @csrf
-                <section class="row mb-3">
-                    <div class="col-lg-6">
-                        <label for="name">Nombre</label>
-                        <input
-                            class="col-12 p-1 @error('name') form-control is-invalid @enderror"
-                            name="name"
-                            type="text"
-                            placeholder="Nombre del alumno"
-                            value="{{$student->name}}"
-                        >
-                            @error('name')
-                                <p>{{$message}}</p>
-                            @enderror
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="lastName">Apellidos</label>
-                        <input
-                            class="col-12 p-1 @error('lastName') form-control is-invalid @enderror"
-                            name="lastName"
-                            type="text"
-                            placeholder="Apellidos del alumno"
-                            value="{{$student->lastName}}"
-                        >
-                    </div>
-                </section>
-                <section class="mb-2">
-                    <label for="career">Carrera</label>
-                    <select class="col-12 p-1 @error('career') form-select is-invalid @enderror" name="career">
-                        @foreach ($careers as $career)
-                            <option
-                                value="{{$career->value}}"
-                                @if ($career->value == $updatedDetails->career) selected @endif
-                            >
-                                {{$career->value}}
-                            </option>
-                        @endforeach
-                    </select>
-                </section>
-                <section class="row mb-3">
-                    <div class="col-lg-6">
-                        <label for="semester">Semestre</label>
-                        <input
-                            class="col-12 p-1 @error('semester') form-control is-invalid @enderror"
-                            type="number"
-                            name="semester"
-                            placeholder="Semestre del alumno"
-                            value="{{$updatedDetails->semester}}"
-                        >
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="controlNumber">Numero de control</label>
-                        <input
-                            class="col-12 p-1 @error('controlNumber') form-control is-invalid @enderror"
-                            name="controlNumber"
-                            type="text"
-                            placeholder="Numero de control"
-                            value="{{$updatedDetails->controlNumber}}"
-                        >
-                    </div>
-                </section>
-                <section>
-                    <button class="btn btn-primary col-12">Editar alumno</button>
-                </section>
-            </form>
-        </section>
-    </main>
+@section("module")
+    Edicion estudiante
 @endsection
+
+@section("content")
+    <div class="mx-10 mt-10 flex justify-center">
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
+            <div class="p-3">
+                <h3 class="text-gray-700 font-medium">Nuevo Estudiante</h3>
+            </div>
+            <div>
+                <form action="{{route("student.update", $updatedDetails->controlNumber)}}" method="post">
+                    @csrf
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="name">Nombres</label>
+                            <input
+                                id="name"
+                                class="border mt-1 w-full border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary"
+                                type="text"
+                                name="name"
+                                placeholder="Nombres"
+                                value="{{$student->name}}"
+                            >
+                            @error("name")
+                                <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="lastName">Apellidos</label>
+                            <input
+                                id="lastName"
+                                class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary"
+                                type="text"
+                                name="lastName"
+                                placeholder="Apellidos"
+                                value="{{$student->lastName}}"
+                            >
+                            @error("lastName")
+                                <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="flex mx-4 gap-6 mt-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="controlNumber">Num.Control</label>
+                            <input
+                                id="controlNumber"
+                                class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary"
+                                type="text"
+                                name="controlNumber"
+                                placeholder="Num.Control"
+                                value="{{$student->lastInfo->controlNumber}}"
+                            >
+                            @error("controlNumber")
+                                <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs text-gray-800 font-semibold" for="semester">Semestre</label>
+                            <input
+                                id="semester"
+                                class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary"
+                                type="number"
+                                name="semester"
+                                placeholder="Semestre"
+                                value="{{$student->lastInfo->semester}}"
+                            >
+                            @error("semester")
+                                <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="mx-4 mt-4">
+                        <label class="block text-xs text-gray-800 font-semibold" for="career">Plan estudios</label>
+                        <select id="career" name="career" class="border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary">
+                            @foreach ($careers as $career)
+                                <option
+                                    class="text-gray-600 rounded-md"
+                                    value="{{$career}}"
+                                    @if ($career->value == $updatedDetails->career) selected @endif
+                                >
+                                    {{$career}}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error("career")
+                            <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
+                        @enderror
+                    </div>
+                    <div class="mx-4 mt-5 flex gap-3 justify-end">
+                        <button class="bg-brand-primary cursor-pointer p-2 rounded-md text-white text-sm font-bold">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+

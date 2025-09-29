@@ -24,7 +24,7 @@ class StudentRequest extends FormRequest
     {
         return [
             "name" => ["required"],
-            "controlNumber" => ["required"],
+            "controlNumber" => ["required", "unique:student_updates,controlNumber"],
             "lastName" => ["required"],
             "career" => [
                 "required",
@@ -37,10 +37,10 @@ class StudentRequest extends FormRequest
     public function messages() : array {
         return [
             "name" => "El nombre es obligatorio",
-            "controlNumber" => "El numero de control no debe haberse registrado antes",
+            "controlNumber" => "El numero es obligatorio y unico",
             "lastName" => "Los apellidos son obligatorios",
             "career" => "La carrera no es valida",
-            "semester" => "El semestre no debe ser negativo"
+            "semester" => "El semestre debe estar entre 0 y 13",
         ];
     }
 }

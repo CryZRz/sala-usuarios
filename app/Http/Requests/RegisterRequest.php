@@ -25,7 +25,10 @@ class RegisterRequest extends FormRequest
             "email" => ["required", "email", "unique:users,email"],
             "pass" => ["required", "min:4"],
             "confirm-password" => ["required", "min:4", "same:pass"],
-            "name" => ["required", "min:3"]
+            "name" => ["required", "min:3"],
+            "username" => ["required", "min:3"],
+            "lastName" => ["required", "min:3"],
+            "roleId" => ["required", "exists:roles,id"],
         ];
     }
 
@@ -39,12 +42,20 @@ class RegisterRequest extends FormRequest
             "name.required" => "Ingresa el nombre.",
             "name.min" => "Asegurate que el nombre tenga 3 o más caracteres.",
 
+            "lastName.required" => "Ingresa los apellidos",
+            "lastName.min" => "Asegurate que los apellidos tenga 3 o más caracteres.",
+
+            "username.required" => "Ingresa el nombre de usuario",
+            "username.min" => "Asegurate que el nombre de usuario tenga 3 o más caracteres.",
+
             "pass.required" => "Ingresa la contraseña",
             "pass.min" => "Asegurate que la contraseña tenga 4 o más caracteres.",
 
             "confirm-password.required" => "Repite la contraseña.",
             "confirm-password.min" => "Asegurate que la contraseña tenga 4 o más caracteres.",
-            "confirm-password.same" => "La contraseña no es la misma en ambos campos."
+            "confirm-password.same" => "La contraseña no es la misma en ambos campos.",
+            "roleId.required" => "Debes seleccionar un rol",
+            "roleId.exist" => "Debes seleccionar un rol valido",
         ];
     }
 }

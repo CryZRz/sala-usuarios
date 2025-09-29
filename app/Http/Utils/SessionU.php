@@ -11,11 +11,11 @@ class SessionU
     public static function getListComputersFree(){
         //Se necesita traer de las sesiones todas aquellas que aun no han terminado
         $loansInUse = Loan::whereNull("endTime")
-            ->get()
-            ->map(fn($query) => $query->computer_id);
+            ->pluck("computer_id")
+            ->toArray();
 
         //Buscamos todas las computadoras que no esten en uso
-        $computers = Computer::whereNotIn("id", $loansInUse)->get();
+        $computers = Computer::whereNotIn("id", $loansInUse);
 
         return $computers;
     }

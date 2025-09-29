@@ -1,219 +1,163 @@
-@extends('layouts.authLayout')
+@extends("layouts.mainLayout")
 
-@section('title')
-    Sala de usuarios
+@section("title")
+    Incidencias
 @endsection
 
-@section('vite')
-    @vite(['resources/js/incidence/show.js'])
+@section("module")
+    Administracion de incidencias
 @endsection
 
-@section('main')
-    <main>
-        <!-- Menú desplegable de acciones-->
-        <div class="container-fluid my-3 d-flex justify-content-center">
-            <div class="w-auto bg-light rounded-5 px-4 py-3 sombraBasica">
-                <div class="d-inline-flex flex-wrap gap-1 gap-sm-3 justify-content-center">
-                    <a href="{{route("incidence.create")}}" class="btn btn-sm btn-turquesa lh-md fw-bold">
-                        Registrar incidencia
-                    </a>
-                    <button type="button" class="btn btn-sm btn-verde lh-md fw-bold" data-bs-toggle="modal"
-                        data-bs-target="#modalActualizar">Buscar incidencia</button>
-                    @if ($muestra == 'estudiante' || $muestra == 'resueltas')
-                        <a type="button" class="btn btn-sm text-light btn-warning lh-md fw-bold"
-                            href="{{ route('incidence.show') }}">Regresar a ver incidencias activas</a>
-                    @endif
-                    @if ($muestra == 'activas')
-                        <a type="button" class="btn btn-sm btn-secondary lh-md fw-bold"
-                            href="{{ route('incidence.showSolved') }}">Ver incidencias resueltas</a>
-                    @endif
-                </div>
+@section("content")
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-20 mx-6">
+        <div class="bg-white p-4">
+            <div class="p-2">
+                <h5
+                    class="block font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
+                    Incidencias
+                </h5>
             </div>
-        </div>
-
-        <!-- Recuadro de la tabla de sesiones de préstamo-->
-        <div class="container-fluid mx-auto px-md-5">
-            <h4 class="titulo text-center">
-                @if ($muestra == 'estudiante')
-                    Incidencias de
-                    {{ $infoStudent->student->last_name_first }}:
-                @endif
-                @if ($muestra == 'resueltas')
-                    Incidencias resueltas:
-                @endif
-                @if ($muestra == 'activas')
-                    Incidencias activas:
-                @endif
-            </h4>
-            <div class="table-responsive d-flex gap-3 flex-wrap">
-                @foreach($incidencias as $index => $incidence)
-                    <div class="card rounded-3" style="width: 18rem;">
-                        <a
-                            class="card-header mx-auto border-0 d-block"
-                            href="{{route('incidence.showOne', $incidence->id)}}"
-                        >
-                            <i class="bi bi-person-square" style="font-size: 4.5rem"></i>
+            <div class="mt-6">
+                <form x-ref="formFind" class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4" action="">
+                    <div class="flex gap-3">
+                        <select @change="$refs.formFind.submit()" name="active" class="bg-gray-100 border border-gray-300 rounded-md p-1 text-sm outline-0">
+                            <option value="1" @if((request('active') ?? 1) == 1) selected @endif>Pendientes</option>
+                            <option value="0" @if((request('active') ?? 1) == 0) selected @endif>Finalizadas</option>
+                        </select>
+                        <a href="{{route("incidence.create")}}" class="bg-brand-secondary p-2 w-24 text-center block rounded-md text-sm text-white">
+                            Añadir
                         </a>
-                        <div class="card-body py-2 px-3 border-1">
-                            <div class="">
-                                <p class="col-12 fw-bold m-0">Alumno:</p>
-                                <p class="col-12 m-0">
-                                    {{$incidence->studentUpdate->student->last_name_first }}
-                                    -
-                                    {{$incidence->studentUpdate->controlNumber}}
-                                </p>
-                            </div>
-                            @if ($muestra == 'estudiante' || $muestra == 'resueltas')
-                                @if (isset($incidence->deleted_at))
-                                    <p class="fw-bold m-0">Resolución</p>
-                                    <p class="m-0">{{$incidence->deleted_at}}</p>
-                                @else
-                                    <p class="fw-fold">Resolución</p>
-                                    <p>-</p>
-                                @endif
-                            @endif
-                            <div class="mt-1">
-                                <p class="fw-bold m-0">Descripción:</p>
-                                <p class="m-0">
-                                    @if(strlen($incidence->description) < 50)
-                                        {{$incidence->description  }}
-                                    @else
-                                        {{substr($incidence->description, 0, 50)}}...
-                                    @endif
-                                </p>
-                            </div>
-                            <div class="mt-1">
-                                <p class="d-inline col-12 fw-bold m-0">Estatus:</p>
-                                <p class="d-inline col-12 m-0">{{$incidence->status_text}}</p>
-                            </div>
-                            <div class="mt-1">
-                                <p class="col-12 fw-bold m-0">Creado a:</p>
-                                <p class="col-12 m-0">{{$incidence->created_at}}</p>
-                            </div>
-                            <div class="mt-1">
-                                <p class="col-12 fw-bold m-0">Actulizado a:</p>
-                                <p class="m-0">
-                                    {{$incidence->updated_at}}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="card-footer p-2 d-flex flex-column gap-1">
-                            <a
-                                class="btn col-12 btn-success btn-sm me-1 p-0 p-md-1 mb-1    fw-bold"
-                                data-bs-toggle="modal"
-                                data-bs-target="{{'#modalActualizar'.$index}}"
-                            >
-                                Actualizar descripción
-                            </a>
-
-                            @if (!isset($incidence->fecha_baja))
-                                <a
-                                    class="btn btn-primary btn-sm me-1 p-0 p-md-1 w-100 fw-bold btn-end-incidence"
-                                    id-incidence="{{$incidence->id}}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalFin"
-                                >
-                                    Finalizar
-                                </a>
-                            @endif
-                        </div>
                     </div>
-
-                    <!-- Ventana emergente para el botón Actualizar -->
-                    <div class="modal fade" id="{{'modalActualizar'.$index}}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title titulo">
-                                        Actualizar incidencia
-                                    </h5>
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    >
-                                    </button>
-                                </div>
-                                <form
-                                    id="form-crear-incidencia"
-                                    method="POST"
-                                    action="{{ route('incidence.update', $incidence->id) }}"
-                                >
-                                    <div class="modal-body text-center mb-2 mx-3 mx-sm-5 ">
-                                        <div class="d-flex flex-column gap-1 mt-2">
-                                            @method("PUT")
-                                            @csrf
-                                            <label
-                                                for="description"
-                                                class="form-label text-center fw-bold"
-                                            >
-                                                Detalles
-                                            </label>
-                                            <textarea
-                                                type="text"
-                                                class="form-control"
-                                                name="description"
-                                                id="description"
-                                                required
-                                            >{{ $incidence->description }}
-                                            </textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input
-                                            type="submit"
-                                            class="btn btn-turquesa"
-                                            value="Confirmar"
-                                        >
-                                        <button
-                                            type="button"
-                                            class="btn btn-secondary"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            Cerrar
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                    <label for="table-search" class="sr-only">Search</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <i class="bi bi-search"></i>
                         </div>
+                        <input value="{{request('find')}}" name="find" type="text" id="table-search-users" class="outline-0 block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Buscar...">
+                        <button class="hidden" type="submit"></button>
                     </div>
-
-                    <!-- Ventana emergente para el botón Fin -->
-                    <div class="modal fade" id="modalFin" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title titulo">Finalizar incidencia</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    ¿Deseas finalizar esta incidencia?
-                                </div>
-                                <div class="modal-footer">
-                                    <form id="formEndIncidence" method="POST" action="">
-                                        @csrf
-                                        @method('delete')
-                                        <button type="submit" class="btn btn-turquesa">
-                                            Finalizar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-secondary"
-                                            data-bs-dismiss="modal">
-                                            Regresar
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+                </form>
             </div>
-            <section class="mt-3">
-                {{ $incidencias->links() }}
-            </section>
         </div>
-    </main>
+
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+                <th scope="col" class="p-4">
+                    <div class="flex items-center">
+                        <input id="checkbox-all-search" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2">
+                        <label for="checkbox-all-search" class="sr-only">checkbox</label>
+                    </div>
+                </th>
+                <th scope="col" class="px-6 py-3">Alumno</th>
+                <th scope="col" class="px-6 py-3">Descripcion</th>
+                <th scope="col" class="px-6 py-3">Estatus</th>
+                <th scope="col" class="px-6 py-3">Fecha</th>
+                <th scope="col" class="px-6 py-3">Estatus</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($incidences as $incidence)
+                <tr class="bg-white border-b border-b-gray-200 hover:bg-gray-50">
+                    <td class="w-4 p-4">
+                        <div class="flex items-center">
+                            <input id="checkbox-table-search-1" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2">
+                            <label for="checkbox-table-search-1" class="sr-only">checkbox</label>
+                        </div>
+                    </td>
+                    <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
+                        <img class="w-10 h-10 rounded-full" src="/images/user-img.jpg" alt="Jese image">
+                        <div class="ps-3">
+                            <div class="text-sm text-gray-600 font-extralight">
+                                {{$incidence->student->fullName}}
+                            </div>
+                            <div class="font-normal text-gray-500">
+                                {{$incidence->studentUpdate->controlNumber}}
+                            </div>
+                        </div>
+                    </th>
+                    <td class="px-6 py-4">
+                        @if(strlen($incidence->description) >= 10)
+                            {{substr($incidence->description,0 ,10)}}
+                        @else
+                            {{$incidence->description}}
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            @if($incidence->status)
+                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>
+                                Resuelta
+                            @else
+                                <div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div>
+                                Pendiente
+                            @endif
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        {{$incidence->created_at}}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-1">
+                            <a href="{{route("incidence.showOne", $incidence->id)}}" class="font-medium text-brand-primary hover:underline">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </a>
+                            <a
+                                href="@if(request('active') != '0') {{route("incidence.edit", $incidence->id)}} @endif"
+                                class="mx-1 @if(request('active') == '0') cursor-not-allowed" @endif">
+                                <i class="bi bi-pen"></i>
+                            </a>
+                            <form
+                                class="block"
+                                @if((request('active') ?? 1) != 0) action="{{ route('incidence.destroy', $incidence->id) }}" @endif
+                                method="POST"
+                            >
+                                @method("DELETE")
+                                @csrf
+                                <button @if((request('active') ?? 1) == 0) @click.prevent @endif>
+                                    <i class="bi bi-trash cursor-pointer @if((request('active') ?? 1) == 0) cursor-not-allowed @endif"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        <div class="flex items-center justify-between p-4 bg-white">
+            <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                Pagina {{ $incidences->currentPage() }} de {{ $incidences->lastPage() }}
+            </p>
+            <div class="flex gap-2">
+                @if ($incidences->onFirstPage())
+                    <a
+                        class="opacity-50 cursor-not-allowed select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="button">
+                        Anterior
+                    </a>
+                @else
+                    <a
+                        href="{{ $incidences->previousPageUrl() }}"
+                        class="select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="button">
+                        Anterior
+                    </a>
+                @endif
+                @if ($incidences->hasMorePages())
+                    <a
+                        href="{{ $incidences->nextPageUrl() }}"
+                        class="cursor-pointer select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="button">
+                        Siguiente
+                    </a>
+                @else
+                    <button
+                        class="opacity-50 cursor-not-allowed select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="button">
+                        Siguiente
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
 @endsection

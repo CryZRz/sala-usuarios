@@ -1,5 +1,8 @@
+/*
+* Por que no lo migre Alpine??? No tengo tiempo
+* */
+
 const listCounters = document.querySelectorAll("#timeAssigment")
-const inputSessionExten = document.getElementById("idExtenSession")
 let listCountersMaped = []
 let intervalManager = null
 
@@ -32,25 +35,18 @@ function removeListSessions(id) {
 function addBtnExtenseSession(id) {
     let button = document.createElement("button")
     button.textContent = "Extender tiempo"
-    button.className = "btn btn-sm btn-warning text-white fw-bold"
-    button.setAttribute("data-bs-toggle", "modal")
-    button.setAttribute("data-bs-target", "#idOption")
+    button.className = "bg-brand-secondary rounded-md text-white p-1 text-sm text-center cursor-pointer"
 
     button.addEventListener("click", e => {
-        inputSessionExten.value = id
+        button.dispatchEvent(new CustomEvent("extend-session", { bubbles: true }));
     })
 
     listCounters.forEach(element => {
         if (element.getAttribute("sessionId") === id) {
             element.innerHTML = ""
             element.appendChild(button)
-            colorFinished(element)
         }
     })
-}
-
-function colorFinished(element) {
-    element.parentElement.classList.add("table-danger");
 }
 
 function checkFormat(timeFormat, time){
@@ -112,6 +108,8 @@ async function main() {
     reloadUI()
 }
 
-if (listCounters.length >= 0) {
-    intervalManager = setInterval(main, 60000);
-}
+window.addEventListener('DOMContentLoaded', () => {
+    if (listCounters.length >= 0) {
+        intervalManager = setInterval(main, 60000);
+    }
+})

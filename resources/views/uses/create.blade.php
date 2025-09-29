@@ -1,26 +1,44 @@
-@extends('layouts.authLayout')
+@extends('layouts.mainLayout')
+
+@section("module")
+    Tipos de usos
+@endsection
 
 @section('title')
     Crear Uso
 @endsection
 
-@section('main')
-    <main>
-        <section class="container p-3">
-            <p class="h3 fw-bold">Crear tipo de uso</p>
-            <form action="{{route('computer.storeUse')}}" method="POST">
-                @csrf
-                <section class="mb-2">
-                    <div class="mb-2 mx-auto">
-                        <label class="my-1" for="name">Nombre</label>
-                        <input class="col-12 p-1" name="nombre" type="text"
-                            placeholder="Nombre del tipo de uso" required>
-                    </div>
-                    <section>
-                        <button class="btn btn-primary col-12 my-2 fw-bold" type="submit" id="btn-send">Registrar tipo de uso</button>
+@section('content')
+    <div class="mx-10 mt-10 flex justify-center">
+        <div class="bg-white rounded-md w-4/5 shadow-md p-3">
+            <div class="py-3">
+                <h3 class="text-gray-700 font-medium">Crear tipo de uso</h3>
+            </div>
+            <section>
+                <form action="{{route('computer.storeUse')}}" method="POST">
+                    @csrf
+                    <section class="mt-3">
+                        <div class="col-12 mb-2 mx-auto">
+                            <label class="text-sm text-gray-700 block" for="nombre">Nombre:</label>
+                            <input
+                                class="w-full border border-gray-400 rounded-md p-1 text-gray-500 outline-0"
+                                name="name"
+                                type="text"
+                                placeholder="Nombre del tipo de uso"
+                                required
+                            >
+                        </div>
+                        @error("name")
+                        <p class="text-xs text-red-500">{{$message}}</p>
+                        @enderror
+                        <section>
+                            <button class="bg-brand-primary w-full rounded-md p-1 text-white mt-3 cursor-pointer" type="submit" id="btn-send">
+                                Crear
+                            </button>
+                        </section>
                     </section>
-                </section>
-            </form>
-        </section>
-    </main>
+                </form>
+            </section>
+        </div>
+    </div>
 @endsection

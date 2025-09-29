@@ -2,11 +2,10 @@
 
 namespace App\Imports;
 
-use App\Http\Utils\CareersE;
+use App\Http\Utils\Students\StudentU;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\StudentUpdate;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -14,6 +13,12 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading
 {
+    private array $headers;
+    public function __construct(array $headers){
+        //La implementacion de WithHeadingRow cambia los headers a mayusculas nose por que xd
+        $this->headers = array_map(fn($header) => strtolower($header), $headers);
+    }
+
     /**
     * @param array $row
     *
@@ -21,35 +26,40 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
     */
     public function model(array $row)
     {
-        $studentInfo = StudentUpdate::getLastByControlNumber($row['numero_control']);
+        $name = $row[$this->headers['name']];
+        $lastName = $row[$this->headers['lastName']];
+        $career = $row[$this->headers['career']];
+        $controlNumber = $row[$this->headers['controlNumber']];
+        $semester = $row[$this->headers['semester']];
+        $curp = $row[$this->headers['curp']];
+
+        $studentInfo = Student::getByCurp($curp);
 
         if ($studentInfo != null) {
-            $studentInfo->student->update([
-                "name" => $row["nombres"],
-                "lastName" => $row["primer_apellido"] . " " . $row["segundo_apellido"],
-            ]);
-
             StudentUpdate::create([
-                "student_id" => $studentInfo->student_id,
-                "career" => $row["nombre_plan"],
-                "controlNumber" => $row["numero_control"],
-                "semester" => intval($row["semestre"]),
-                "period_id" => Period::getLastPeriod()->id
+                "student_id" => $studentInfo->id,
+                "career" => $career,
+                "controlNumber" => $controlNumber,
+                "semester" => intval($semester),
+                "period_id" => Period::getLastPeriod()->id,
+                "active" => true,
             ]);
         }else{
             $student = Student::create(
                 [
-                    "name" => $row["nombres"],
-                    "lastName" => $row["primer_apellido"] . " " . $row["segundo_apellido"],
+                    "name" => $name,
+                    "lastName" => $lastName,
+                    "curp" => $curp,
                 ]
             );
 
             StudentUpdate::create([
                 "student_id" => $student->id,
-                "career" => $row["nombre_plan"],
-                "controlNumber" => $row["numero_control"],
-                "semester" => intval($row["semestre"]),
-                "period_id" => Period::getLastPeriod()->id
+                "career" => $career,
+                "controlNumber" => $controlNumber,
+                "semester" => intval($semester),
+                "period_id" => Period::getLastPeriod()->id,
+                "active" => true,
             ]);
         }
 
@@ -59,23 +69,12 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
     public function rules(): array
     {
         return [
-            "clave_plan_estudios_view" => ["required", "string"],
-            "nombre_plan" => ["required", "string", Rule::in(CareersE::getCareers())],
-            "numero_control" => ["required", "min:8"],
-            "primer_apellido" => ["required", "string"],
-            "segundo_apellido" => [
-                "nullable",
-                function($attribute, $value, $fail) {
-                    if (!is_string($value) && $value !== 0 && $value !== "") {
-                        $fail("El campo $attribute debe ser una cadena o el valor '0'.");
-                    }
-                }
-            ],
-            "nombres" => ["required", "string"],
-            "anio_ingreso" => ["required", "numeric"],
-            "clave_periodo_ingreso" => ["required", "string"],
-            "semestre" => ["required", "numeric", "min:0", "max:14"],
-            "email" => ["required", "string", "email"],
+            $this->headers["name"] => ["required", "string"],
+            $this->headers["career"] => ["required", "string"],
+            $this->headers["controlNumber"] => ["required", "min:8"],
+            $this->headers["lastName"] => ["required", "string"],
+            $this->headers["semester"] => ["required", "numeric", "min:0"],
+            //$this->headers["curp"] => ["required"],
         ];
     }
 

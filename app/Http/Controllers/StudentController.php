@@ -9,6 +9,7 @@ use App\Http\Utils\CareersE;
 use App\Http\Utils\Interfaces\HasModule;
 use App\Http\Utils\Students\excelExports\ToExportStudents;
 use App\Http\Utils\Students\StudentU;
+use App\Models\Career;
 use App\Models\Incidence;
 use App\Models\Loan;
 use App\Models\Period;
@@ -53,7 +54,7 @@ class StudentController extends Controller implements HasModule
         }
 
         if ($career != -1 && !empty($career)){
-            $query->where("career", $career);
+            $query->where("career_id", $career);
         }
 
         if (!empty($period)) {
@@ -80,7 +81,11 @@ class StudentController extends Controller implements HasModule
 
     public function show()
     {
-        $careers = CareersE::getCareers();
+        /*Se tiene previsto que la cantidad
+          de carreras no sean muy grande por eso
+          se hace esto
+        */
+        $careers = Career::all();
 
         $data = [
             "careers" => $careers
@@ -139,17 +144,18 @@ class StudentController extends Controller implements HasModule
         $lastPeriod = Period::getLastPeriod();
 
         $student = Student::create([
-            "name" => strtoupper($data["name"]),
-            "lastName" => strtoupper($data["lastName"]),
-            "uuid" => StudentU::makeUUID($data["name"]." ".$data["lastName"]),
+            "name" => $data["name"],
+            "lastName" => $data["lastName"],
+            "curp" => $data["curp"],
         ]);
 
         StudentUpdate::create([
             "student_id" => $student["id"],
             "period_id" => $lastPeriod->id,
             "controlNumber" => $data["controlNumber"],
-            "career" => $data["career"],
-            "semester" => $data["semester"]
+            "career_id" => $data["career"],
+            "semester" => $data["semester"],
+            "active" => true,
         ]);
 
         return redirect()->route("student.showAll");
@@ -164,15 +170,15 @@ class StudentController extends Controller implements HasModule
         $student->update([
             "name" => $data["name"],
             "lastName" => $data["lastName"],
-            "uuid" => StudentU::makeUUID($data["name"]." ".$data["lastName"]),
         ]);
 
         StudentUpdate::create([
             "controlNumber" => $data["controlNumber"],
-            "career" => $data["career"],
+            "career_id" => $data["career"],
             "semester" => $data["semester"],
             "student_id" => $student->id,
             "period_id" => Period::getLastPeriod()->id,
+            "active" => true,
         ]);
 
         return redirect()->route("student.showAll");
@@ -185,7 +191,7 @@ class StudentController extends Controller implements HasModule
         $data = [
             "student" => $updatedDetails->student,
             "updatedDetails" => $updatedDetails,
-            "careers" => CareersE::cases()
+            "careers" => Career::all()
         ];
 
         return view("student.edit", $data);
@@ -199,9 +205,11 @@ class StudentController extends Controller implements HasModule
 
     //API
     public function getStudents(string $period, Request $request){
+        $paginate = $request->get("por_pagina", 50);
         $students = StudentUpdate::with("period")
             ->whereHas("period", fn($query) => $query->where("abbreviation", $period))
-            ->paginate(15);
+            ->paginate(min($paginate, 500))
+            ->appends(request()->query());
 
         return StudentUpdateResource::collection($students);
     }

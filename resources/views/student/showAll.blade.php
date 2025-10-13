@@ -77,9 +77,9 @@
                                     <label class="text-xs block font-bold" for="career">Carrera</label>
                                     <select @change="$refs.formFindStudents.submit()" id="career" name="career" class="w-72 p-0.5 border rounded-sm border-gray-400 outline-0 px-2 mt-1.5">
                                         <option value="-1" @if($career == -1) selected @endif>Todas</option>
-                                        @foreach(\App\Http\Utils\CareersE::getCareers() as $career)
-                                            <option value="{{$career}}" @if($career == @request("career")) selected @endif>
-                                                {{$career}}
+                                        @foreach(\App\Models\Career::all() as $career)
+                                            <option value="{{$career->id}}" @if($career->id == @request("career")) selected @endif>
+                                                {{$career->name}}
                                             </option>
                                         @endforeach
                                     </select>
@@ -167,7 +167,7 @@
                             <td class="p-4 border-b border-gray-100">
                                 <p
                                     class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900 opacity-70">
-                                    {{$studentU->career}}
+                                    {{$studentU->career->name}}
                                 </p>
                             </td>
                             <td class="p-4 border-b border-gray-100 items-center flex gap-1">

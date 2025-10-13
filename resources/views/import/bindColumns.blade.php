@@ -74,7 +74,20 @@
                     <div class="mt-4">
                         <div>
                             <label class="text-xs font-bold block text-start text-gray-700" for="career">Carrera: </label>
-                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="career" id="career">
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="careerName" id="career">
+                                @foreach($headers as $header)
+                                    <option value="{{$header}}" selectId="{{$header}}">
+                                        {{$header}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div>
+                            <label class="text-xs font-bold block text-start text-gray-700" for="career">Clave carrera: </label>
+                            <select class="select-header mt-1 w-full rounded-md border border-gray-300 outline-0 p-1 text-gray-500" name="careerKey" id="career">
                                 @foreach($headers as $header)
                                     <option value="{{$header}}" selectId="{{$header}}">
                                         {{$header}}

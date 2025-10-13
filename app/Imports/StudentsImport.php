@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Http\Utils\Students\StudentU;
+use App\Models\Career;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\StudentUpdate;
@@ -28,17 +29,26 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
     {
         $name = $row[$this->headers['name']];
         $lastName = $row[$this->headers['lastName']];
-        $career = $row[$this->headers['career']];
+        $careerName = $row[$this->headers['careerName']];
+        $careerKey = $row[$this->headers['careerKey']];
         $controlNumber = $row[$this->headers['controlNumber']];
         $semester = $row[$this->headers['semester']];
         $curp = $row[$this->headers['curp']];
 
         $studentInfo = Student::getByCurp($curp);
+        $careerInfo = Career::getByKey($careerKey);
+
+        if ($careerInfo == null) {
+            $careerInfo = Career::create([
+                "key" => $careerKey,
+                "name" => $careerName,
+            ]);
+        }
 
         if ($studentInfo != null) {
             StudentUpdate::create([
                 "student_id" => $studentInfo->id,
-                "career" => $career,
+                "career_id" => $careerInfo->id,
                 "controlNumber" => $controlNumber,
                 "semester" => intval($semester),
                 "period_id" => Period::getLastPeriod()->id,
@@ -55,7 +65,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
 
             StudentUpdate::create([
                 "student_id" => $student->id,
-                "career" => $career,
+                "career_id" => $careerInfo->id,
                 "controlNumber" => $controlNumber,
                 "semester" => intval($semester),
                 "period_id" => Period::getLastPeriod()->id,
@@ -69,12 +79,12 @@ class StudentsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
     public function rules(): array
     {
         return [
-            $this->headers["name"] => ["required", "string"],
-            $this->headers["career"] => ["required", "string"],
+            $this->headers["name"] => ["required", "string", "max:100"],
+            $this->headers["careerName"] => ["required", "string", "max:100"],
             $this->headers["controlNumber"] => ["required", "min:8"],
-            $this->headers["lastName"] => ["required", "string"],
+            $this->headers["lastName"] => ["required", "string", "max:100"],
             $this->headers["semester"] => ["required", "numeric", "min:0"],
-            //$this->headers["curp"] => ["required"],
+            $this->headers["curp"] => ["required"],
         ];
     }
 

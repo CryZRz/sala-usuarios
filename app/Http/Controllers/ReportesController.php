@@ -6,6 +6,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Utils\Interfaces\HasModule;
 use App\Http\Utils\reports\ReportsConsultsU;
 use App\Http\Utils\TimeFormatU;
+use App\Models\Career;
 use App\Models\Period;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,7 +17,11 @@ class ReportesController extends Controller implements HasModule {
         return "sessionsReports";
     }
     public function show(){
-        return view("reportes.index");
+        $data = [
+            "careers" => Career::all(),
+        ];
+
+        return view("reportes.index", $data);
     }
 
     public function reportTotalTimeBySemesterAndCareerDetail(Request $request){

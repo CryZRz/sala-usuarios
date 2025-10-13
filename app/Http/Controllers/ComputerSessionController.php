@@ -132,11 +132,9 @@ class ComputerSessionController extends Controller implements HasModule
     public function create()
     {
         $usesPrograms = Application::orderBy('name')->get();
-        $careers = CareersE::getCareers();
 
         $data = [
             "usesPrograms" => $usesPrograms,
-            "careers" => $careers,
         ];
 
         return view("session.nuevaSesion", $data);
@@ -225,43 +223,6 @@ class ComputerSessionController extends Controller implements HasModule
             "student_id" => $student->id,
             "student_update_id" => $studentData->id,
             "computer_id" => $computer->id,
-            "application_id" => $request->get("application"),
-            "timeAssigment" => $request->get("timeAssigment"),
-            "created_by" => auth()->user()->id,
-        ]);
-
-        return redirect()->route("session.show");
-    }
-
-    public  function createSessionAndStudent(Request $request){
-        $this->validate($request, [
-           "controlNumber" => ["required", "unique:student_updates,controlNumber", "min:8"],
-            "name" =>["required"],
-            "lastName" => ["required"],
-            "career" => ["required", Rule::in(CareersE::getCareers())],
-            "semester" => ["required", "numeric", "min:1", "max:13"],
-            "application" => ["required", "exists:applications,id"],
-            "computer" => ["required", "exists:computers,id"],
-            "timeAssigment" => ["required"],
-        ]);
-
-        $student = Student::create([
-            "name" => $request->get("name"),
-            "lastName" => $request->get("lastName"),
-        ]);
-
-        $studentData = StudentUpdate::create([
-            "student_id" => $student->id,
-            "career" => $request->get("career"),
-            "controlNumber" => $request->get("controlNumber"),
-            "semester" => $request->get("semester"),
-            "period_id" => $request->get("application"),
-        ]);
-
-        Loan::create([
-            "student_id" => $student->id,
-            "student_update_id" => $studentData->id,
-            "computer_id" => $request->get("computer"),
             "application_id" => $request->get("application"),
             "timeAssigment" => $request->get("timeAssigment"),
             "created_by" => auth()->user()->id,

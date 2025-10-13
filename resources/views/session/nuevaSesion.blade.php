@@ -62,7 +62,7 @@
                     </div>
                     <div class="mx-4 mt-4">
                         <label class="block text-xs text-gray-800 font-semibold" for="career">Plan estudios</label>
-                        <input :value="studentData.career" readonly placeholder="Plan estudios" id="career" name="career" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed"/>
+                        <input :value="studentData.career.name" readonly placeholder="Plan estudios" id="career" name="career" class="bg-gray-200 border w-full mt-1 border-gray-300 rounded-md p-2 outline-0 text-sm focus:border-brand-primary cursor-not-allowed"/>
                         @error("career")
                         <p class="text-red-500 text-xs p-1 ">{{$message}}</p>
                         @enderror

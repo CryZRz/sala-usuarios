@@ -113,7 +113,8 @@ class ImporteController extends Controller implements HasModule
             "name" => ["required",],
             "lastName" => ["required"],
             "controlNumber" => ["required"],
-            "career" => ["required"],
+            "careerName" => ["required"],
+            "careerKey" => ["required"],
             "semester" => ["required"],
             "curp" => ["required"],
         ]);

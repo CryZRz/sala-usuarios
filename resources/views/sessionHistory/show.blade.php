@@ -9,7 +9,7 @@
 @endsection
 
 @section("options")
-    <div class="w-full mx-5 bg-white rounded-md p-3 overflow-y-auto h-80">
+    <div class="w-full bg-white rounded-md">
         <div>
             <div class="py-2">
                 <span>Filtros</span>
@@ -68,9 +68,9 @@
                     <label for="" class="block text-xs text-gray-600 font-bold">Carrera</label>
                     <select name="career" class="text-sm text-gray-500 border border-gray-300 p-1 rounded-md w-full mt-1 outline-0" id="">
                         <option value="">Todas</option>
-                        @foreach(\App\Http\Utils\CareersE::getCareers() as $career)
-                            <option value="{{$career}}" @if(request("career") == $career) selected @endif>
-                                {{$career}}
+                        @foreach($careers as $career)
+                            <option value="{{$career->id}}" @if(request("career") == $career->id) selected @endif>
+                                {{$career->name}}
                             </option>
                         @endforeach
                     </select>

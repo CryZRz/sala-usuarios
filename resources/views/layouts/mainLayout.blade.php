@@ -54,6 +54,7 @@
 
                 <!--Body Navbar -->
                 <div class="px-4 text-sm text-gray-600 h-96 overflow-y-auto">
+                    @yield("options")
                     <!-- Body item-->
                     <div class="text-start my-4">
                         <span class="text-sm text-gray-400 font-bold">PAGINAS</span>
@@ -170,9 +171,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-11/12">
-                @yield("options")
             </div>
         </section>
 

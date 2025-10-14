@@ -28,8 +28,9 @@ class StudentRequest extends FormRequest
             "lastName" => ["required"],
             "career" => [
                 "required",
-                "in:".implode(",", CareersE::getCareers())
+                "exists:careers,id",
             ],
+            "curp" => ["required", "unique:students,curp"],
             "semester" => ["required", "numeric", "min:0", "max:13"]
         ];
     }

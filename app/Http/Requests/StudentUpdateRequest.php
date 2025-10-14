@@ -35,7 +35,7 @@ class StudentUpdateRequest extends FormRequest
             "lastName" => ["required"],
             "career" => [
                 "required",
-                "in:".implode(",", CareersE::getCareers())
+                "exists:careers,id",
             ],
             "semester" => ["required", "numeric", "gt:0"]
         ];

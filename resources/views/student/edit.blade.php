@@ -83,10 +83,10 @@
                             @foreach ($careers as $career)
                                 <option
                                     class="text-gray-600 rounded-md"
-                                    value="{{$career}}"
-                                    @if ($career->value == $updatedDetails->career) selected @endif
+                                    value="{{$career->id}}"
+                                    @if ($career->id == $updatedDetails->career->id) selected @endif
                                 >
-                                    {{$career}}
+                                    {{$career->name}}
                                 </option>
                             @endforeach
                         </select>

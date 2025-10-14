@@ -36,8 +36,8 @@
                                 <div class="mb-2">
                                     <label for="" class="mb-1 block text-xs font-semibold text-gray-600">Carrera</label>
                                     <select class="border border-gray-300 rounded-md p-1 w-full text-sm" name="career" id="career" required>
-                                        @foreach(\App\Http\Utils\CareersE::getCareers() as $career)
-                                            <option value="{{$career}}">{{$career}}</option>
+                                        @foreach($careers as $career)
+                                            <option value="{{$career->id}}">{{$career->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>

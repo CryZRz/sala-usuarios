@@ -18,7 +18,7 @@ class ReportsConsultsU{
         return Loan::withTrashed()
             ->join("student_updates", "loans.student_update_id", "student_updates.id")
             ->where("semester", $semester)
-            ->where("career", $career)
+            ->where("career_id", $career)
             ->where("student_updates.period_id", $periodId)
             ->get();
     }

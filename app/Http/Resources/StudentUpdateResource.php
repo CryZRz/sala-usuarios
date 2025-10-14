@@ -18,7 +18,7 @@ class StudentUpdateResource extends JsonResource
             "student" => [
                 ...((new StudentResource($this->student))->toArray($request)),
                 "controlNumber" => $this->controlNumber,
-                "career" => $this->career,
+                "career" => new CareerResource($this->career),
                 "semester" => $this->semester,
             ],
             "period" => new PeriodResource($this->period),

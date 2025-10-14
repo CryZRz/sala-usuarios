@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Utils\Interfaces\HasModule;
 use App\Models\Application;
+use App\Models\Career;
 use App\Models\Loan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -54,7 +55,7 @@ class ComputerSessionHistoryController extends Controller implements HasModule
 
         if (!empty($career)) {
             $sessions->whereHas("studentUpdate", function ($query) use ($career) {
-                $query->where("career", $career);
+                $query->where("career_id", $career);
             });
         }
 
@@ -69,6 +70,7 @@ class ComputerSessionHistoryController extends Controller implements HasModule
         $data = [
             "sessions" => $sessionsPag,
             "applications" => $applications,
+            "careers" => Career::all(),
         ];
 
         return view('sessionHistory.show', $data);

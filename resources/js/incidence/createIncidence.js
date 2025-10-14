@@ -17,7 +17,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         init(){
-            console.log("Hola")
+
         },
 
         async findStudent(event){

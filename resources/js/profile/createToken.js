@@ -26,6 +26,7 @@ window.addEventListener("alpine:init", () => {
                 this.$store.loader.hide()
                 this.showToken = true
             }catch(err){
+                console.log(err)
                 this.$store.loader.hide()
                 showError("Error al generar el token")
             }

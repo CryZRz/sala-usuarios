@@ -13,7 +13,7 @@ class StudentUpdate extends Model
 
     protected $fillable = [
         "student_id",
-        "career",
+        "career_id",
         "controlNumber",
         "semester",
         "period_id",
@@ -26,6 +26,10 @@ class StudentUpdate extends Model
 
     public function period(){
         return $this->belongsTo(Period::class);
+    }
+
+    public function career(){
+        return $this->belongsTo(Career::class);
     }
 
     public static function getLastByControlNumber($controlNumber)

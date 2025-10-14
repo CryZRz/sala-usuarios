@@ -64,11 +64,11 @@ class Student extends Model
 
     public function setNameAttribute($value)
     {
-        $this->attributes['name'] = StudentU::unaccentedText(trim($value));
+        $this->attributes['name'] = strtoupper(StudentU::unaccentedText(trim($value)));
     }
 
     public function setLastNameAttribute($value)
     {
-        $this->attributes['lastName'] = StudentU::unaccentedText(trim($value));
+        $this->attributes['lastName'] = strtoupper(StudentU::unaccentedText(trim($value)));
     }
 }
